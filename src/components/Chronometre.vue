@@ -1,70 +1,17 @@
 <script setup>
-import { ref, computed, onUnmounted } from 'vue'
+import { computed } from 'vue'
 import Button from 'primevue/button'
 import { formatTime } from '../utils/formatTime.js'
 
-const elapsedMs = ref(0)
-const status = ref('idle') // idle | running | paused
-const passages = ref([]) // { tourNum, lapMs, totalMs }[]
-let animationFrameId = null
-let startTime = 0
-let elapsedBeforePause = 0
-
-const displayedTime = computed(() => formatTime(elapsedMs.value))
-
-function tick() {
-  if (status.value !== 'running') return
-  elapsedMs.value = elapsedBeforePause + (performance.now() - startTime)
-  animationFrameId = requestAnimationFrame(tick)
-}
-
-function start() {
-  if (status.value === 'running') return
-  if (status.value === 'idle') {
-    elapsedBeforePause = 0
-    startTime = performance.now()
-  } else {
-    startTime = performance.now()
-  }
-  status.value = 'running'
-  tick()
-}
-
-function stop() {
-  if (status.value !== 'running') return
-  cancelAnimationFrame(animationFrameId)
-  animationFrameId = null
-  elapsedBeforePause = elapsedMs.value
-  status.value = 'paused'
-}
-
-function reset() {
-  if (status.value === 'running') return
-  cancelAnimationFrame(animationFrameId)
-  animationFrameId = null
-  elapsedMs.value = 0
-  elapsedBeforePause = 0
-  passages.value = []
-  status.value = 'idle'
-}
-
-function recordTour() {
-  if (status.value !== 'running') return
-  const totalMs = elapsedMs.value
-  const lastTotal = passages.value.length > 0
-    ? passages.value[passages.value.length - 1].totalMs
-    : 0
-  const lapMs = totalMs - lastTotal
-  passages.value.push({
-    tourNum: passages.value.length + 1,
-    lapMs,
-    totalMs
-  })
-}
-
-onUnmounted(() => {
-  cancelAnimationFrame(animationFrameId)
+const props = defineProps({
+  elapsedMs: { type: Number, default: 0 },
+  status: { type: String, default: 'idle' },
+  showTour: { type: Boolean, default: false }
 })
+
+const emit = defineEmits(['start', 'stop', 'reset', 'record-tour'])
+
+const displayedTime = computed(() => formatTime(props.elapsedMs))
 </script>
 
 <template>
@@ -83,23 +30,23 @@ onUnmounted(() => {
         label="Démarrer"
         icon="pi pi-play"
         severity="success"
-        @click="start"
         class="chronometre-btn"
+        @click="emit('start')"
       />
       <Button
-        v-if="status === 'running'"
+        v-if="status === 'running' && showTour"
         label="Tour"
         icon="pi pi-flag"
         severity="info"
-        @click="recordTour"
         class="chronometre-btn"
+        @click="emit('record-tour')"
       />
       <Button
         v-if="status === 'running'"
         label="Arrêter"
         icon="pi pi-stop"
         severity="danger"
-        @click="stop"
+        @click="emit('stop')"
         class="chronometre-btn"
       />
       <Button
@@ -107,20 +54,9 @@ onUnmounted(() => {
         label="Réinitialiser"
         icon="pi pi-refresh"
         severity="secondary"
-        @click="reset"
+        @click="emit('reset')"
         class="chronometre-btn"
       />
-    </div>
-    <div v-if="passages.length > 0" class="chronometre-passages">
-      <div
-        v-for="p in passages"
-        :key="p.tourNum"
-        class="chronometre-passage"
-      >
-        <span class="passage-tour">Tour {{ p.tourNum }}</span>
-        <span class="passage-lap">{{ formatTime(p.lapMs) }}</span>
-        <span class="passage-total">{{ formatTime(p.totalMs) }}</span>
-      </div>
     </div>
   </div>
 </template>
@@ -152,38 +88,5 @@ onUnmounted(() => {
 .chronometre-btn {
   min-height: 44px;
   min-width: 44px;
-}
-
-.chronometre-passages {
-  width: 100%;
-  max-width: 24rem;
-  margin-top: 0.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--p-surface-200, #e5e7eb);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.chronometre-passage {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
-  font-size: 0.95rem;
-}
-
-.passage-tour {
-  font-weight: 600;
-  color: var(--p-text-color, #1f2937);
-}
-
-.passage-lap,
-.passage-total {
-  color: var(--p-text-muted-color, #6b7280);
-}
-
-.passage-total {
-  font-weight: 500;
 }
 </style>

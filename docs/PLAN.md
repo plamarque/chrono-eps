@@ -2,7 +2,7 @@
 
 ## Phase actuelle
 
-Slice 2 — Chronomètre global (complet).
+Slice 3 — Gestion participants (complet).
 
 ## Slices
 
@@ -10,7 +10,7 @@ Slice 2 — Chronomètre global (complet).
 | ----- | ------------------------ | ------------------------------------------- | -------- |
 | 1     | Projet + PWA de base     | Scaffold, layout, build, PWA installable     | Fait     |
 | 2     | Chronomètre global       | Chrono, start/stop/reset, tours (mode solo)   | Fait     |
-| 3     | Gestion participants     | Ajout/suppression, liste, UI tactile         | Todo     |
+| 3     | Gestion participants     | Ajout/suppression, liste, UI tactile         | Fait     |
 | 4     | Passages et calculs      | Tap = passage, temps tour/course, affichage  | Todo     |
 | 5     | Persistance + sauvegarde | IndexedDB, sauvegarde course nommée          | Todo     |
 | 6     | Historique + déploiement | Vue historique, PWA final, GitHub Pages     | Todo     |
@@ -66,11 +66,11 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ### Tâches
 
-- [ ] Modèle Participant/Élève (nom) en état local
-- [ ] Liste des participants (affichage)
-- [ ] Formulaire/modal ajout participant
-- [ ] Suppression participant
-- [ ] Zones tactiles adaptées (min 44px)
+- [x] Modèle Participant/Élève (nom) en état local
+- [x] Liste des participants (affichage)
+- [x] Formulaire/modal ajout participant
+- [x] Suppression participant
+- [x] Zones tactiles adaptées (min 44px)
 
 ---
 

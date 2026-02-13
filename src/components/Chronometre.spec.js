@@ -1,10 +1,13 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import Chronometre from './Chronometre.vue'
 
-// Mount with stub for Button to avoid PrimeVue setup
-function mountChronometre() {
+function mountChronometre(props = {}) {
   return mount(Chronometre, {
+    props: {
+      elapsedMs: props.elapsedMs ?? 0,
+      status: props.status ?? 'idle'
+    },
     global: {
       stubs: {
         Button: {
@@ -17,110 +20,63 @@ function mountChronometre() {
 }
 
 describe('Chronometre', () => {
-  beforeEach(() => {
-    vi.useFakeTimers()
+  it('affiche le temps à partir des props', () => {
+    const wrapper = mountChronometre({ elapsedMs: 65000 })
+    expect(wrapper.find('[role="timer"]').text()).toBe('01:05.00')
+    wrapper.unmount()
   })
 
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
-  it('affiche 00:00.00 à l\'état initial', () => {
-    const wrapper = mountChronometre()
+  it('affiche 00:00.00 quand elapsedMs est 0', () => {
+    const wrapper = mountChronometre({ elapsedMs: 0 })
     expect(wrapper.find('[role="timer"]').text()).toBe('00:00.00')
     wrapper.unmount()
   })
 
-  it('affiche le bouton Démarrer quand idle', () => {
-    const wrapper = mountChronometre()
-    const buttons = wrapper.findAll('button')
-    const demarrer = buttons.find((b) => b.text() === 'Démarrer')
-    expect(demarrer).toBeDefined()
+  it('affiche le bouton Démarrer quand status est idle', () => {
+    const wrapper = mountChronometre({ status: 'idle' })
+    const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
     expect(demarrer.exists()).toBe(true)
     wrapper.unmount()
   })
 
-  it('affiche Tour et Arrêter après avoir cliqué Démarrer', async () => {
-    const wrapper = mountChronometre()
-    const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
-    await demarrer.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    const buttons = wrapper.findAll('button')
-    expect(buttons.some((b) => b.text() === 'Tour')).toBe(true)
-    expect(buttons.some((b) => b.text() === 'Arrêter')).toBe(true)
-    expect(buttons.some((b) => b.text() === 'Démarrer')).toBe(false)
+  it('affiche Arrêter quand status est running', () => {
+    const wrapper = mountChronometre({ status: 'running' })
+    const arreter = wrapper.findAll('button').find((b) => b.text() === 'Arrêter')
+    expect(arreter.exists()).toBe(true)
     wrapper.unmount()
   })
 
-  it('enregistre un passage au clic sur Tour', async () => {
-    const wrapper = mountChronometre()
-    const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
-    await demarrer.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    await vi.advanceTimersByTimeAsync(100)
-    const tour = wrapper.findAll('button').find((b) => b.text() === 'Tour')
-    await tour.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    const passages = wrapper.find('.chronometre-passages')
-    expect(passages.exists()).toBe(true)
-    expect(passages.text()).toContain('Tour 1')
+  it('affiche Réinitialiser quand status est paused', () => {
+    const wrapper = mountChronometre({ status: 'paused' })
+    const reset = wrapper.findAll('button').find((b) => b.text() === 'Réinitialiser')
+    expect(reset.exists()).toBe(true)
     wrapper.unmount()
   })
 
-  it('enregistre plusieurs passages', async () => {
-    const wrapper = mountChronometre()
+  it('émet start au clic sur Démarrer', async () => {
+    const wrapper = mountChronometre({ status: 'idle' })
     const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
     await demarrer.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    const tourBtn = () => wrapper.findAll('button').find((b) => b.text() === 'Tour')
-    await tourBtn().trigger('click')
-    await wrapper.vm.$nextTick()
-    await tourBtn().trigger('click')
-    await wrapper.vm.$nextTick()
-
-    const passages = wrapper.find('.chronometre-passages')
-    expect(passages.text()).toContain('Tour 1')
-    expect(passages.text()).toContain('Tour 2')
+    expect(wrapper.emitted('start')).toBeTruthy()
+    expect(wrapper.emitted('start').length).toBeGreaterThanOrEqual(1)
     wrapper.unmount()
   })
 
-  it('affiche Réinitialiser après Arrêter', async () => {
-    const wrapper = mountChronometre()
-    const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
-    await demarrer.trigger('click')
-    await wrapper.vm.$nextTick()
+  it('émet stop au clic sur Arrêter', async () => {
+    const wrapper = mountChronometre({ status: 'running' })
     const arreter = wrapper.findAll('button').find((b) => b.text() === 'Arrêter')
     await arreter.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    const buttons = wrapper.findAll('button')
-    expect(buttons.some((b) => b.text() === 'Réinitialiser')).toBe(true)
+    expect(wrapper.emitted('stop')).toBeTruthy()
+    expect(wrapper.emitted('stop').length).toBeGreaterThanOrEqual(1)
     wrapper.unmount()
   })
 
-  it('efface les passages et revient à l\'état initial au Reset', async () => {
-    const wrapper = mountChronometre()
-    const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
-    await demarrer.trigger('click')
-    await wrapper.vm.$nextTick()
-    const tour = wrapper.findAll('button').find((b) => b.text() === 'Tour')
-    await tour.trigger('click')
-    await wrapper.vm.$nextTick()
-    const arreter = wrapper.findAll('button').find((b) => b.text() === 'Arrêter')
-    await arreter.trigger('click')
-    await wrapper.vm.$nextTick()
+  it('émet reset au clic sur Réinitialiser', async () => {
+    const wrapper = mountChronometre({ status: 'paused' })
     const reset = wrapper.findAll('button').find((b) => b.text() === 'Réinitialiser')
     await reset.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    expect(wrapper.find('[role="timer"]').text()).toBe('00:00.00')
-    expect(wrapper.find('.chronometre-passages').exists()).toBe(false)
-    const buttons = wrapper.findAll('button')
-    expect(buttons.some((b) => b.text() === 'Démarrer')).toBe(true)
+    expect(wrapper.emitted('reset')).toBeTruthy()
+    expect(wrapper.emitted('reset').length).toBeGreaterThanOrEqual(1)
     wrapper.unmount()
   })
 })
