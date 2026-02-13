@@ -8,7 +8,7 @@ Slice 1 — Projet et PWA de base.
 
 | Slice | Objectif                 | Livrables                                   | Statut   |
 | ----- | ------------------------ | ------------------------------------------- | -------- |
-| 1     | Projet + PWA de base     | Scaffold, layout, build, PWA installable     | Todo     |
+| 1     | Projet + PWA de base     | Scaffold, layout, build, PWA installable     | Fait     |
 | 2     | Chronomètre global       | Affichage temps, start/stop/reset            | Todo     |
 | 3     | Gestion participants     | Ajout/suppression, liste, UI tactile         | Todo     |
 | 4     | Passages et calculs      | Tap = passage, temps tour/course, affichage  | Todo     |
@@ -29,13 +29,13 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ### Tâches
 
-- [ ] Créer projet Vite (template Vue)
-- [ ] Installer PrimeVue, configurer thème (Luna ou Aura)
-- [ ] Configurer vite-plugin-pwa (manifeste, service worker)
-- [ ] Layout de base (App.vue, structure)
-- [ ] Page d'accueil minimale
-- [ ] Build (`npm run build`) et dev (`npm run dev`) OK
-- [ ] Déploiement test GitHub Pages (optionnel)
+- [x] Créer projet Vite (template Vue)
+- [x] Installer PrimeVue, configurer thème (Luna ou Aura)
+- [x] Configurer vite-plugin-pwa (manifeste, service worker)
+- [x] Layout de base (App.vue, structure)
+- [x] Page d'accueil minimale
+- [x] Build (`npm run build`) et dev (`npm run dev`) OK
+- [x] Déploiement test GitHub Pages (optionnel)
 
 ---
 
