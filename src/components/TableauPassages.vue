@@ -140,6 +140,16 @@ function canTap(participantId, tourNum) {
   return !props.readOnly && isParticipantRunning(participantId) && isNextTour(participantId, tourNum)
 }
 
+function getLiveElapsed(participantId) {
+  const s = props.participantStates[participantId]
+  if (!s) return { lapMs: 0, totalMs: 0 }
+  const totalMs = s.elapsedMs ?? 0
+  const passages = props.passagesByParticipant[participantId] ?? []
+  const lastTotal = passages.length > 0 ? passages[passages.length - 1].totalMs : 0
+  const lapMs = totalMs - lastTotal
+  return { lapMs, totalMs }
+}
+
 function onTap(participantId) {
   emit('record', participantId)
 }
@@ -230,15 +240,25 @@ function toggleParticipant(participant) {
               </template>
               <div
                 v-else-if="canTap(p.id, tourNum)"
-                class="tableau-passages-tap-btn"
-                role="button"
-                tabindex="0"
-                aria-label="Enregistrer passage"
-                @click="onTap(p.id)"
-                @keydown.enter="onTap(p.id)"
-                @keydown.space.prevent="onTap(p.id)"
+                class="tableau-passages-tappable-cell"
               >
-                <i class="pi pi-flag"></i> +
+                <div class="tableau-passages-lap">
+                  Tour: {{ formatTime(getLiveElapsed(p.id).lapMs) }}
+                </div>
+                <div class="tableau-passages-total">
+                  Total: {{ formatTime(getLiveElapsed(p.id).totalMs) }}
+                </div>
+                <div
+                  class="tableau-passages-tap-btn"
+                  role="button"
+                  tabindex="0"
+                  aria-label="Enregistrer passage"
+                  @click.stop="onTap(p.id)"
+                  @keydown.enter="onTap(p.id)"
+                  @keydown.space.prevent="onTap(p.id)"
+                >
+                  <i class="pi pi-flag"></i> +
+                </div>
               </div>
               <span v-else class="tableau-passages-empty-cell">—</span>
             </td>
@@ -458,6 +478,19 @@ function toggleParticipant(participant) {
 
 .tableau-passages-empty-cell {
   color: #9ca3af;
+}
+
+.tableau-passages-tappable-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 44px;
+  justify-content: center;
+}
+
+.tableau-passages-tappable-cell .tableau-passages-tap-btn {
+  margin-top: 0.125rem;
 }
 
 .tableau-passages-tap-btn {

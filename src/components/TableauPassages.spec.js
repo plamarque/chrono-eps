@@ -64,6 +64,44 @@ describe('TableauPassages', () => {
     wrapper.unmount()
   })
 
+  it('affiche les temps en direct dans une cellule tappable', () => {
+    const participants = [{ id: '1', nom: 'Alice' }]
+    const participantStates = { '1': { elapsedMs: 45000, status: 'running' } }
+    const wrapper = mountTableauPassages({
+      participants,
+      participantStates,
+      status: 'running'
+    })
+    const tappableCell = wrapper.find('.tableau-passages-tappable')
+    expect(tappableCell.exists()).toBe(true)
+    expect(tappableCell.find('.tableau-passages-tappable-cell').exists()).toBe(true)
+    // Tour en cours: 45s, Total: 45s (aucun passage précédent)
+    expect(tappableCell.text()).toContain('00:45.00')
+    expect(tappableCell.text()).toContain('Tour:')
+    expect(tappableCell.text()).toContain('Total:')
+    wrapper.unmount()
+  })
+
+  it('affiche le temps du tour en cours (depuis dernier passage) dans une cellule tappable', () => {
+    const participants = [{ id: '1', nom: 'Alice' }]
+    const participantStates = { '1': { elapsedMs: 75000, status: 'running' } }
+    const passagesByParticipant = {
+      '1': [{ tourNum: 1, lapMs: 40000, totalMs: 40000 }]
+    }
+    const wrapper = mountTableauPassages({
+      participants,
+      participantStates,
+      passagesByParticipant,
+      status: 'running'
+    })
+    const tappableCell = wrapper.find('.tableau-passages-tappable')
+    expect(tappableCell.exists()).toBe(true)
+    // Tour en cours: 75 - 40 = 35s, Total: 75s
+    expect(tappableCell.text()).toContain('00:35.00') // lap
+    expect(tappableCell.text()).toContain('01:15.00') // total
+    wrapper.unmount()
+  })
+
   it('émet record au clic sur une cellule tappable', async () => {
     const participants = [{ id: '1', nom: 'Alice' }]
     const participantStates = { '1': { elapsedMs: 1000, status: 'running' } }

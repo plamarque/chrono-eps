@@ -12,6 +12,14 @@
 
 ## UX
 
+### [UX] Temps en direct dans les cellules de tour
+
+**Problème :** Les cellules tappables du tableau des passages n’affichaient que l’icône drapeau, sans les temps en cours.
+
+**État :** Résolu
+
+**Solution :** Affichage du temps du tour en cours et du temps total qui défilent en direct dans les cellules tappables, en plus de l’icône pour enregistrer le passage.
+
 ### [UX] Utilisation insuffisante du viewport
 
 **Problème :** L’UI ne s’étend pas sur l’espace disponible. La hauteur et la largeur de la zone utile sont contraintes.
