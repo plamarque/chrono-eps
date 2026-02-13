@@ -2,14 +2,14 @@
 
 ## Phase actuelle
 
-Slice 1 — Projet et PWA de base.
+Slice 2 — Chronomètre global (complet).
 
 ## Slices
 
 | Slice | Objectif                 | Livrables                                   | Statut   |
 | ----- | ------------------------ | ------------------------------------------- | -------- |
 | 1     | Projet + PWA de base     | Scaffold, layout, build, PWA installable     | Fait     |
-| 2     | Chronomètre global       | Affichage temps, start/stop/reset            | Todo     |
+| 2     | Chronomètre global       | Chrono, start/stop/reset, tours (mode solo)   | Fait     |
 | 3     | Gestion participants     | Ajout/suppression, liste, UI tactile         | Todo     |
 | 4     | Passages et calculs      | Tap = passage, temps tour/course, affichage  | Todo     |
 | 5     | Persistance + sauvegarde | IndexedDB, sauvegarde course nommée          | Todo     |
@@ -41,16 +41,20 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ## Slice 2 — Chronomètre global
 
-**Objectif** : Chronomètre affiché, contrôle start/stop/reset.
+**Objectif** : Chronomètre affiché, contrôle start/stop/reset, comptage de tours (mode solo).
 
-**Critères de sortie** : Chrono visible, démarrage/arrêt/réinit fonctionnels.
+**Critères de sortie** : Chrono visible, démarrage/arrêt/réinit fonctionnels, enregistrement des passages par tour.
 
 ### Tâches
 
-- [ ] Composant Chronometre (affichage mm:ss.ms)
-- [ ] Logique timer (start, stop, reset)
-- [ ] Boutons Start / Stop / Reset (PrimeVue)
-- [ ] Format temps conforme DOMAIN (mm:ss.ms)
+- [x] Composant Chronometre (affichage mm:ss.ms)
+- [x] Logique timer (start, stop, reset)
+- [x] Boutons Start / Stop / Reset (PrimeVue)
+- [x] Format temps conforme DOMAIN (mm:ss.ms)
+- [x] Bouton Tour (visible en running, zones tactiles ≥ 44px)
+- [x] Liste des passages (tours) sous le chrono : Tour N, temps tour, temps total
+- [x] Calcul temps tour (écart entre passages) et temps total
+- [x] Reset efface passages
 
 ---
 
@@ -72,17 +76,18 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ## Slice 4 — Enregistrement des passages et calculs
 
-**Objectif** : Enregistrement des passages au tap et calcul des temps.
+**Objectif** : Enregistrement des passages au tap sur un élève et calcul des temps.
 
-**Critères de sortie** : Tap → passage enregistré ; temps de tour et temps de course visibles.
+**Critères de sortie** : Tap sur participant → passage enregistré ; temps de tour et temps de course visibles.
 
 ### Tâches
 
 - [ ] Associer participants à une course en cours
 - [ ] Tap sur participant = enregistrement passage (timestamp)
+- [ ] Liste des passages par élève (tours empilés)
+- [ ] Affichage par passage : numéro tour, temps tour, temps total (format mm:ss.ms)
+- [ ] Calcul temps tour = écart entre passages consécutifs ; temps total = depuis démarrage chrono
 - [ ] Affichage des passages en temps réel
-- [ ] Calcul temps de tour (écart entre passages consécutifs)
-- [ ] Calcul temps de course (depuis démarrage chrono)
 - [ ] Affichage performances par participant (temps, tours)
 
 ---
@@ -118,6 +123,7 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 - [ ] Test installation PWA (navigateur)
 - [ ] Déploiement GitHub Pages
 - [ ] Polish UI (principes ARCH : moderne, épuré, fonctionnel)
+- [ ] Évaluer tests E2E (Playwright) — optionnel si MVP stable et régressions fréquentes
 
 ---
 

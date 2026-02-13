@@ -1,5 +1,6 @@
 <script setup>
 import Card from 'primevue/card'
+import Chronometre from '../components/Chronometre.vue'
 </script>
 
 <template>
@@ -7,7 +8,7 @@ import Card from 'primevue/card'
     <Card class="home-card">
       <template #content>
         <p class="subtitle">Chronomètre multi-élèves pour l'EPS</p>
-        <p class="welcome">Prêt à chronométrer</p>
+        <Chronometre />
       </template>
     </Card>
   </div>
@@ -21,17 +22,13 @@ import Card from 'primevue/card'
 }
 
 .home-card {
-  max-width: 24rem;
+  max-width: 28rem;
+  width: 100%;
 }
 
 .subtitle {
   font-size: 1.125rem;
-  margin: 0 0 0.5rem;
+  margin: 0 0 1rem;
   color: var(--p-text-muted-color, #6b7280);
-}
-
-.welcome {
-  font-size: 1rem;
-  margin: 0;
 }
 </style>
