@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -11,6 +12,7 @@ export default defineConfig({
   },
   base: '/chrono-eps/',
   plugins: [
+    basicSsl(),
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -33,5 +35,9 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024
       }
     })
-  ]
+  ],
+  server: {
+    https: true,
+    host: true
+  }
 })

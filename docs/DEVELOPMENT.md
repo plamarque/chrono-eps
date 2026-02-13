@@ -20,9 +20,13 @@
 
 Avec `base: '/chrono-eps/'`, l'app est servie à :
 
-- **Dev** : http://localhost:5173/chrono-eps/
+- **Dev** : https://localhost:5173/chrono-eps/
 - **Preview** : http://localhost:4173/chrono-eps/
 - **Prod** : https://plamarque.github.io/chrono-eps/
+
+Le serveur de développement utilise HTTPS avec un certificat auto-signé. Le navigateur affichera un avertissement « Connexion non sécurisée » : accepter ou faire une exception pour continuer (Chrome/Edge : « Paramètres avancés » → « Continuer vers localhost » ; Safari : « Afficher les détails » → « Visiter ce site web » ; Firefox : « Accepter le risque et continuer »). Sur téléphone ou tablette, la même confirmation est demandée.
+
+Avec `host: true`, le serveur est exposé sur le réseau local. L'URL `https://192.168.x.x:5173/chrono-eps/` (adresse IP de la machine) permet de tester l'app et l'installation PWA depuis un appareil mobile sur le même réseau.
 
 ## Vérification manuelle avant release
 
