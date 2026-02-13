@@ -2,7 +2,7 @@
 
 ## Phase actuelle
 
-Slice 3 — Gestion participants (complet).
+Slice 4 — Passages et calculs (complet).
 
 ## Slices
 
@@ -11,7 +11,7 @@ Slice 3 — Gestion participants (complet).
 | 1     | Projet + PWA de base     | Scaffold, layout, build, PWA installable     | Fait     |
 | 2     | Chronomètre global       | Chrono, start/stop/reset, tours (mode solo)   | Fait     |
 | 3     | Gestion participants     | Ajout/suppression, liste, UI tactile         | Fait     |
-| 4     | Passages et calculs      | Tap = passage, temps tour/course, affichage  | Todo     |
+| 4     | Passages et calculs      | Tap = passage, temps tour/course, affichage  | Fait     |
 | 5     | Persistance + sauvegarde | IndexedDB, sauvegarde course nommée          | Todo     |
 | 6     | Historique + déploiement | Vue historique, PWA final, GitHub Pages     | Todo     |
 
@@ -82,13 +82,13 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ### Tâches
 
-- [ ] Associer participants à une course en cours
-- [ ] Tap sur participant = enregistrement passage (timestamp)
-- [ ] Liste des passages par élève (tours empilés)
-- [ ] Affichage par passage : numéro tour, temps tour, temps total (format mm:ss.ms)
-- [ ] Calcul temps tour = écart entre passages consécutifs ; temps total = depuis démarrage chrono
-- [ ] Affichage des passages en temps réel
-- [ ] Affichage performances par participant (temps, tours)
+- [x] Associer participants à une course en cours
+- [x] Tap sur participant = enregistrement passage (timestamp)
+- [x] Liste des passages par élève (tours empilés)
+- [x] Affichage par passage : numéro tour, temps tour, temps total (format mm:ss.ms)
+- [x] Calcul temps tour = écart entre passages consécutifs ; temps total = depuis démarrage chrono
+- [x] Affichage des passages en temps réel
+- [x] Affichage performances par participant (temps, tours)
 
 ---
 

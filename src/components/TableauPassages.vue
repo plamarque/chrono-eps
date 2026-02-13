@@ -60,6 +60,20 @@ const tourRows = computed(() =>
   Array.from({ length: maxTours.value }, (_, i) => i + 1)
 )
 
+const performancesByParticipant = computed(() => {
+  if (props.participants.length === 0) return []
+  return props.participants.map((p) => {
+    const passages = props.passagesByParticipant[p.id] ?? []
+    const nbTours = passages.length
+    const dernierTotalMs = nbTours > 0 ? passages[nbTours - 1].totalMs : null
+    return { participant: p, nbTours, dernierTotalMs }
+  })
+})
+
+const hasAnyPassage = computed(() =>
+  performancesByParticipant.value.some((perf) => perf.nbTours > 0)
+)
+
 function nextParticipantIndex() {
   let max = 0
   for (const p of props.participants) {
@@ -150,10 +164,6 @@ function toggleParticipant(participant) {
       />
     </div>
 
-    <p v-if="isSoloMode" class="tableau-passages-solo-hint">
-      Mode chrono seul : Démarrer puis Tour (ou tapez sur une cellule) pour enregistrer les passages.
-    </p>
-
     <div v-if="displayParticipants.length > 0" class="tableau-passages-scroll">
       <table class="tableau-passages-table">
         <thead>
@@ -230,6 +240,30 @@ function toggleParticipant(participant) {
         </tbody>
       </table>
     </div>
+
+    <section
+      v-if="!isSoloMode && hasAnyPassage"
+      class="tableau-passages-resume"
+      aria-label="Performances par participant"
+    >
+      <h3 class="tableau-passages-resume-title">Performances</h3>
+      <div class="tableau-passages-resume-grid">
+        <div
+          v-for="perf in performancesByParticipant"
+          :key="perf.participant.id"
+          class="tableau-passages-resume-card"
+          :style="{ borderLeftColor: perf.participant.color ?? '#94a3b8' }"
+        >
+          <span class="tableau-passages-resume-nom">{{ perf.participant.nom }}</span>
+          <span class="tableau-passages-resume-stats">
+            {{ perf.nbTours }} tour{{ perf.nbTours > 1 ? 's' : '' }}
+            <template v-if="perf.dernierTotalMs !== null">
+              · Dernier : {{ formatTime(perf.dernierTotalMs) }}
+            </template>
+          </span>
+        </div>
+      </div>
+    </section>
 
     <Dialog
       v-model:visible="showParticipantModal"
@@ -308,12 +342,6 @@ function toggleParticipant(participant) {
 .participant-btn {
   min-height: 44px;
   min-width: 44px;
-}
-
-.tableau-passages-solo-hint {
-  color: #4b5563;
-  font-size: 0.9rem;
-  margin: 0 0 0.75rem;
 }
 
 .tableau-passages-empty {
@@ -429,6 +457,47 @@ function toggleParticipant(participant) {
 .tableau-passages-tap-btn {
   min-height: 44px;
   min-width: 44px;
+}
+
+.tableau-passages-resume {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--p-surface-200, #e5e7eb);
+}
+
+.tableau-passages-resume-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 0.5rem;
+}
+
+.tableau-passages-resume-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tableau-passages-resume-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #f8fafc;
+  border-radius: var(--p-border-radius, 6px);
+  border-left: 4px solid #94a3b8;
+}
+
+.tableau-passages-resume-nom {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.tableau-passages-resume-stats {
+  font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
+  font-size: 0.875rem;
+  color: #6b7280;
 }
 
 .participant-modal-form {
