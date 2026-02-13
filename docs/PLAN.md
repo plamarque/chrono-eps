@@ -2,7 +2,7 @@
 
 ## Phase actuelle
 
-Slice 4 — Passages et calculs (complet).
+Slice 5 — Persistance et sauvegarde (complet).
 
 ## Slices
 
@@ -12,7 +12,7 @@ Slice 4 — Passages et calculs (complet).
 | 2     | Chronomètre global       | Chrono, start/stop/reset, tours (mode solo)   | Fait     |
 | 3     | Gestion participants     | Ajout/suppression, liste, UI tactile         | Fait     |
 | 4     | Passages et calculs      | Tap = passage, temps tour/course, affichage  | Fait     |
-| 5     | Persistance + sauvegarde | IndexedDB, sauvegarde course nommée          | Todo     |
+| 5     | Persistance + sauvegarde | IndexedDB, sauvegarde course nommée          | Fait     |
 | 6     | Historique + déploiement | Vue historique, PWA final, GitHub Pages     | Todo     |
 
 ## Objectif MVP
@@ -100,11 +100,11 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ### Tâches
 
-- [ ] Schéma IndexedDB (Course, Élève, Passage)
-- [ ] Librairie (Dexie.js ou idb) pour accès IndexedDB
-- [ ] Sauvegarde course avec nom (modale/formulaire)
-- [ ] Persistance des courses, participants, passages
-- [ ] Chargement des données au démarrage app
+- [x] Schéma IndexedDB (Course, Élève, Passage)
+- [x] Librairie (Dexie.js ou idb) pour accès IndexedDB
+- [x] Sauvegarde course avec nom (modale/formulaire)
+- [x] Persistance des courses, participants, passages
+- [x] Chargement des données au démarrage app
 
 ---
 

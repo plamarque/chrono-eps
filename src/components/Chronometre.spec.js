@@ -6,7 +6,9 @@ function mountChronometre(props = {}) {
   return mount(Chronometre, {
     props: {
       elapsedMs: props.elapsedMs ?? 0,
-      status: props.status ?? 'idle'
+      status: props.status ?? 'idle',
+      showTour: props.showTour ?? false,
+      isViewingLoadedCourse: props.isViewingLoadedCourse ?? false
     },
     global: {
       stubs: {
@@ -77,6 +79,22 @@ describe('Chronometre', () => {
     await reset.trigger('click')
     expect(wrapper.emitted('reset')).toBeTruthy()
     expect(wrapper.emitted('reset').length).toBeGreaterThanOrEqual(1)
+    wrapper.unmount()
+  })
+
+  it('affiche Nouvelle course et masque Démarrer quand isViewingLoadedCourse', () => {
+    const wrapper = mountChronometre({ status: 'idle', isViewingLoadedCourse: true })
+    const buttons = wrapper.findAll('button')
+    expect(buttons.some((b) => b.text() === 'Nouvelle course')).toBe(true)
+    expect(buttons.some((b) => b.text() === 'Démarrer')).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('émet reset au clic sur Nouvelle course', async () => {
+    const wrapper = mountChronometre({ status: 'idle', isViewingLoadedCourse: true })
+    const btn = wrapper.findAll('button').find((b) => b.text() === 'Nouvelle course')
+    await btn.trigger('click')
+    expect(wrapper.emitted('reset')).toBeTruthy()
     wrapper.unmount()
   })
 })

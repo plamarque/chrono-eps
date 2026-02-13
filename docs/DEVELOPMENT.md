@@ -35,7 +35,7 @@ Avant chaque déploiement ou release, valider manuellement les parcours critique
 | Responsive | Affichage correct sur mobile/tablette ; zones tactiles ≥ 44px |
 | PWA | Installation possible depuis le navigateur (optionnel selon avancement) |
 
-Les tests unitaires (Vitest) couvrent la logique ; cette checklist couvre les flux utilisateur complets. Tests E2E (Playwright) reportés au-delà du MVP (slice 6).
+Les tests unitaires (Vitest) couvrent la logique ; cette checklist couvre les flux utilisateur complets. Tests E2E (Playwright) reportés au-delà du MVP (slice 6). Les tests du courseStore utilisent fake-indexeddb (vitest.setup.js) pour IndexedDB en environnement Node.
 
 ## Déploiement
 

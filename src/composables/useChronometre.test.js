@@ -9,6 +9,7 @@ const TestWrapper = defineComponent({
     const chrono = useChronometre(participants)
     return () =>
       h('div', [
+        h('span', { class: 'chrono-epoch', 'data-testid': 'chronoEpoch' }, chrono.chronoEpochMs.value == null ? 'null' : 'set'),
         h('span', { class: 'timer' }, chrono.elapsedMs.value.toString()),
         h('span', { class: 'status' }, chrono.status.value),
         h('span', {
@@ -36,6 +37,18 @@ describe('useChronometre', () => {
     const wrapper = mount(TestWrapper)
     expect(wrapper.find('.status').text()).toBe('idle')
     expect(wrapper.find('.timer').text()).toBe('0')
+    expect(wrapper.find('[data-testid="chronoEpoch"]').text()).toBe('null')
+    wrapper.unmount()
+  })
+
+  it('chronoEpochMs défini au start et nul au reset', async () => {
+    const wrapper = mount(TestWrapper)
+    expect(wrapper.find('[data-testid="chronoEpoch"]').text()).toBe('null')
+    await wrapper.findAll('button')[0].trigger('click')
+    expect(wrapper.find('[data-testid="chronoEpoch"]').text()).toBe('set')
+    await wrapper.findAll('button')[1].trigger('click')
+    await wrapper.findAll('button')[2].trigger('click')
+    expect(wrapper.find('[data-testid="chronoEpoch"]').text()).toBe('null')
     wrapper.unmount()
   })
 

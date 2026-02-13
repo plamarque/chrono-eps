@@ -1,16 +1,24 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import Card from 'primevue/card'
+import Button from 'primevue/button'
+import Dialog from 'primevue/dialog'
+import InputText from 'primevue/inputtext'
 import Chronometre from '../components/Chronometre.vue'
 import TableauPassages from '../components/TableauPassages.vue'
 import { useChronometre } from '../composables/useChronometre.js'
+import { useToast } from 'primevue/usetoast'
+import { saveCourse, listCourses, loadCourse, deleteCourse } from '../services/courseStore.js'
+import { getMaxTotalMsFromPassages } from '../utils/courseUtils.js'
 
+const toast = useToast()
 const participants = ref([])
 const {
   elapsedMs,
   status,
   participantStates,
   passagesByParticipant,
+  chronoEpochMs,
   start,
   stop,
   reset,
@@ -18,6 +26,129 @@ const {
   stopParticipant,
   recordPassage
 } = useChronometre(participants)
+
+const hasAnyPassage = computed(() => {
+  const pbp = passagesByParticipant.value
+  return Object.values(pbp).some((arr) => Array.isArray(arr) && arr.length > 0)
+})
+
+const canSave = computed(
+  () => !currentCourse.value && status.value !== 'running' && hasAnyPassage.value
+)
+
+const displayedElapsedMs = computed(() =>
+  currentCourse.value
+    ? getMaxTotalMsFromPassages(passagesByParticipant.value)
+    : elapsedMs.value
+)
+
+const showSaveModal = ref(false)
+const saveNom = ref('')
+
+function openSaveModal() {
+  saveNom.value = ''
+  showSaveModal.value = true
+}
+
+function closeSaveModal() {
+  showSaveModal.value = false
+}
+
+async function doSave() {
+  const nom = saveNom.value?.trim() || 'Course sans nom'
+  const chronoStartMs = chronoEpochMs.value
+  try {
+    const courseId = await saveCourse({
+      nom,
+      participants: participants.value,
+      passagesByParticipant: passagesByParticipant.value,
+      chronoStartMs,
+      statusAtSave: status.value
+    })
+    closeSaveModal()
+    currentCourse.value = { id: courseId, nom }
+    toast.add({ severity: 'success', summary: 'Sauvegardé', detail: `Course « ${nom} » enregistrée.`, life: 3000 })
+  } catch (err) {
+    toast.add({ severity: 'error', summary: 'Erreur', detail: err?.message || 'Impossible de sauvegarder.', life: 5000 })
+  }
+}
+
+const currentCourse = ref(null) // { id, nom } quand une course est chargée (lecture seule)
+
+const showCoursesModal = ref(false)
+const coursesList = ref([])
+
+async function openCoursesModal() {
+  showCoursesModal.value = true
+  try {
+    coursesList.value = await listCourses()
+  } catch (err) {
+    toast.add({ severity: 'error', summary: 'Erreur', detail: err?.message || 'Impossible de charger les courses.', life: 5000 })
+  }
+}
+
+function closeCoursesModal() {
+  showCoursesModal.value = false
+}
+
+async function doLoadCourse(courseId) {
+  try {
+    const course = await loadCourse(courseId)
+    if (!course) {
+      toast.add({ severity: 'warn', summary: 'Course introuvable', life: 3000 })
+      return
+    }
+    participants.value = [...course.participants]
+    reset()
+    passagesByParticipant.value = { ...course.passagesByParticipant }
+    currentCourse.value = { id: course.id, nom: course.nom }
+    closeCoursesModal()
+    toast.add({
+      severity: 'success',
+      summary: 'Chargée',
+      detail: `Course « ${course.nom} » chargée.`,
+      life: 3000
+    })
+  } catch (err) {
+    toast.add({ severity: 'error', summary: 'Erreur', detail: err?.message || 'Impossible de charger.', life: 5000 })
+  }
+}
+
+async function doDeleteCourse(courseId, event) {
+  event?.stopPropagation()
+  if (!confirm('Supprimer cette course ?')) return
+  try {
+    await deleteCourse(courseId)
+    coursesList.value = coursesList.value.filter((c) => c.id !== courseId)
+    if (currentCourse.value?.id === courseId) {
+      startNewCourse()
+    }
+    toast.add({ severity: 'success', summary: 'Supprimée', life: 3000 })
+  } catch (err) {
+    toast.add({ severity: 'error', summary: 'Erreur', detail: err?.message || 'Impossible de supprimer.', life: 5000 })
+  }
+}
+
+function formatCourseDate(iso) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+function startNewCourse() {
+  currentCourse.value = null
+  participants.value = []
+  reset()
+  passagesByParticipant.value = {}
+}
+
+function handleReset() {
+  if (currentCourse.value) {
+    startNewCourse()
+  } else {
+    reset()
+  }
+}
 
 function addParticipant(participant) {
   if (participants.value.length === 0) {
@@ -46,16 +177,20 @@ function removeParticipant(participant) {
 <template>
   <div class="home">
     <Card class="home-card">
+      <template v-if="currentCourse" #title>
+        <span class="home-course-title">{{ currentCourse.nom }}</span>
+      </template>
       <template #content>
         <section class="home-section home-section-chrono" aria-labelledby="chrono-heading">
           <h2 id="chrono-heading" class="sr-only">Chronomètre</h2>
           <Chronometre
-            :elapsed-ms="elapsedMs"
+            :elapsed-ms="displayedElapsedMs"
             :status="status"
             :show-tour="participants.length === 0"
+            :is-viewing-loaded-course="!!currentCourse"
             @start="start"
             @stop="stop"
-            @reset="reset"
+            @reset="handleReset"
             @record-tour="() => recordPassage('__solo__')"
           />
         </section>
@@ -65,6 +200,7 @@ function removeParticipant(participant) {
             :participant-states="participantStates"
             :passages-by-participant="passagesByParticipant"
             :status="status"
+            :read-only="!!currentCourse"
             @add="addParticipant"
             @update="updateParticipant"
             @remove="removeParticipant"
@@ -72,9 +208,92 @@ function removeParticipant(participant) {
             @start-participant="startParticipant"
             @stop-participant="stopParticipant"
           />
+          <div class="home-actions-bar">
+            <Button
+              label="Courses"
+              icon="pi pi-folder-open"
+              severity="secondary"
+              class="home-action-btn"
+              @click="openCoursesModal"
+            />
+            <Button
+              label="Enregistrer"
+              icon="pi pi-save"
+              severity="secondary"
+              class="home-action-btn"
+              :disabled="!canSave"
+              :title="!canSave ? 'Enregistrez au moins un passage (bouton Tour ou tap sur une cellule) pour enregistrer' : undefined"
+              @click="openSaveModal"
+            />
+            <span v-if="!currentCourse && status !== 'running' && !hasAnyPassage" class="home-save-hint">
+              Enregistrez un passage (bouton « Tour » ou tap sur une cellule) pour pouvoir enregistrer
+            </span>
+          </div>
         </section>
       </template>
     </Card>
+
+    <Dialog
+      v-model:visible="showSaveModal"
+      header="Enregistrer la course"
+      modal
+      :style="{ width: 'min(90vw, 22rem)' }"
+      @hide="closeSaveModal"
+    >
+      <div class="home-save-form">
+        <label for="course-nom">Nom de la course</label>
+        <InputText
+          id="course-nom"
+          v-model="saveNom"
+          class="home-save-input"
+          placeholder="Ex. Course du 13 février"
+          @keydown.enter.prevent="doSave"
+        />
+      </div>
+      <template #footer>
+        <Button label="Annuler" severity="secondary" @click="closeSaveModal" />
+        <Button label="Enregistrer" severity="primary" icon="pi pi-check" @click="doSave" />
+      </template>
+    </Dialog>
+
+    <Dialog
+      v-model:visible="showCoursesModal"
+      header="Courses"
+      modal
+      :style="{ width: 'min(90vw, 28rem)' }"
+      @hide="closeCoursesModal"
+    >
+      <div v-if="coursesList.length === 0" class="home-courses-empty">
+        Aucune course sauvegardée.
+      </div>
+      <ul v-else class="home-courses-list">
+        <li
+          v-for="c in coursesList"
+          :key="c.id"
+          class="home-courses-item"
+          role="button"
+          tabindex="0"
+          @click="doLoadCourse(c.id)"
+          @keydown.enter="doLoadCourse(c.id)"
+          @keydown.space.prevent="doLoadCourse(c.id)"
+        >
+          <span class="home-courses-nom">{{ c.nom }}</span>
+          <span class="home-courses-meta">
+            <span class="home-courses-date">{{ formatCourseDate(c.createdAt) }}</span>
+            <Button
+              icon="pi pi-trash"
+              severity="danger"
+              text
+              rounded
+              size="small"
+              aria-label="Supprimer"
+              class="home-courses-delete"
+              @click.stop="doDeleteCourse(c.id, $event)"
+            />
+          </span>
+        </li>
+      </ul>
+    </Dialog>
   </div>
 </template>
 
@@ -91,12 +310,92 @@ function removeParticipant(participant) {
   flex: 1;
 }
 
+.home-course-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
 .home-section {
   margin-bottom: 1.5rem;
 }
 
 .home-section-chrono {
   padding-top: 0;
+}
+
+.home-actions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.home-save-hint {
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.home-action-btn {
+  min-height: 44px;
+}
+
+.home-courses-empty {
+  color: var(--p-text-muted-color, #6b7280);
+  padding: 1rem;
+  text-align: center;
+}
+
+.home-courses-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.home-courses-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: var(--p-border-radius, 6px);
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.home-courses-item:hover {
+  background: var(--p-surface-100, #f3f4f6);
+}
+
+.home-courses-delete {
+  flex-shrink: 0;
+}
+
+.home-courses-nom {
+  font-weight: 500;
+  color: var(--p-text-color, #1a1a1a);
+}
+
+.home-courses-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.home-courses-date {
+  font-size: 0.875rem;
+  color: var(--p-text-muted-color, #6b7280);
+}
+
+.home-save-form label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--p-text-color, #1a1a1a);
+}
+
+.home-save-input {
+  width: 100%;
+  min-height: 44px;
 }
 
 .sr-only {

@@ -1,9 +1,11 @@
 <script setup>
+import Toast from 'primevue/toast'
 import HomeView from './views/HomeView.vue'
 </script>
 
 <template>
   <div class="app-layout">
+    <Toast />
     <main class="app-main">
       <HomeView />
     </main>

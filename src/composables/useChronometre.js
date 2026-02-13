@@ -5,6 +5,7 @@ const SOLO_ID = '__solo__'
 export function useChronometre(participantsRef) {
   const participantStates = ref({}) // { [id]: { elapsedMs, status } }
   const passagesByParticipant = ref({})
+  const chronoEpochMs = ref(null) // Epoch ms du démarrage chrono (pour persistance)
   let animationFrameId = null
 
   function ensureParticipantState(id) {
@@ -36,6 +37,9 @@ export function useChronometre(participantsRef) {
   function startAll() {
     const participants = participantsRef?.value ?? []
     const now = performance.now()
+    if (chronoEpochMs.value == null) {
+      chronoEpochMs.value = Date.now() - (participantStates.value[participants.length === 0 ? SOLO_ID : participants[0]?.id]?.elapsedMs ?? 0)
+    }
     if (participants.length === 0) {
       const s = ensureParticipantState(SOLO_ID)
       participantStates.value = {
@@ -86,6 +90,7 @@ export function useChronometre(participantsRef) {
     const participants = participantsRef?.value ?? []
     cancelAnimationFrame(animationFrameId)
     animationFrameId = null
+    chronoEpochMs.value = null
     const next = {}
     if (participants.length === 0) {
       next[SOLO_ID] = { elapsedMs: 0, status: 'idle', elapsedBeforePause: 0, startTime: 0 }
@@ -101,6 +106,9 @@ export function useChronometre(participantsRef) {
   function startParticipant(id) {
     const s = ensureParticipantState(id)
     if (s.status === 'running') return
+    if (chronoEpochMs.value == null) {
+      chronoEpochMs.value = Date.now() - (s.elapsedMs ?? 0)
+    }
     const now = performance.now()
     participantStates.value = {
       ...participantStates.value,
@@ -210,6 +218,7 @@ export function useChronometre(participantsRef) {
     status,
     participantStates,
     passagesByParticipant,
+    chronoEpochMs,
     start: startAll,
     stop: stopAll,
     reset: resetAll,

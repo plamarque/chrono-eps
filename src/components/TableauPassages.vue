@@ -27,6 +27,10 @@ const props = defineProps({
   status: {
     type: String,
     default: 'idle'
+  },
+  readOnly: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -133,7 +137,7 @@ function isParticipantRunning(participantId) {
 }
 
 function canTap(participantId, tourNum) {
-  return isParticipantRunning(participantId) && isNextTour(participantId, tourNum)
+  return !props.readOnly && isParticipantRunning(participantId) && isNextTour(participantId, tourNum)
 }
 
 function onTap(participantId) {
@@ -155,6 +159,7 @@ function toggleParticipant(participant) {
     <div class="tableau-passages-header">
       <div class="tableau-passages-title">Passages</div>
       <Button
+        v-if="!readOnly"
         label="Ajouter"
         icon="pi pi-plus"
         severity="primary"
@@ -172,22 +177,23 @@ function toggleParticipant(participant) {
             <th
               v-for="p in displayParticipants"
               :key="p.id"
-              class="tableau-passages-th-participant tableau-passages-th-clickable"
+              class="tableau-passages-th-participant"
+              :class="{ 'tableau-passages-th-clickable': !readOnly }"
               :style="{
                 backgroundColor: p.color ?? '#94a3b8',
                 color: '#ffffff'
               }"
-              role="button"
-              tabindex="0"
-              aria-label="Modifier ou supprimer"
-              @click="openParticipantModal(p)"
-              @keydown.enter="openParticipantModal(p)"
-              @keydown.space.prevent="openParticipantModal(p)"
+              :role="readOnly ? null : 'button'"
+              :tabindex="readOnly ? -1 : 0"
+              :aria-label="readOnly ? undefined : 'Modifier ou supprimer'"
+              @click="!readOnly && openParticipantModal(p)"
+              @keydown.enter="!readOnly && openParticipantModal(p)"
+              @keydown.space.prevent="!readOnly && openParticipantModal(p)"
             >
               {{ p.nom }}
             </th>
           </tr>
-          <tr v-if="!isSoloMode" class="tableau-passages-controls-row">
+          <tr v-if="!isSoloMode && !readOnly" class="tableau-passages-controls-row">
             <th class="tableau-passages-th-tour tableau-passages-controls-label"></th>
             <th
               v-for="p in displayParticipants"

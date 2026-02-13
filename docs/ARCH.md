@@ -41,10 +41,10 @@ Application PWA **client-only** : pas de backend obligatoire pour la première v
 
 | Composant | Responsabilité | Emplacement / Tech cible |
 |-----------|----------------|--------------------------|
-| **UI Chronomètre** | Affichage temps en cours, boutons start/stop/reset | src/ ou équivalent |
+| **UI Chronomètre** | Affichage temps en cours (ou temps total pour course chargée), boutons start/stop/reset/nouvelle course | src/ ou équivalent |
 | **Liste Élèves** | Gestion et sélection des élèves pour une course | src/ |
 | **Saisie Passages** | Enregistrement des passages (tap sur élève, enregistrement timestamp) | src/ |
-| **Stockage local** | Persistance des données (élèves, courses, passages, performances) | IndexedDB ou localStorage |
+| **Stockage local** | Persistance des données (élèves, courses, passages, performances) ; liste, chargement, suppression | IndexedDB (Dexie.js) |
 | **Couche PWA** | Service worker, manifeste ; installation, cache, offline | public/, sw.js ou équivalent |
 | **UI responsive** | Layout adapté tablette et smartphone | PrimeVue |
 
@@ -54,7 +54,7 @@ Application PWA **client-only** : pas de backend obligatoire pour la première v
 - **Front-end** : Vue 3 + PrimeVue.
 - **PWA** : vite-plugin-pwa (Workbox) ; manifeste et service worker générés automatiquement.
 - **Tests** : Vitest (exécution, assertions) + @vue/test-utils (composants Vue) + jsdom (environnement DOM).
-- **Données** : IndexedDB (ou localStorage pour MVP) ; pas de base distante pour la v1.
+- **Données** : IndexedDB via Dexie.js ; pas de base distante pour la v1.
 - **Déploiement** : GitHub Pages (phase 1) ; PWABuilder pour publication sur les stores (phase 2).
 
 ## Modèle d'exécution

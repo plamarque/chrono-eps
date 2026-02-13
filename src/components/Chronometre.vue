@@ -6,7 +6,8 @@ import { formatTime } from '../utils/formatTime.js'
 const props = defineProps({
   elapsedMs: { type: Number, default: 0 },
   status: { type: String, default: 'idle' },
-  showTour: { type: Boolean, default: false }
+  showTour: { type: Boolean, default: false },
+  isViewingLoadedCourse: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['start', 'stop', 'reset', 'record-tour'])
@@ -26,7 +27,7 @@ const displayedTime = computed(() => formatTime(props.elapsedMs))
     </div>
     <div class="chronometre-controls">
       <Button
-        v-if="status === 'idle' || status === 'paused'"
+        v-if="!isViewingLoadedCourse && (status === 'idle' || status === 'paused')"
         label="Démarrer"
         icon="pi pi-play"
         severity="success"
@@ -34,7 +35,7 @@ const displayedTime = computed(() => formatTime(props.elapsedMs))
         @click="emit('start')"
       />
       <Button
-        v-if="status === 'running' && showTour"
+        v-if="!isViewingLoadedCourse && status === 'running' && showTour"
         label="Tour"
         icon="pi pi-flag"
         severity="info"
@@ -42,7 +43,7 @@ const displayedTime = computed(() => formatTime(props.elapsedMs))
         @click="emit('record-tour')"
       />
       <Button
-        v-if="status === 'running'"
+        v-if="!isViewingLoadedCourse && status === 'running'"
         label="Arrêter"
         icon="pi pi-stop"
         severity="danger"
@@ -50,12 +51,12 @@ const displayedTime = computed(() => formatTime(props.elapsedMs))
         class="chronometre-btn"
       />
       <Button
-        v-if="status === 'paused'"
-        label="Réinitialiser"
+        v-if="isViewingLoadedCourse || status === 'paused'"
+        :label="isViewingLoadedCourse ? 'Nouvelle course' : 'Réinitialiser'"
         icon="pi pi-refresh"
         severity="secondary"
-        @click="emit('reset')"
         class="chronometre-btn"
+        @click="emit('reset')"
       />
     </div>
   </div>

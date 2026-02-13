@@ -8,7 +8,8 @@ function mountTableauPassages(props = {}) {
       participants: props.participants ?? [],
       participantStates: props.participantStates ?? {},
       passagesByParticipant: props.passagesByParticipant ?? {},
-      status: props.status ?? 'idle'
+      status: props.status ?? 'idle',
+      readOnly: props.readOnly ?? false
     },
     global: {
       stubs: {
@@ -142,6 +143,33 @@ describe('TableauPassages', () => {
     expect(wrapper.text()).toContain('00:35.00')
     expect(wrapper.text()).toContain('00:42.00')
     expect(wrapper.text()).toContain('01:15.00')
+    wrapper.unmount()
+  })
+
+  it('readOnly masque le bouton Ajouter', () => {
+    const wrapper = mountTableauPassages({ participants: [], readOnly: true })
+    expect(wrapper.text()).not.toContain('Ajouter')
+    wrapper.unmount()
+  })
+
+  it('readOnly masque la ligne des contrôles démarrer/arrêter', () => {
+    const participants = [{ id: '1', nom: 'Alice' }]
+    const wrapper = mountTableauPassages({ participants, readOnly: true })
+    expect(wrapper.find('.tableau-passages-controls-row').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('readOnly désactive le tap sur les cellules (pas de record)', () => {
+    const participants = [{ id: '1', nom: 'Alice' }]
+    const participantStates = { '1': { status: 'running' } }
+    const wrapper = mountTableauPassages({
+      participants,
+      participantStates,
+      status: 'running',
+      readOnly: true
+    })
+    const tappable = wrapper.find('.tableau-passages-tappable')
+    expect(tappable.exists()).toBe(false)
     wrapper.unmount()
   })
 
