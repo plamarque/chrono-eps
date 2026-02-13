@@ -1,5 +1,15 @@
 # Issues — bugs, limitations, travail différé
 
+## PWA
+
+### [PWA] Icône 512 px non precachée
+
+**Problème :** L'icône 512x512 dépasse la limite Workbox (2 MiB) et n'est pas mise en cache pour le mode offline.
+
+**État :** Différé
+
+**Impact :** En installation PWA, l'icône haute résolution est chargée à la demande. L'icône 192px est precachée. Comportement acceptable pour le MVP.
+
 ## UX
 
 ### [UX] Utilisation insuffisante du viewport

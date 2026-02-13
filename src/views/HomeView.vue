@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
@@ -10,7 +11,10 @@ import { useChronometre } from '../composables/useChronometre.js'
 import { useToast } from 'primevue/usetoast'
 import { saveCourse, listCourses, loadCourse, deleteCourse } from '../services/courseStore.js'
 import { getMaxTotalMsFromPassages } from '../utils/courseUtils.js'
+import { formatCourseDate } from '../utils/formatDate.js'
 
+const route = useRoute()
+const router = useRouter()
 const toast = useToast()
 const participants = ref([])
 const {
@@ -129,12 +133,6 @@ async function doDeleteCourse(courseId, event) {
   }
 }
 
-function formatCourseDate(iso) {
-  if (!iso) return ''
-  const d = new Date(iso)
-  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-}
-
 function startNewCourse() {
   currentCourse.value = null
   participants.value = []
@@ -172,6 +170,16 @@ function removeParticipant(participant) {
   delete next[participant.id]
   passagesByParticipant.value = next
 }
+
+async function maybeLoadFromQuery() {
+  const id = route.query.loadCourseId
+  if (!id) return
+  router.replace({ path: '/', query: {} })
+  await doLoadCourse(id)
+}
+
+onMounted(maybeLoadFromQuery)
+watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
 </script>
 
 <template>

@@ -2,7 +2,7 @@
 
 ## Phase actuelle
 
-Slice 5 — Persistance et sauvegarde (complet).
+Slice 6 — Historique et MVP final (complet).
 
 ## Slices
 
@@ -13,7 +13,7 @@ Slice 5 — Persistance et sauvegarde (complet).
 | 3     | Gestion participants     | Ajout/suppression, liste, UI tactile         | Fait     |
 | 4     | Passages et calculs      | Tap = passage, temps tour/course, affichage  | Fait     |
 | 5     | Persistance + sauvegarde | IndexedDB, sauvegarde course nommée          | Fait     |
-| 6     | Historique + déploiement | Vue historique, PWA final, GitHub Pages     | Todo     |
+| 6     | Historique + déploiement | Vue historique, PWA final, GitHub Pages     | Fait     |
 
 ## Objectif MVP
 
@@ -116,13 +116,13 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ### Tâches
 
-- [ ] Vue / écran Historique des courses
-- [ ] Liste des courses sauvegardées (nom, date)
-- [ ] Détail d'une course (performances par participant)
-- [ ] Manifeste PWA complet (icônes, nom, thème)
-- [ ] Test installation PWA (navigateur)
-- [ ] Déploiement GitHub Pages
-- [ ] Polish UI (principes ARCH : moderne, épuré, fonctionnel)
+- [x] Vue / écran Historique des courses
+- [x] Liste des courses sauvegardées (nom, date)
+- [x] Détail d'une course (performances par participant)
+- [x] Manifeste PWA complet (icônes, nom, thème)
+- [x] Test installation PWA (navigateur)
+- [x] Déploiement GitHub Pages
+- [x] Polish UI (principes ARCH : moderne, épuré, fonctionnel)
 - [ ] Évaluer tests E2E (Playwright) — optionnel si MVP stable et régressions fréquentes
 
 ---
