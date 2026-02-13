@@ -4,9 +4,6 @@ import HomeView from './views/HomeView.vue'
 
 <template>
   <div class="app-layout">
-    <header class="app-header">
-      <h1>Chrono EPS</h1>
-    </header>
     <main class="app-main">
       <HomeView />
     </main>
@@ -20,21 +17,14 @@ import HomeView from './views/HomeView.vue'
   flex-direction: column;
 }
 
-.app-header {
-  flex-shrink: 0;
-  padding: 1rem;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-}
-
-.app-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
 .app-main {
   flex: 1;
+  min-height: 0;
+  overflow: auto;
   padding: 1rem;
+  padding-top: env(safe-area-inset-top, 1rem);
+  padding-right: env(safe-area-inset-right, 1rem);
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+  padding-left: env(safe-area-inset-left, 1rem);
 }
 </style>

@@ -82,12 +82,13 @@ function removeParticipant(participant) {
 .home {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
+  min-height: 100%;
 }
 
 .home-card {
-  max-width: 36rem;
   width: 100%;
+  flex: 1;
 }
 
 .home-section {
