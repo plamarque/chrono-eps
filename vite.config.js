@@ -20,8 +20,8 @@ export default defineConfig({
         name: 'Chrono EPS',
         short_name: 'Chrono EPS',
         description: 'Chronomètre multi-élèves pour les enseignants d\'EPS',
-        theme_color: '#2563eb',
-        background_color: '#ffffff',
+        theme_color: '#1e293b',
+        background_color: '#0f172a',
         display: 'standalone',
         start_url: '/chrono-eps/',
         icons: [

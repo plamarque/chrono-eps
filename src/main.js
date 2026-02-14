@@ -11,7 +11,7 @@ const app = createApp(App)
 app.use(PrimeVue, {
   theme: {
     preset: Aura,
-    options: { darkModeSelector: 'none' }
+    options: { darkModeSelector: '.dark' }
   }
 })
 app.use(ToastService)

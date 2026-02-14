@@ -15,11 +15,12 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   height: 100%;
-  background-color: #ffffff;
+  background-color: var(--p-surface-ground, #ffffff);
+  color: var(--p-text-color, #1e293b);
 }
 
 #app {
   min-height: 100dvh;
   height: 100%;
-  background-color: #ffffff;
+  background-color: var(--p-surface-ground, #ffffff);
 }

@@ -384,6 +384,10 @@ const hasAnyPassage = computed(() =>
   border-top: 1px solid var(--p-surface-200, #e5e7eb);
 }
 
+.tableau-passages-header {
+  margin-bottom: 1rem;
+}
+
 .tableau-relay-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
