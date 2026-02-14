@@ -36,38 +36,10 @@
 
 **Solution :** Suppression du span `home-save-hint`, du `:title` du bouton Enregistrer et du style `.home-save-hint`.
 
-### [UX] Enregistrement automatique
-
-**Problème :** Mettre en place une sauvegarde automatique des passages (par ex. après chaque enregistrement de passage, ou à intervalle régulier).
-
-**État :** Différé
-
-### [UX] Supprimer boutons Courses et Enregistrer en bas
-
-**Problème :** Retirer les boutons « Courses » et « Enregistrer » de la barre d'actions en bas de l'écran principal (`HomeView.vue` bloc `home-actions-bar`).
-
-**État :** Différé
-
-### [UX] Performances : lister les temps de passage (P1, P2, …)
-
-**Problème :** Dans les sections « Performances » (mode individuel : `TableauPassages.vue` ; mode relais : `TableauPassagesRelay.vue`), afficher les temps de passage par tour sous forme de liste explicite (P1, P2, P3, …) en plus ou à la place de l'affichage actuel (nb tours, dernier total).
-
-**État :** Différé
-
-### [UX] Nouvelle course à partir de → Dupliquer
-
-**Problème :** Renommer le bouton « Nouvelle course à partir de » en « Dupliquer » dans `CourseDetailView.vue` (ligne 124).
-
-**État :** Différé
-
-### [UX] Remonter bouton Dupliquer
-
-**Problème :** Changer la position du bouton Dupliquer (actuellement dans `course-detail-actions` en bas de `CourseDetailView.vue`) pour le placer plus haut, par ex. dans l'en-tête de la vue.
-
-**État :** Différé
-
 ### [UX] Supprimer libellé « Relais » au-dessus des groupes
 
 **Problème :** Supprimer le libellé « Relais » affiché au-dessus des groupes dans `TableauPassagesRelay.vue` ligne 160 (`<div class="tableau-passages-title">Relais</div>`).
 
-**État :** Différé
+**État :** Résolu
+
+**Solution :** Suppression du div `tableau-passages-title` contenant « Relais » dans `TableauPassagesRelay.vue`.

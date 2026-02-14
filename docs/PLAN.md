@@ -2,7 +2,7 @@
 
 ## Phase actuelle
 
-Slice 7 — Mode relais (complet).
+Slice 7 — Mode relais (complet). Prochain : Slice 8.
 
 ## Slices
 
@@ -15,6 +15,9 @@ Slice 7 — Mode relais (complet).
 | 5     | Persistance + sauvegarde | IndexedDB, sauvegarde course nommée          | Fait     |
 | 6     | Historique + déploiement | Vue historique, PWA final, GitHub Pages     | Fait     |
 | 7     | Mode relais              | Groupes, config élèves, Couru/Prochain, course continue jusqu'à arrêt | Fait     |
+| 8     | Enregistrement auto      | Sauvegarde à chaque changement, nom auto, renommage depuis historique | À faire  |
+| 9     | Performances (P1, P2, …) | Liste temps de passage par tour, mode individuel et relais | À faire  |
+| 10    | Dupliquer                | Bouton Dupliquer en en-tête, création course à partir d'une existante | À faire  |
 
 ## Objectif MVP
 
@@ -147,6 +150,48 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ---
 
+## Slice 8 — Enregistrement automatique
+
+**Objectif** : Sauvegarde automatique des courses ; nom auto-généré modifiable depuis l'historique.
+
+**Critères de sortie** : Aucune action manuelle « Enregistrer » ; course persistée à chaque modification ; renommage possible depuis l'historique.
+
+### Tâches
+
+- [ ] Enregistrer à chaque changement significatif (passages, participants, mode, etc.), pas seulement chrono ou tours
+- [ ] Nom automatique à la première sauvegarde (ex. « Course 14 fév. 10h30 »)
+- [ ] Renommage possible depuis la vue Historique (course déjà sauvegardée)
+- [ ] Supprimer les boutons Courses et Enregistrer en bas (issue 3)
+
+---
+
+## Slice 9 — Performances détaillées
+
+**Objectif** : Afficher les temps de passage par tour (P1, P2, P3, …) dans les sections Performances.
+
+**Critères de sortie** : Liste des temps de passage (P1, P2, …) visible pour chaque participant/groupe dans les deux modes.
+
+### Tâches
+
+- [ ] Mode individuel (TableauPassages.vue) : liste P1, P2, P3… dans section tableau-passages-resume
+- [ ] Mode relais (TableauPassagesRelay.vue) : liste P1, P2, P3… dans section tableau-passages-resume
+- [ ] Compléter ou remplacer affichage actuel (nb tours, dernier total) par liste explicite
+
+---
+
+## Slice 10 — Dupliquer une course
+
+**Objectif** : Bouton Dupliquer pour créer une nouvelle course à partir d'une existante ; placement en en-tête.
+
+**Critères de sortie** : Bouton « Dupliquer » visible et accessible en haut de la vue détail ; duplique la course courante vers une nouvelle course.
+
+### Tâches
+
+- [ ] Renommer « Nouvelle course à partir de » en « Dupliquer » (issue 5)
+- [ ] Remonter le bouton dans l'en-tête de CourseDetailView.vue (issue 6)
+
+---
+
 ## Dépendances entre slices
 
 ```mermaid
@@ -158,6 +203,9 @@ flowchart LR
     S5[Slice 5: Persistance]
     S6[Slice 6: Historique]
     S7[Slice 7: Relais]
+    S8[Slice 8: Enregistrement auto]
+    S9[Slice 9: Performances]
+    S10[Slice 10: Dupliquer]
     
     S1 --> S2
     S1 --> S3
@@ -166,3 +214,8 @@ flowchart LR
     S4 --> S5
     S5 --> S6
     S6 --> S7
+    S7 --> S8
+    S7 --> S9
+    S8 --> S10
+    S9 --> S10
+```

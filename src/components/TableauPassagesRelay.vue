@@ -157,7 +157,6 @@ const hasAnyPassage = computed(() =>
 <template>
   <div class="tableau-passages tableau-passages-relay">
     <div class="tableau-passages-header">
-      <div class="tableau-passages-title">Relais</div>
       <Button
         v-if="!readOnly && participants.length < MAX_GROUPS"
         label="Ajouter un groupe"
