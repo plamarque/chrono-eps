@@ -141,7 +141,8 @@ function handleReset() {
 }
 
 function addParticipant(participant) {
-  if (participants.value.length >= 6) return
+  const max = mode.value === 'relay' ? 8 : 6
+  if (participants.value.length >= max) return
   if (participants.value.length === 0) {
     const next = { ...passagesByParticipant.value }
     delete next['__solo__']

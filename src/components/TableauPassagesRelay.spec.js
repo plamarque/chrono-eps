@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { COULEURS_PALETTE } from '../models/participant.js'
 import TableauPassagesRelay from './TableauPassagesRelay.vue'
 
 function mountTableauPassagesRelay(props = {}) {
@@ -88,6 +89,53 @@ describe('TableauPassagesRelay', () => {
     expect(wrapper.text()).toContain('Bob')
     expect(wrapper.text()).toContain('00:02.01')
     expect(wrapper.text()).toContain('Total : 00:02.01')
+    wrapper.unmount()
+  })
+
+  it('masque le bouton Ajouter un groupe à 8 groupes', () => {
+    const participants = Array.from({ length: 8 }, (_, i) => ({
+      id: `g${i + 1}`,
+      nom: `Groupe ${i + 1}`,
+      color: COULEURS_PALETTE[i % COULEURS_PALETTE.length]
+    }))
+    const groupStudents = Object.fromEntries(participants.map((p) => [p.id, []]))
+    const wrapper = mountTableauPassagesRelay({ participants, groupStudents })
+    expect(wrapper.find('button[aria-label="Ajouter un groupe"]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('émet un groupe nommé Groupe 7 avec couleur réutilisée quand on ajoute au-delà de 6 groupes', async () => {
+    const participants = Array.from({ length: 6 }, (_, i) => ({
+      id: `g${i + 1}`,
+      nom: `Groupe ${i + 1}`,
+      color: COULEURS_PALETTE[i]
+    }))
+    const groupStudents = Object.fromEntries(participants.map((p) => [p.id, []]))
+    const wrapper = mountTableauPassagesRelay({ participants, groupStudents })
+    const addBtn = wrapper.find('button[aria-label="Ajouter un groupe"]')
+    expect(addBtn.exists()).toBe(true)
+    await addBtn.trigger('click')
+    expect(wrapper.emitted('add')).toHaveLength(1)
+    const [group] = wrapper.emitted('add')[0]
+    expect(group.nom).toBe('Groupe 7')
+    expect(COULEURS_PALETTE).toContain(group.color)
+    wrapper.unmount()
+  })
+
+  it('émet un groupe nommé Groupe 8 quand on ajoute le 8e groupe', async () => {
+    const participants = Array.from({ length: 7 }, (_, i) => ({
+      id: `g${i + 1}`,
+      nom: `Groupe ${i + 1}`,
+      color: COULEURS_PALETTE[i % COULEURS_PALETTE.length]
+    }))
+    const groupStudents = Object.fromEntries(participants.map((p) => [p.id, []]))
+    const wrapper = mountTableauPassagesRelay({ participants, groupStudents })
+    const addBtn = wrapper.find('button[aria-label="Ajouter un groupe"]')
+    expect(addBtn.exists()).toBe(true)
+    await addBtn.trigger('click')
+    expect(wrapper.emitted('add')).toHaveLength(1)
+    const [group] = wrapper.emitted('add')[0]
+    expect(group.nom).toBe('Groupe 8')
     wrapper.unmount()
   })
 })

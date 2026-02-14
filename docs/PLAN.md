@@ -136,7 +136,7 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 **Objectif** : Course relais où chaque participant est un groupe ; élèves courent à tour de rôle en cycle ; configuration des élèves et couleurs avant la course ; affichage « Couru » / « Prochain » ; la course continue jusqu'à l'arrêt par le professeur.
 
-**Critères de sortie** : Sélecteur mode Individuel/Relais ; modal config groupe (élèves ordonnés, couleurs) ; tableau relay avec Couru/Prochain ; sauvegarde et chargement des courses relais.
+**Critères de sortie** : Sélecteur mode Individuel/Relais ; modal config groupe (élèves ordonnés, couleurs) ; tableau relay avec Couru/Prochain ; jusqu'à 8 groupes (couleurs réutilisées cycliquement) ; sauvegarde et chargement des courses relais.
 
 ### Tâches
 

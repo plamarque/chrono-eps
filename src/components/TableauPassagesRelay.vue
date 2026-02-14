@@ -6,7 +6,7 @@ import { createRelayGroup, COULEURS_PALETTE } from '../models/participant.js'
 import { formatTime } from '../utils/formatTime.js'
 import RelayGroupModal from './RelayGroupModal.vue'
 
-const MAX_GROUPS = 6
+const MAX_GROUPS = 8
 
 const props = defineProps({
   participants: {
@@ -50,7 +50,9 @@ function addGroup() {
     }
     colorIndex = props.participants.length % COULEURS_PALETTE.length
   }
-  const group = createRelayGroup(colorIndex)
+  const groupIndex = props.participants.length
+  const color = COULEURS_PALETTE[colorIndex % COULEURS_PALETTE.length]
+  const group = createRelayGroup(groupIndex, color)
   emit('add', group)
 }
 

@@ -1,4 +1,4 @@
-/** Palette : rouge, bleu, jaune, orange, violet, vert */
+/** Palette : rouge, bleu, jaune, orange, violet, vert (réutilisée cycliquement au-delà de 6 groupes) */
 export const COULEURS_PALETTE = [
   '#ef4444', '#3b82f6', '#eab308', '#f97316',
   '#8b5cf6', '#22c55e'

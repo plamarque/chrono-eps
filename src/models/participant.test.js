@@ -61,6 +61,7 @@ describe('createRelayGroup', () => {
     expect(createRelayGroup(1).nom).toBe('Groupe 2')
     expect(createRelayGroup(2).nom).toBe('Groupe 3')
     expect(createRelayGroup(5).nom).toBe('Groupe 6')
+    expect(createRelayGroup(7).nom).toBe('Groupe 8')
   })
 
   it('accepte un nom personnalisé', () => {
@@ -83,6 +84,15 @@ describe('createRelayGroup', () => {
   it('utilise la couleur fournie si passée', () => {
     const g = createRelayGroup(0, '#abc123')
     expect(g.color).toBe('#abc123')
+  })
+
+  it('avec (groupIndex, color), génère Groupe 7 et Groupe 8 avec la couleur fournie', () => {
+    const g7 = createRelayGroup(6, '#ef4444')
+    expect(g7.nom).toBe('Groupe 7')
+    expect(g7.color).toBe('#ef4444')
+    const g8 = createRelayGroup(7, '#3b82f6')
+    expect(g8.nom).toBe('Groupe 8')
+    expect(g8.color).toBe('#3b82f6')
   })
 })
 
