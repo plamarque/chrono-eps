@@ -106,6 +106,8 @@ watch(() => route.params.id, fetchCourse)
                 class="chronometre-btn"
                 @click="goToReplay"
               />
+              <!-- Slice 10 — Dupliquer : masqué en attendant retours utilisateurs et nouvelles exigences (réouvrir slice) -->
+              <!--
               <Button
                 label="Dupliquer"
                 icon="pi pi-copy"
@@ -113,6 +115,7 @@ watch(() => route.params.id, fetchCourse)
                 class="chronometre-btn"
                 @click="startNewFromThis"
               />
+              -->
             </template>
           </Chronometre>
         </section>

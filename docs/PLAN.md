@@ -2,7 +2,7 @@
 
 ## Phase actuelle
 
-Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 10 — Dupliquer (complet). Slice 11 — Replay (complet). Prochain : Slice 8.
+Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 11 — Replay (complet). Slice 10 — Dupliquer : réouverte (masquée en attente retours utilisateurs). Prochain : Slice 8.
 
 ## Slices
 
@@ -17,7 +17,7 @@ Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 10 
 | 7     | Mode relais              | Groupes, config élèves, Couru/Prochain, course continue jusqu'à arrêt | Fait     |
 | 8     | Enregistrement auto      | Sauvegarde à chaque changement, nom auto, renommage depuis historique | À faire  |
 | 9     | Performances (P1, P2, …) | Liste temps de passage par tour, mode individuel et relais | Fait     |
-| 10    | Dupliquer                | Bouton Dupliquer à côté du chrono, création course à partir d'une existante | Fait    |
+| 10    | Dupliquer                | Bouton Dupliquer à côté du chrono, création course à partir d'une existante | Réouverte (masqué) |
 | 11    | Replay                   | Piste virtuelle, marqueurs par participant, contrôles play/pause/slider, mode individuel et relais | Fait    |
 
 ## Objectif MVP
@@ -180,11 +180,13 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ---
 
-## Slice 10 — Dupliquer une course
+## Slice 10 — Dupliquer une course (réouverte)
 
 **Objectif** : Bouton Dupliquer pour créer une nouvelle course à partir d'une existante ; placement en en-tête.
 
 **Critères de sortie** : Bouton « Dupliquer » visible et accessible en haut de la vue détail ; duplique la course courante vers une nouvelle course.
+
+**Statut actuel** : Fonctionnalité masquée (bouton commenté). Slice réouverte pour évolutions à prévoir après consultation des utilisateurs et nouvelles exigences fonctionnelles.
 
 ### Tâches
 
