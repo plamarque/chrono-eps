@@ -153,6 +153,14 @@ function getCurrentAndNext(groupId) {
   }
 }
 
+/**
+ * Prochain à courir : en affichage statut (hors zone tap), c'est currentStudent.
+ * À l'init (personne écourru), c'est l'élève 1, pas l'élève 2.
+ */
+function getNextToRun(groupId) {
+  return getCurrentAndNext(groupId).currentStudent
+}
+
 function canTap(groupId) {
   if (props.readOnly) return false
   const { isRunning, isComplete, currentStudent } = getCurrentAndNext(groupId)
@@ -277,7 +285,7 @@ const hasAnyPassage = computed(() =>
               </div>
               <div class="tableau-relay-prochain">
                 <span class="tableau-relay-label">Prochain :</span>
-                <span class="tableau-relay-name">{{ getCurrentAndNext(group.id).nextStudent?.nom ?? '—' }}</span>
+                <span class="tableau-relay-name">{{ getNextToRun(group.id)?.nom ?? '—' }}</span>
               </div>
               <template v-if="(passagesByParticipant[group.id] ?? []).length > 0">
                 <div class="tableau-relay-total">
