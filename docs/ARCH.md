@@ -75,10 +75,9 @@ Application PWA **client-only** : pas de backend obligatoire pour la première v
 
 ## Publication sur les stores (phase 2)
 
-1. App déployée sur URL HTTPS (ex. `https://xxx.github.io/chrono-eps/`).
-2. Valider manifeste et service worker (Lighthouse PWA).
-3. [PWABuilder](https://pwabuilder.com/) : saisir l'URL, « Package for stores », télécharger paquets Android et iOS.
-4. Soumettre à Play Store (TWA) et App Store (wrapper WebKit).
+Voir le guide détaillé : [PUBLISHING_STORES.md](PUBLISHING_STORES.md).
+
+Résumé : (1) App déployée sur URL HTTPS (ex. `https://xxx.github.io/chrono-eps/`) ; (2) Valider manifeste et service worker (Lighthouse PWA) ; (3) [PWABuilder](https://pwabuilder.com/) : saisir l'URL, « Package for stores », télécharger paquets Android et iOS ; (4) Soumettre à Play Store (TWA) et App Store (wrapper WebKit).
 
 ## Hypothèses et incertitudes
 
