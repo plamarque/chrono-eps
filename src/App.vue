@@ -12,7 +12,7 @@ const navItems = [
 const activeIndex = computed(() => {
   const name = route.name
   if (name === 'home') return 0
-  if (name === 'historique' || name === 'course-detail') return 1
+  if (name === 'historique' || name === 'course-detail' || name === 'course-replay') return 1
   return 0
 })
 </script>

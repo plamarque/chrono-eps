@@ -2,7 +2,7 @@
 
 ## Phase actuelle
 
-Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 10 — Dupliquer (complet). Prochain : Slice 8.
+Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 10 — Dupliquer (complet). Slice 11 — Replay (complet). Prochain : Slice 8.
 
 ## Slices
 
@@ -18,6 +18,7 @@ Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 10 
 | 8     | Enregistrement auto      | Sauvegarde à chaque changement, nom auto, renommage depuis historique | À faire  |
 | 9     | Performances (P1, P2, …) | Liste temps de passage par tour, mode individuel et relais | Fait     |
 | 10    | Dupliquer                | Bouton Dupliquer à côté du chrono, création course à partir d'une existante | Fait    |
+| 11    | Replay                   | Piste virtuelle, marqueurs par participant, contrôles play/pause/slider, mode individuel et relais | Fait    |
 
 ## Objectif MVP
 
@@ -192,6 +193,23 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ---
 
+## Slice 11 — Replay de course avec piste virtuelle
+
+**Objectif** : Rejouer visuellement une course sauvegardée : piste virtuelle ovale, marqueurs par participant/groupe, position interpolée, nom du coureur actuel en mode relais ; contrôles play, pause et curseur temporel.
+
+**Critères de sortie** : Bouton Replay depuis la vue détail ; piste virtuelle visible ; marqueurs colorés ; position interpolée ; contrôles play/pause/slider ; chrono synchronisé ; mode individuel et relais.
+
+### Tâches
+
+- [x] Bouton Replay dans CourseDetailView (à côté de Dupliquer)
+- [x] Vue ReplayView avec piste ovale SVG
+- [x] Marqueurs par participant avec couleur, nom (coureur actuel en relay)
+- [x] Interpolation linéaire entre passages (useReplay, getPositionAtTime)
+- [x] Contrôles play/pause, slider temporel, chrono
+- [x] Support mode individuel et relais
+
+---
+
 ## Dépendances entre slices
 
 ```mermaid
@@ -206,6 +224,7 @@ flowchart LR
     S8[Slice 8: Enregistrement auto]
     S9[Slice 9: Performances]
     S10[Slice 10: Dupliquer]
+    S11[Slice 11: Replay]
     
     S1 --> S2
     S1 --> S3
@@ -218,4 +237,6 @@ flowchart LR
     S7 --> S9
     S8 --> S10
     S9 --> S10
+    S6 --> S11
+    S7 --> S11
 ```

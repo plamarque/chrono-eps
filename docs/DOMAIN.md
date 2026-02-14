@@ -16,6 +16,8 @@ Ce document définit le vocabulaire, les entités et les règles du domaine pour
 | **Passage (relais)** | Un tour de piste complété par un élève d'un groupe ; l'ordre cycle sur les élèves (ex. Alice, Bob, Claire, Daniel, Alice, Bob...) ; la course continue jusqu'à l'arrêt par le professeur. |
 | **Groupe (relais)** | Ensemble ordonné d'élèves qui courent l'un après l'autre ; a une couleur (chasubles communes) et une liste de noms d'élèves. |
 | **Performance** | Résultat associé à un élève pour une course : temps, nombre de tours complétés, etc. |
+| **Replay** | Visualisation différée d'une course sauvegardée : relecture au fil du temps avec position des participants sur une piste virtuelle. |
+| **Piste virtuelle** | Représentation graphique (ovale ou anneau) de la piste sur laquelle les positions des participants sont affichées pendant le replay. |
 
 ## Entités et relations
 

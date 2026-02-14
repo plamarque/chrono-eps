@@ -58,6 +58,11 @@ function startNewFromThis() {
   router.push({ path: '/', query: { loadCourseId: course.value.id } })
 }
 
+function goToReplay() {
+  if (!course.value) return
+  router.push({ name: 'course-replay', params: { id: course.value.id } })
+}
+
 onMounted(fetchCourse)
 watch(() => route.params.id, fetchCourse)
 </script>
@@ -94,6 +99,13 @@ watch(() => route.params.id, fetchCourse)
             @reset="goBack"
           >
             <template #extra-controls>
+              <Button
+                label="Replay"
+                icon="pi pi-play"
+                severity="secondary"
+                class="chronometre-btn"
+                @click="goToReplay"
+              />
               <Button
                 label="Dupliquer"
                 icon="pi pi-copy"
