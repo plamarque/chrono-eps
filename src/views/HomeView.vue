@@ -252,7 +252,6 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
       </template>
       <template #content>
         <section v-if="!currentCourse" class="home-section home-mode-selector" aria-label="Mode de course">
-          <label class="home-mode-label">Mode</label>
           <SelectButton
             v-model="mode"
             :options="[
@@ -422,14 +421,8 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
   margin-bottom: 1rem;
 }
 
-.home-mode-label {
-  font-weight: 500;
-  font-size: 0.9rem;
-  color: var(--p-text-color, #1a1a1a);
-}
-
 .home-mode-buttons {
-  align-self: flex-start;
+  align-self: flex-end;
 }
 
 .home-section-chrono {
