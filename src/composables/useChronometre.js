@@ -132,6 +132,8 @@ export function useChronometre(participantsRef, options = {}) {
   function stopParticipant(id) {
     const s = participantStates.value[id]
     if (!s || s.status !== 'running') return
+    // Capture le temps de l'élève avant de passer en paused
+    recordPassage(id)
     participantStates.value = {
       ...participantStates.value,
       [id]: {

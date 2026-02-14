@@ -223,8 +223,8 @@ describe('TableauPassages', () => {
     wrapper.unmount()
   })
 
-  it('masque le bouton Ajouter à 6 participants', () => {
-    const participants = Array.from({ length: 6 }, (_, i) => ({
+  it('masque le bouton Ajouter à 20 participants', () => {
+    const participants = Array.from({ length: 20 }, (_, i) => ({
       id: `p${i + 1}`,
       nom: `Participant ${i + 1}`,
       color: '#3b82f6'

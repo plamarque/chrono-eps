@@ -6,7 +6,7 @@ import InputText from 'primevue/inputtext'
 import { createParticipant, COULEURS_PALETTE } from '../models/participant.js'
 import { formatTime } from '../utils/formatTime.js'
 
-const MAX_PARTICIPANTS = 6
+const MAX_PARTICIPANTS = 20
 
 const props = defineProps({
   participants: {
@@ -186,7 +186,7 @@ function toggleParticipant(participant) {
       <table class="tableau-passages-table">
         <thead>
           <tr>
-            <th class="tableau-passages-th-tour">Tour</th>
+            <th class="tableau-passages-th-tour" aria-label="Numéro de passage">N°</th>
             <th
               v-for="p in displayParticipants"
               :key="p.id"
@@ -288,7 +288,7 @@ function toggleParticipant(participant) {
             <span class="tableau-passages-resume-stats">
               {{ perf.nbTours }} tour{{ perf.nbTours > 1 ? 's' : '' }}
               <template v-if="perf.dernierTotalMs !== null">
-                · Dernier : {{ formatTime(perf.dernierTotalMs) }}
+                · Temps total : {{ formatTime(perf.dernierTotalMs) }}
               </template>
             </span>
           </div>

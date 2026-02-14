@@ -13,7 +13,7 @@ import { useChronometre } from '../composables/useChronometre.js'
 import { useToast } from 'primevue/usetoast'
 import { saveCourse, loadCourse } from '../services/courseStore.js'
 import { getMaxTotalMsFromPassages } from '../utils/courseUtils.js'
-import { createRelayGroup } from '../models/participant.js'
+import { createRelayGroup, createParticipant } from '../models/participant.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -121,6 +121,12 @@ function ensureRelayHasDefaultGroup() {
   groupStudents.value = { [group.id]: [] }
 }
 
+function ensureIndividualHasDefaultParticipant() {
+  if (mode.value !== 'individual' || currentCourse.value || participants.value.length > 0) return
+  const participant = createParticipant(1)
+  participants.value = [participant]
+}
+
 function startNewCourse() {
   currentCourse.value = null
   participants.value = []
@@ -129,6 +135,8 @@ function startNewCourse() {
   passagesByParticipant.value = {}
   if (mode.value === 'relay') {
     ensureRelayHasDefaultGroup()
+  } else {
+    ensureIndividualHasDefaultParticipant()
   }
 }
 
@@ -141,7 +149,7 @@ function handleReset() {
 }
 
 function addParticipant(participant) {
-  const max = mode.value === 'relay' ? 8 : 6
+  const max = mode.value === 'relay' ? 8 : 20
   if (participants.value.length >= max) return
   if (participants.value.length === 0) {
     const next = { ...passagesByParticipant.value }
@@ -188,6 +196,15 @@ async function maybeLoadFromQuery() {
 watch(mode, (newMode) => {
   if (newMode === 'individual') {
     groupStudents.value = {}
+    if (participants.value.length === 0) {
+      ensureIndividualHasDefaultParticipant()
+    } else {
+      participants.value = participants.value.map((p, i) => {
+        const m = p.nom?.match(/^Groupe (\d+)$/)
+        if (m) return { ...p, nom: `Elève ${m[1]}` }
+        return p
+      })
+    }
   }
   if (newMode === 'relay') {
     // En mode relais, les entêtes sont des groupes (Groupe 1, Groupe 2), pas des élèves
@@ -207,7 +224,11 @@ watch(mode, (newMode) => {
 
 onMounted(async () => {
   await maybeLoadFromQuery()
-  ensureRelayHasDefaultGroup()
+  if (mode.value === 'relay') {
+    ensureRelayHasDefaultGroup()
+  } else if (mode.value === 'individual' && !currentCourse.value && participants.value.length === 0) {
+    ensureIndividualHasDefaultParticipant()
+  }
 })
 watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
 </script>

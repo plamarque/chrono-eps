@@ -194,6 +194,35 @@ describe('useChronometre', () => {
     wrapper.unmount()
   })
 
+  it("stopParticipant enregistre un passage avec le temps de l'élève", async () => {
+    const participants = ref([{ id: 'p1', nom: 'Élève 1' }])
+    const chrono = useChronometre(participants)
+    const wrapper = mount({
+      setup: () => () =>
+        h('div', [
+          h('span', { 'data-testid': 'passages' }, JSON.stringify(chrono.passagesByParticipant.value)),
+          h('button', { onClick: chrono.start }, 'Start'),
+          h('button', { onClick: () => chrono.stopParticipant('p1') }, 'StopP1')
+        ])
+    })
+
+    await wrapper.findAll('button')[0].trigger('click')
+    await vi.advanceTimersByTimeAsync(5500)
+    await wrapper.findAll('button')[1].trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const passages = JSON.parse(wrapper.find('[data-testid="passages"]').text())
+    expect(passages.p1).toHaveLength(1)
+    expect(passages.p1[0]).toMatchObject({
+      tourNum: 1,
+      lapMs: expect.any(Number),
+      totalMs: expect.any(Number)
+    })
+    expect(passages.p1[0].totalMs).toBeGreaterThanOrEqual(5000)
+    expect(passages.p1[0].lapMs).toBe(passages.p1[0].totalMs)
+    wrapper.unmount()
+  })
+
   it('suppression d’un participant nettoie participantStates via le watcher', async () => {
     const participants = ref([
       { id: 'p1', nom: 'Alice' },
