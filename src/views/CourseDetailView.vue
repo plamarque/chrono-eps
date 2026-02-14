@@ -92,7 +92,17 @@ watch(() => route.params.id, fetchCourse)
             :show-tour="false"
             :is-viewing-loaded-course="true"
             @reset="goBack"
-          />
+          >
+            <template #extra-controls>
+              <Button
+                label="Dupliquer"
+                icon="pi pi-copy"
+                severity="secondary"
+                class="chronometre-btn"
+                @click="startNewFromThis"
+              />
+            </template>
+          </Chronometre>
         </section>
         <section class="course-detail-section" aria-label="Passages">
           <TableauPassages
@@ -119,12 +129,6 @@ watch(() => route.params.id, fetchCourse)
             icon="pi pi-arrow-left"
             severity="secondary"
             @click="goBack"
-          />
-          <Button
-            label="Nouvelle course à partir de"
-            icon="pi pi-copy"
-            severity="secondary"
-            @click="startNewFromThis"
           />
         </div>
       </template>

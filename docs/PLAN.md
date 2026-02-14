@@ -2,7 +2,7 @@
 
 ## Phase actuelle
 
-Slice 7 — Mode relais (complet). Prochain : Slice 8.
+Slice 7 — Mode relais (complet). Slice 10 — Dupliquer (complet). Prochain : Slice 8.
 
 ## Slices
 
@@ -17,7 +17,7 @@ Slice 7 — Mode relais (complet). Prochain : Slice 8.
 | 7     | Mode relais              | Groupes, config élèves, Couru/Prochain, course continue jusqu'à arrêt | Fait     |
 | 8     | Enregistrement auto      | Sauvegarde à chaque changement, nom auto, renommage depuis historique | À faire  |
 | 9     | Performances (P1, P2, …) | Liste temps de passage par tour, mode individuel et relais | À faire  |
-| 10    | Dupliquer                | Bouton Dupliquer en en-tête, création course à partir d'une existante | À faire  |
+| 10    | Dupliquer                | Bouton Dupliquer à côté du chrono, création course à partir d'une existante | Fait    |
 
 ## Objectif MVP
 
@@ -187,8 +187,8 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ### Tâches
 
-- [ ] Renommer « Nouvelle course à partir de » en « Dupliquer » (issue 5)
-- [ ] Remonter le bouton dans l'en-tête de CourseDetailView.vue (issue 6)
+- [x] Renommer « Nouvelle course à partir de » en « Dupliquer » (issue 5)
+- [x] Remonter le bouton à côté du chronomètre (Nouvelle course) dans CourseDetailView.vue (issue 6)
 
 ---
 

@@ -87,7 +87,7 @@ const displayedTime = computed(() => formatTime(props.elapsedMs))
   justify-content: center;
 }
 
-.chronometre-btn {
+.chronometre-controls :deep(.chronometre-btn) {
   min-height: 44px;
   min-width: 44px;
 }
