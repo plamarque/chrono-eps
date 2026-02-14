@@ -1,6 +1,7 @@
-const COULEURS_PALETTE = [
-  '#3b82f6', '#ef4444', '#22c55e', '#eab308',
-  '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'
+/** Palette : rouge, bleu, jaune, orange, violet, vert */
+export const COULEURS_PALETTE = [
+  '#ef4444', '#3b82f6', '#eab308', '#f97316',
+  '#8b5cf6', '#22c55e'
 ]
 
 /**

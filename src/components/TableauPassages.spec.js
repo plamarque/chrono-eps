@@ -190,6 +190,17 @@ describe('TableauPassages', () => {
     wrapper.unmount()
   })
 
+  it('masque le bouton Ajouter à 6 participants', () => {
+    const participants = Array.from({ length: 6 }, (_, i) => ({
+      id: `p${i + 1}`,
+      nom: `Participant ${i + 1}`,
+      color: '#3b82f6'
+    }))
+    const wrapper = mountTableauPassages({ participants })
+    expect(wrapper.text()).not.toContain('Ajouter')
+    wrapper.unmount()
+  })
+
   it('readOnly masque la ligne des contrôles démarrer/arrêter', () => {
     const participants = [{ id: '1', nom: 'Alice' }]
     const wrapper = mountTableauPassages({ participants, readOnly: true })

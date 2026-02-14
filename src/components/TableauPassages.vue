@@ -3,13 +3,10 @@ import { ref, computed } from 'vue'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
-import { createParticipant } from '../models/participant.js'
+import { createParticipant, COULEURS_PALETTE } from '../models/participant.js'
 import { formatTime } from '../utils/formatTime.js'
 
-const COULEURS = [
-  '#3b82f6', '#ef4444', '#22c55e', '#eab308',
-  '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'
-]
+const MAX_PARTICIPANTS = 6
 
 const props = defineProps({
   participants: {
@@ -39,7 +36,7 @@ const emit = defineEmits(['add', 'update', 'remove', 'record', 'start-participan
 const showParticipantModal = ref(false)
 const editedParticipant = ref(null)
 const modalNom = ref('')
-const modalColor = ref('#3b82f6')
+const modalColor = ref(COULEURS_PALETTE[0])
 
 const displayParticipants = computed(() => {
   if (props.participants.length === 0) {
@@ -95,7 +92,7 @@ function addParticipant() {
 function openParticipantModal(participant) {
   editedParticipant.value = participant
   modalNom.value = participant.nom
-  modalColor.value = participant.color ?? COULEURS[0]
+  modalColor.value = participant.color ?? COULEURS_PALETTE[0]
   showParticipantModal.value = true
 }
 
@@ -169,7 +166,7 @@ function toggleParticipant(participant) {
     <div class="tableau-passages-header">
       <div class="tableau-passages-title">Passages</div>
       <Button
-        v-if="!readOnly"
+        v-if="!readOnly && participants.length < MAX_PARTICIPANTS"
         label="Ajouter"
         icon="pi pi-plus"
         severity="primary"
@@ -311,7 +308,7 @@ function toggleParticipant(participant) {
           <label>Couleur</label>
           <div class="participant-modal-colors">
             <button
-              v-for="c in COULEURS"
+              v-for="c in COULEURS_PALETTE"
               :key="c"
               type="button"
               class="participant-modal-color-btn"

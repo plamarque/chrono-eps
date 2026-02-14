@@ -31,7 +31,7 @@ Ce document définit le vocabulaire, les entités et les règles du domaine pour
 
 ## Règles du domaine
 
-1. Une course a au moins un élève participant.
+1. Une course a au moins un élève participant et au plus 6 élèves participants.
 2. Chaque passage associe un élève à un tour (ou ordinal) et à un instant précis.
 3. Les passages sont ordonnés chronologiquement ; le timestamp est non modifiable une fois enregistré. [ASSUMPTION]
 4. Les performances sont dérivées des passages : temps du premier passage, du dernier, nombre de tours, etc.

@@ -149,6 +149,7 @@ function handleReset() {
 }
 
 function addParticipant(participant) {
+  if (participants.value.length >= 6) return
   if (participants.value.length === 0) {
     const next = { ...passagesByParticipant.value }
     delete next['__solo__']
