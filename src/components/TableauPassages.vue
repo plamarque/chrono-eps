@@ -64,10 +64,16 @@ const tourRows = computed(() =>
 const performancesByParticipant = computed(() => {
   if (props.participants.length === 0) return []
   return props.participants.map((p) => {
-    const passages = props.passagesByParticipant[p.id] ?? []
+    const passages = (props.passagesByParticipant[p.id] ?? [])
+      .slice()
+      .sort((a, b) => (a.tourNum ?? 0) - (b.tourNum ?? 0))
     const nbTours = passages.length
     const dernierTotalMs = nbTours > 0 ? passages[nbTours - 1].totalMs : null
-    return { participant: p, nbTours, dernierTotalMs }
+    const passagesList = passages.map((pass, i) => ({
+      label: `P${i + 1}`,
+      lapMs: pass.lapMs
+    }))
+    return { participant: p, nbTours, dernierTotalMs, passagesList }
   })
 })
 
@@ -277,13 +283,23 @@ function toggleParticipant(participant) {
           class="tableau-passages-resume-card"
           :style="{ borderLeftColor: perf.participant.color ?? '#94a3b8' }"
         >
-          <span class="tableau-passages-resume-nom">{{ perf.participant.nom }}</span>
-          <span class="tableau-passages-resume-stats">
-            {{ perf.nbTours }} tour{{ perf.nbTours > 1 ? 's' : '' }}
-            <template v-if="perf.dernierTotalMs !== null">
-              · Dernier : {{ formatTime(perf.dernierTotalMs) }}
-            </template>
-          </span>
+          <div class="tableau-passages-resume-header">
+            <span class="tableau-passages-resume-nom">{{ perf.participant.nom }}</span>
+            <span class="tableau-passages-resume-stats">
+              {{ perf.nbTours }} tour{{ perf.nbTours > 1 ? 's' : '' }}
+              <template v-if="perf.dernierTotalMs !== null">
+                · Dernier : {{ formatTime(perf.dernierTotalMs) }}
+              </template>
+            </span>
+          </div>
+          <div
+            v-for="item in perf.passagesList"
+            :key="item.label"
+            class="tableau-passages-resume-passage"
+          >
+            <span class="tableau-passages-resume-passage-nom">{{ item.label }}</span>
+            <span class="tableau-passages-resume-passage-time">{{ formatTime(item.lapMs) }}</span>
+          </div>
         </div>
       </div>
     </section>
@@ -516,13 +532,19 @@ function toggleParticipant(participant) {
 
 .tableau-passages-resume-card {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.35rem;
   padding: 0.5rem 0.75rem;
   background: #f8fafc;
   border-radius: var(--p-border-radius, 6px);
   border-left: 4px solid #94a3b8;
+}
+
+.tableau-passages-resume-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
 }
 
 .tableau-passages-resume-nom {
@@ -533,6 +555,26 @@ function toggleParticipant(participant) {
 .tableau-passages-resume-stats {
   font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
   font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.tableau-passages-resume-passage {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  padding-left: 0.5rem;
+  border-left: 2px solid #e5e7eb;
+}
+
+.tableau-passages-resume-passage-nom {
+  font-weight: 500;
+  color: #374151;
+}
+
+.tableau-passages-resume-passage-time {
+  font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
   color: #6b7280;
 }
 

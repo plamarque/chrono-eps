@@ -88,6 +88,48 @@ function getPassagesList(groupId) {
   })
 }
 
+/**
+ * Performances regroupées par élève pour la section Performances.
+ * Retourne : { groupTotalMs, students: [{ nom, passages: [{ pNum, lapMs }], totalLapMs }] }
+ */
+function getPerformancesByStudent(groupId) {
+  const students = (props.groupStudents[groupId] ?? []).slice().sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
+  const passages = (props.passagesByParticipant[groupId] ?? []).slice().sort((a, b) => a.tourNum - b.tourNum)
+  const groupTotalMs = passages.length > 0 ? passages[passages.length - 1].totalMs : null
+
+  const byStudent = {}
+  for (let i = 0; i < students.length; i++) {
+    const student = students[i]
+    byStudent[i] = { nom: student.nom, passages: [] }
+  }
+  if (students.length === 0) {
+    byStudent[0] = { nom: 'Élève 1', passages: [] }
+  }
+
+  passages.forEach((p) => {
+    const idx = p.studentIndex ?? 0
+    if (!byStudent[idx]) {
+      byStudent[idx] = { nom: `Élève ${idx + 1}`, passages: [] }
+    }
+    byStudent[idx].passages.push({
+      pNum: byStudent[idx].passages.length + 1,
+      lapMs: p.lapMs
+    })
+  })
+
+  const result = Object.keys(byStudent)
+    .map((k) => parseInt(k, 10))
+    .sort((a, b) => a - b)
+    .map((idx) => byStudent[idx])
+    .filter((s) => s.passages.length > 0)
+    .map((s) => ({
+      ...s,
+      totalLapMs: s.passages.reduce((sum, p) => sum + (p.lapMs ?? 0), 0)
+    }))
+
+  return { groupTotalMs, students: result }
+}
+
 function getCurrentAndNext(groupId) {
   const students = (props.groupStudents[groupId] ?? []).slice().sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
   const passages = props.passagesByParticipant[groupId] ?? []
@@ -145,7 +187,8 @@ const performancesByGroup = computed(() =>
     const passages = props.passagesByParticipant[p.id] ?? []
     const nbTours = passages.length
     const dernierTotalMs = nbTours > 0 ? passages[nbTours - 1].totalMs : null
-    return { participant: p, nbTours, dernierTotalMs }
+    const perfByStudent = getPerformancesByStudent(p.id)
+    return { participant: p, nbTours, dernierTotalMs, perfByStudent }
   })
 )
 
@@ -285,20 +328,29 @@ const hasAnyPassage = computed(() =>
         >
           <div class="tableau-passages-resume-header">
             <span class="tableau-passages-resume-nom">{{ perf.participant.nom }}</span>
-            <span class="tableau-passages-resume-stats">
-              {{ perf.nbTours }} passage{{ perf.nbTours > 1 ? 's' : '' }}
-              <template v-if="perf.dernierTotalMs !== null">
-                · Total : {{ formatTime(perf.dernierTotalMs) }}
-              </template>
+            <span
+              v-if="perf.perfByStudent.groupTotalMs !== null"
+              class="tableau-passages-resume-stats"
+            >
+              Total : {{ formatTime(perf.perfByStudent.groupTotalMs) }}
             </span>
           </div>
           <div
-            v-for="(item, i) in getPassagesList(perf.participant.id)"
-            :key="i"
-            class="tableau-passages-resume-passage"
+            v-for="(student, si) in perf.perfByStudent.students"
+            :key="`${perf.participant.id}-${si}-${student.nom}`"
+            class="tableau-passages-resume-student-row"
           >
-            <span class="tableau-passages-resume-passage-nom">{{ item.nom }}</span>
-            <span class="tableau-passages-resume-passage-time">{{ formatTime(item.lapMs) }}</span>
+            <span class="tableau-passages-resume-student-nom">{{ student.nom }}</span>
+            <span class="tableau-passages-resume-student-passages">
+              <template
+                v-for="(p, i) in student.passages"
+                :key="p.pNum"
+              >
+                <span v-if="i > 0">  </span>
+                <span>P{{ p.pNum }}: {{ formatTime(p.lapMs) }}</span>
+              </template>
+              <span class="tableau-passages-resume-student-total">  Total : {{ formatTime(student.totalLapMs) }}</span>
+            </span>
           </div>
         </div>
       </div>
@@ -556,6 +608,32 @@ const hasAnyPassage = computed(() =>
   font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
   font-size: 0.875rem;
   color: #6b7280;
+}
+
+.tableau-passages-resume-student-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  padding-left: 0.5rem;
+  border-left: 2px solid #e5e7eb;
+}
+
+.tableau-passages-resume-student-nom {
+  font-weight: 600;
+  color: #1a1a1a;
+  min-width: 4rem;
+}
+
+.tableau-passages-resume-student-passages {
+  font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
+  color: #6b7280;
+}
+
+.tableau-passages-resume-student-total {
+  font-weight: 600;
+  color: #1a1a1a;
 }
 
 .tableau-passages-resume-passage {

@@ -2,7 +2,7 @@
 
 ## Phase actuelle
 
-Slice 7 — Mode relais (complet). Slice 10 — Dupliquer (complet). Prochain : Slice 8.
+Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 10 — Dupliquer (complet). Prochain : Slice 8.
 
 ## Slices
 
@@ -16,7 +16,7 @@ Slice 7 — Mode relais (complet). Slice 10 — Dupliquer (complet). Prochain : 
 | 6     | Historique + déploiement | Vue historique, PWA final, GitHub Pages     | Fait     |
 | 7     | Mode relais              | Groupes, config élèves, Couru/Prochain, course continue jusqu'à arrêt | Fait     |
 | 8     | Enregistrement auto      | Sauvegarde à chaque changement, nom auto, renommage depuis historique | À faire  |
-| 9     | Performances (P1, P2, …) | Liste temps de passage par tour, mode individuel et relais | À faire  |
+| 9     | Performances (P1, P2, …) | Liste temps de passage par tour, mode individuel et relais | Fait     |
 | 10    | Dupliquer                | Bouton Dupliquer à côté du chrono, création course à partir d'une existante | Fait    |
 
 ## Objectif MVP
@@ -173,9 +173,9 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ### Tâches
 
-- [ ] Mode individuel (TableauPassages.vue) : liste P1, P2, P3… dans section tableau-passages-resume
-- [ ] Mode relais (TableauPassagesRelay.vue) : liste P1, P2, P3… dans section tableau-passages-resume
-- [ ] Compléter ou remplacer affichage actuel (nb tours, dernier total) par liste explicite
+- [x] Mode individuel (TableauPassages.vue) : liste P1, P2, P3… dans section tableau-passages-resume
+- [x] Mode relais (TableauPassagesRelay.vue) : liste P1, P2, P3… dans section tableau-passages-resume (regroupée par élève, total groupe + Total cumulé par élève)
+- [x] Compléter ou remplacer affichage actuel (nb tours, dernier total) par liste explicite
 
 ---
 

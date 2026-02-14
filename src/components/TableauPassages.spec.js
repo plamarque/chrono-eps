@@ -141,6 +141,39 @@ describe('TableauPassages', () => {
     expect(wrapper.text()).toContain('1 tour')
     expect(wrapper.text()).toContain('00:58.00')
     expect(wrapper.text()).toContain('00:32.00')
+    expect(wrapper.text()).toContain('P1')
+    expect(wrapper.text()).toContain('P2')
+    expect(wrapper.text()).toContain('00:30.00')
+    expect(wrapper.text()).toContain('00:28.00')
+    wrapper.unmount()
+  })
+
+  it('affiche la liste P1, P2, P3 pour chaque participant dans Performances', () => {
+    const participants = [
+      { id: '1', nom: 'Alice' },
+      { id: '2', nom: 'Bob' }
+    ]
+    const passagesByParticipant = {
+      '1': [
+        { tourNum: 1, lapMs: 40000, totalMs: 40000 },
+        { tourNum: 2, lapMs: 35000, totalMs: 75000 },
+        { tourNum: 3, lapMs: 36000, totalMs: 111000 }
+      ],
+      '2': [{ tourNum: 1, lapMs: 42000, totalMs: 42000 }]
+    }
+    const wrapper = mountTableauPassages({
+      participants,
+      passagesByParticipant
+    })
+    const passageLines = wrapper.findAll('.tableau-passages-resume-passage')
+    expect(passageLines.length).toBe(4)
+    expect(wrapper.text()).toContain('P1')
+    expect(wrapper.text()).toContain('P2')
+    expect(wrapper.text()).toContain('P3')
+    expect(wrapper.text()).toContain('00:40.00')
+    expect(wrapper.text()).toContain('00:35.00')
+    expect(wrapper.text()).toContain('00:36.00')
+    expect(wrapper.text()).toContain('00:42.00')
     wrapper.unmount()
   })
 
