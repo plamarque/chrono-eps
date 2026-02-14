@@ -241,7 +241,18 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
             @stop="stop"
             @reset="handleReset"
             @record-tour="() => recordPassage('__solo__')"
-          />
+          >
+            <template #extra-controls>
+              <Button
+                label="Enregistrer"
+                icon="pi pi-save"
+                severity="secondary"
+                class="chronometre-btn"
+                :disabled="!canSave"
+                @click="openSaveModal"
+              />
+            </template>
+          </Chronometre>
         </section>
         <section class="home-section" aria-label="Passages">
           <TableauPassages
@@ -274,16 +285,6 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
             @stop-participant="stopParticipant"
             @update-group-students="updateGroupStudents"
           />
-          <div class="home-actions-bar">
-            <Button
-              label="Enregistrer"
-              icon="pi pi-save"
-              severity="secondary"
-              class="home-action-btn"
-              :disabled="!canSave"
-              @click="openSaveModal"
-            />
-          </div>
         </section>
       </template>
     </Card>
@@ -348,18 +349,6 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
 
 .home-section-chrono {
   padding-top: 0;
-}
-
-.home-actions-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.home-action-btn {
-  min-height: 44px;
 }
 
 .home-save-form label {

@@ -58,6 +58,7 @@ const displayedTime = computed(() => formatTime(props.elapsedMs))
         class="chronometre-btn"
         @click="emit('reset')"
       />
+      <slot name="extra-controls" />
     </div>
   </div>
 </template>
