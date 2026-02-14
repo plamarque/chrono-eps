@@ -4,6 +4,15 @@ export const COULEURS_PALETTE = [
   '#8b5cf6', '#22c55e'
 ]
 
+/** Noms des couleurs pour les groupes par défaut */
+export const COULEURS_NOMS = ['Rouge', 'Bleu', 'Jaune', 'Orange', 'Violet', 'Vert']
+
+/** Retourne le nom de la couleur pour un hex donné. */
+export function getColorName(hex) {
+  const idx = COULEURS_PALETTE.findIndex((c) => c.toLowerCase() === (hex ?? '').toLowerCase())
+  return idx >= 0 ? COULEURS_NOMS[idx] : 'Couleur'
+}
+
 /**
  * Crée un participant (élève).
  * DOMAIN : Élève identifié par nom ou identifiant.
@@ -28,5 +37,51 @@ export function createParticipant(nomOrIndex, color) {
     id: crypto.randomUUID(),
     nom,
     color: participantColor
+  }
+}
+
+/**
+ * Crée un groupe relais.
+ * DOMAIN : Groupe (relais) = ensemble ordonné d'élèves.
+ * @param {string|number} nomOrIndex - Nom du groupe, ou index (0-based) pour auto-génération (Groupe 1, Groupe 2, ...)
+ * @param {string} [color] - Couleur hex du groupe (optionnelle)
+ * @returns {{ id: string, nom: string, color: string }}
+ */
+export function createRelayGroup(nomOrIndex, color) {
+  let nom
+  const colorIndex = typeof nomOrIndex === 'number' ? nomOrIndex : 0
+  const groupColor = color ?? COULEURS_PALETTE[Math.max(0, colorIndex) % COULEURS_PALETTE.length]
+  if (typeof nomOrIndex === 'number') {
+    nom = `Groupe ${colorIndex + 1}`
+  } else {
+    const trimmed = typeof nomOrIndex === 'string' ? nomOrIndex.trim() : ''
+    nom = trimmed || 'Groupe 1'
+  }
+  return {
+    id: crypto.randomUUID(),
+    nom,
+    color: groupColor
+  }
+}
+
+/**
+ * Crée un élève dans un groupe relais.
+ * La couleur est une propriété du groupe, pas de l'élève.
+ * @param {string|number} nomOrIndex - Nom de l'élève ou numéro pour auto-génération
+ * @param {number} ordre - Position dans l'ordre de course (0-based)
+ * @returns {{ id: string, nom: string, ordre: number }}
+ */
+export function createRelayStudent(nomOrIndex, ordre = 0) {
+  let nom
+  if (typeof nomOrIndex === 'number') {
+    nom = `Élève ${nomOrIndex}`
+  } else {
+    const trimmed = typeof nomOrIndex === 'string' ? nomOrIndex.trim() : ''
+    nom = trimmed || 'Élève'
+  }
+  return {
+    id: crypto.randomUUID(),
+    nom,
+    ordre
   }
 }

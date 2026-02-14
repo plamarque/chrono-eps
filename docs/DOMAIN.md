@@ -13,6 +13,8 @@ Ce document définit le vocabulaire, les entités et les règles du domaine pour
 | **Course** | Session chronométrée : une activité à un instant donné (ex. course du jour, tour de piste). |
 | **Tour** | Unité de parcours complétée (ex. un tour de piste, une longueur de bassin). |
 | **Passage** | Traversée d'un point de contrôle par un élève à un instant donné ; enregistrement d'un tour complété. |
+| **Passage (relais)** | Un tour de piste complété par un élève d'un groupe ; l'ordre cycle sur les élèves (ex. Alice, Bob, Claire, Daniel, Alice, Bob...) ; la course continue jusqu'à l'arrêt par le professeur. |
+| **Groupe (relais)** | Ensemble ordonné d'élèves qui courent l'un après l'autre ; a une couleur (chasubles communes) et une liste de noms d'élèves. |
 | **Performance** | Résultat associé à un élève pour une course : temps, nombre de tours complétés, etc. |
 
 ## Entités et relations

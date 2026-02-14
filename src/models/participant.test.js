@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { createParticipant } from './participant.js'
+import {
+  createParticipant,
+  createRelayGroup,
+  createRelayStudent,
+  getColorName,
+  COULEURS_PALETTE
+} from './participant.js'
 
 describe('createParticipant', () => {
   it('génère un objet avec id, nom et color à partir d\'un nom', () => {
@@ -37,5 +43,93 @@ describe('createParticipant', () => {
     expect(() => createParticipant('   ')).toThrow(
       'Le nom du participant ne peut pas être vide'
     )
+  })
+})
+
+describe('createRelayGroup', () => {
+  it('génère un objet avec id, nom et color', () => {
+    const g = createRelayGroup(0)
+    expect(g).toHaveProperty('id')
+    expect(g).toHaveProperty('nom')
+    expect(g).toHaveProperty('color')
+    expect(g.nom).toBe('Groupe 1')
+    expect(g.color).toBe(COULEURS_PALETTE[0])
+  })
+
+  it('génère les numéros par index (Groupe 1, Groupe 2, etc.)', () => {
+    expect(createRelayGroup(0).nom).toBe('Groupe 1')
+    expect(createRelayGroup(1).nom).toBe('Groupe 2')
+    expect(createRelayGroup(2).nom).toBe('Groupe 3')
+    expect(createRelayGroup(5).nom).toBe('Groupe 6')
+  })
+
+  it('accepte un nom personnalisé', () => {
+    const g = createRelayGroup('Équipe A')
+    expect(g.nom).toBe('Équipe A')
+    expect(g).toHaveProperty('color')
+  })
+
+  it('utilise "Groupe 1" comme fallback quand le nom est vide', () => {
+    const g = createRelayGroup('')
+    expect(g.nom).toBe('Groupe 1')
+  })
+
+  it('genère un id unique à chaque appel', () => {
+    const g1 = createRelayGroup(0)
+    const g2 = createRelayGroup(1)
+    expect(g1.id).not.toBe(g2.id)
+  })
+
+  it('utilise la couleur fournie si passée', () => {
+    const g = createRelayGroup(0, '#abc123')
+    expect(g.color).toBe('#abc123')
+  })
+})
+
+describe('createRelayStudent', () => {
+  it('génère un objet avec id, nom et ordre', () => {
+    const s = createRelayStudent('Alice', 0)
+    expect(s).toHaveProperty('id')
+    expect(s).toHaveProperty('nom')
+    expect(s).toHaveProperty('ordre')
+    expect(s.nom).toBe('Alice')
+    expect(s.ordre).toBe(0)
+  })
+
+  it('génère Élève 1, Élève 2 à partir d\'un numéro', () => {
+    expect(createRelayStudent(1).nom).toBe('Élève 1')
+    expect(createRelayStudent(2).nom).toBe('Élève 2')
+  })
+
+  it('genère un id unique à chaque appel', () => {
+    const s1 = createRelayStudent('Alice', 0)
+    const s2 = createRelayStudent('Bob', 1)
+    expect(s1.id).not.toBe(s2.id)
+  })
+
+  it('utilise ordre 0 par défaut', () => {
+    const s = createRelayStudent('Claire')
+    expect(s.ordre).toBe(0)
+  })
+})
+
+describe('getColorName', () => {
+  it('retourne le nom de couleur pour un hex de la palette', () => {
+    expect(getColorName('#ef4444')).toBe('Rouge')
+    expect(getColorName('#3b82f6')).toBe('Bleu')
+    expect(getColorName('#22c55e')).toBe('Vert')
+  })
+
+  it('retourne le nom pour hex en majuscules', () => {
+    expect(getColorName('#EF4444')).toBe('Rouge')
+  })
+
+  it('retourne "Couleur" pour un hex inconnu', () => {
+    expect(getColorName('#000000')).toBe('Couleur')
+  })
+
+  it('retourne "Couleur" pour null ou undefined', () => {
+    expect(getColorName(null)).toBe('Couleur')
+    expect(getColorName(undefined)).toBe('Couleur')
   })
 })

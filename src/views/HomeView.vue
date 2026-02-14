@@ -5,18 +5,27 @@ import Card from 'primevue/card'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
+import SelectButton from 'primevue/selectbutton'
 import Chronometre from '../components/Chronometre.vue'
 import TableauPassages from '../components/TableauPassages.vue'
+import TableauPassagesRelay from '../components/TableauPassagesRelay.vue'
 import { useChronometre } from '../composables/useChronometre.js'
 import { useToast } from 'primevue/usetoast'
 import { saveCourse, listCourses, loadCourse, deleteCourse } from '../services/courseStore.js'
 import { getMaxTotalMsFromPassages } from '../utils/courseUtils.js'
 import { formatCourseDate } from '../utils/formatDate.js'
+import { createRelayGroup } from '../models/participant.js'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 const participants = ref([])
+const mode = ref('relay')
+const groupStudents = ref({})
+const chronoOptions = computed(() => ({
+  mode: mode.value,
+  groupStudents: groupStudents.value
+}))
 const {
   elapsedMs,
   status,
@@ -29,7 +38,7 @@ const {
   startParticipant,
   stopParticipant,
   recordPassage
-} = useChronometre(participants)
+} = useChronometre(participants, chronoOptions)
 
 const hasAnyPassage = computed(() => {
   const pbp = passagesByParticipant.value
@@ -67,7 +76,10 @@ async function doSave() {
       participants: participants.value,
       passagesByParticipant: passagesByParticipant.value,
       chronoStartMs,
-      statusAtSave: status.value
+      statusAtSave: status.value,
+      mode: mode.value,
+      nbPassagesRelay: null,
+      groupStudents: mode.value === 'relay' ? groupStudents.value : {}
     })
     closeSaveModal()
     currentCourse.value = { id: courseId, nom }
@@ -103,6 +115,8 @@ async function doLoadCourse(courseId) {
       return
     }
     participants.value = [...course.participants]
+    mode.value = course.mode || 'individual'
+    groupStudents.value = { ...(course.groupStudents || {}) }
     reset()
     passagesByParticipant.value = { ...course.passagesByParticipant }
     currentCourse.value = { id: course.id, nom: course.nom }
@@ -133,11 +147,22 @@ async function doDeleteCourse(courseId, event) {
   }
 }
 
+function ensureRelayHasDefaultGroup() {
+  if (mode.value !== 'relay' || currentCourse.value || participants.value.length > 0) return
+  const group = createRelayGroup(0)
+  participants.value = [group]
+  groupStudents.value = { [group.id]: [] }
+}
+
 function startNewCourse() {
   currentCourse.value = null
   participants.value = []
+  groupStudents.value = {}
   reset()
   passagesByParticipant.value = {}
+  if (mode.value === 'relay') {
+    ensureRelayHasDefaultGroup()
+  }
 }
 
 function handleReset() {
@@ -170,6 +195,19 @@ function removeParticipant(participant) {
   const next = { ...passagesByParticipant.value }
   delete next[participant.id]
   passagesByParticipant.value = next
+  const nextGs = { ...groupStudents.value }
+  delete nextGs[participant.id]
+  groupStudents.value = nextGs
+  if (mode.value === 'relay' && !currentCourse.value && participants.value.length === 0) {
+    ensureRelayHasDefaultGroup()
+  }
+}
+
+function updateGroupStudents({ groupId, students }) {
+  groupStudents.value = {
+    ...groupStudents.value,
+    [groupId]: students ?? []
+  }
 }
 
 async function maybeLoadFromQuery() {
@@ -179,7 +217,30 @@ async function maybeLoadFromQuery() {
   await doLoadCourse(id)
 }
 
-onMounted(maybeLoadFromQuery)
+watch(mode, (newMode) => {
+  if (newMode === 'individual') {
+    groupStudents.value = {}
+  }
+  if (newMode === 'relay') {
+    // En mode relais, les entêtes sont des groupes (Groupe 1, Groupe 2), pas des élèves
+    if (participants.value.length === 0) {
+      ensureRelayHasDefaultGroup()
+    } else {
+      participants.value = participants.value.map((p, i) => {
+        const m = p.nom?.match(/^Elève (\d+)$/)
+        if (m) {
+          return { ...p, nom: `Groupe ${i + 1}` }
+        }
+        return p
+      })
+    }
+  }
+})
+
+onMounted(async () => {
+  await maybeLoadFromQuery()
+  ensureRelayHasDefaultGroup()
+})
 watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
 </script>
 
@@ -190,12 +251,25 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
         <span class="home-course-title">{{ currentCourse.nom }}</span>
       </template>
       <template #content>
+        <section v-if="!currentCourse" class="home-section home-mode-selector" aria-label="Mode de course">
+          <label class="home-mode-label">Mode</label>
+          <SelectButton
+            v-model="mode"
+            :options="[
+              { label: 'Relais', value: 'relay' },
+              { label: 'Individuel', value: 'individual' }
+            ]"
+            option-label="label"
+            option-value="value"
+            class="home-mode-buttons"
+          />
+        </section>
         <section class="home-section home-section-chrono" aria-labelledby="chrono-heading">
           <h2 id="chrono-heading" class="sr-only">Chronomètre</h2>
           <Chronometre
             :elapsed-ms="displayedElapsedMs"
             :status="status"
-            :show-tour="participants.length === 0"
+            :show-tour="participants.length === 0 && mode !== 'relay'"
             :is-viewing-loaded-course="!!currentCourse"
             @start="start"
             @stop="stop"
@@ -205,6 +279,7 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
         </section>
         <section class="home-section" aria-label="Passages">
           <TableauPassages
+            v-if="mode !== 'relay'"
             :participants="participants"
             :participant-states="participantStates"
             :passages-by-participant="passagesByParticipant"
@@ -216,6 +291,22 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
             @record="recordPassage"
             @start-participant="startParticipant"
             @stop-participant="stopParticipant"
+          />
+          <TableauPassagesRelay
+            v-else
+            :participants="participants"
+            :participant-states="participantStates"
+            :passages-by-participant="passagesByParticipant"
+            :group-students="groupStudents"
+            :status="status"
+            :read-only="!!currentCourse"
+            @add="addParticipant"
+            @update="updateParticipant"
+            @remove="removeParticipant"
+            @record="recordPassage"
+            @start-participant="startParticipant"
+            @stop-participant="stopParticipant"
+            @update-group-students="updateGroupStudents"
           />
           <div class="home-actions-bar">
             <Button
@@ -326,6 +417,23 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
 
 .home-section {
   margin-bottom: 1.5rem;
+}
+
+.home-mode-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.home-mode-label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--p-text-color, #1a1a1a);
+}
+
+.home-mode-buttons {
+  align-self: flex-start;
 }
 
 .home-section-chrono {

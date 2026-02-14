@@ -5,6 +5,7 @@ import Card from 'primevue/card'
 import Button from 'primevue/button'
 import Chronometre from '../components/Chronometre.vue'
 import TableauPassages from '../components/TableauPassages.vue'
+import TableauPassagesRelay from '../components/TableauPassagesRelay.vue'
 import { loadCourse } from '../services/courseStore.js'
 import { getMaxTotalMsFromPassages } from '../utils/courseUtils.js'
 import { formatCourseDate } from '../utils/formatDate.js'
@@ -95,9 +96,19 @@ watch(() => route.params.id, fetchCourse)
         </section>
         <section class="course-detail-section" aria-label="Passages">
           <TableauPassages
+            v-if="course.mode !== 'relay'"
             :participants="course.participants"
             :participant-states="emptyParticipantStates"
             :passages-by-participant="course.passagesByParticipant"
+            status="idle"
+            :read-only="true"
+          />
+          <TableauPassagesRelay
+            v-else
+            :participants="course.participants"
+            :participant-states="emptyParticipantStates"
+            :passages-by-participant="course.passagesByParticipant"
+            :group-students="course.groupStudents || {}"
             status="idle"
             :read-only="true"
           />

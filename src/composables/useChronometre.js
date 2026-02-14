@@ -1,8 +1,13 @@
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onUnmounted, unref } from 'vue'
 
 const SOLO_ID = '__solo__'
 
-export function useChronometre(participantsRef) {
+/**
+ * @param {import('vue').Ref<Array<{id:string}>>} participantsRef
+ * @param {{ mode?: 'individual'|'relay', nbPassagesParEleve?: number, groupStudents?: import('vue').Ref<Object> }|import('vue').Ref} [options]
+ */
+export function useChronometre(participantsRef, options = {}) {
+  const opts = () => unref(options) || {}
   const participantStates = ref({}) // { [id]: { elapsedMs, status } }
   const passagesByParticipant = ref({})
   const chronoEpochMs = ref(null) // Epoch ms du démarrage chrono (pour persistance)
@@ -145,16 +150,21 @@ export function useChronometre(participantsRef) {
   function recordPassage(participantId) {
     const s = participantStates.value[participantId]
     if (!s || s.status !== 'running') return
-    const totalMs = s.elapsedMs ?? 0
+    const { mode = 'individual', groupStudents } = opts()
     const passages = passagesByParticipant.value[participantId] ?? []
+    const passageIndex = passages.length
+    const totalMs = s.elapsedMs ?? 0
     const lastTotal = passages.length > 0 ? passages[passages.length - 1].totalMs : 0
     const lapMs = totalMs - lastTotal
+    const entry = { tourNum: passageIndex + 1, lapMs, totalMs }
+    if (mode === 'relay') {
+      const students = (unref(groupStudents) ?? {})[participantId] ?? []
+      const nbStudents = students.length || 1
+      entry.studentIndex = passageIndex % nbStudents
+    }
     passagesByParticipant.value = {
       ...passagesByParticipant.value,
-      [participantId]: [
-        ...passages,
-        { tourNum: passages.length + 1, lapMs, totalMs }
-      ]
+      [participantId]: [...passages, entry]
     }
   }
 

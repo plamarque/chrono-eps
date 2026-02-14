@@ -7,6 +7,7 @@ describe('courseStore', () => {
     await db.courses.clear()
     await db.course_participants.clear()
     await db.passages.clear()
+    if (db.relay_students) await db.relay_students.clear()
   })
 
   it('saveCourse retourne un UUID et persiste la course', async () => {
@@ -74,6 +75,37 @@ describe('courseStore', () => {
     expect(list).toHaveLength(2)
     expect(list[0].nom).toBe('Deuxième')
     expect(list[1].nom).toBe('Première')
+  })
+
+  it('saveCourse en mode relais persiste groupes et élèves', async () => {
+    const id = await saveCourse({
+      nom: 'Relais 4x100',
+      participants: [{ id: 'g1', nom: 'Groupe A', color: '#ef4444' }],
+      passagesByParticipant: {
+        g1: [
+          { tourNum: 1, lapMs: 15000, totalMs: 15000, studentIndex: 0 },
+          { tourNum: 2, lapMs: 16000, totalMs: 31000, studentIndex: 1 }
+        ]
+      },
+      chronoStartMs: 0,
+      statusAtSave: 'paused',
+      mode: 'relay',
+      groupStudents: {
+        g1: [
+          { id: 's1', nom: 'Alice', ordre: 0 },
+          { id: 's2', nom: 'Bob', ordre: 1 },
+          { id: 's3', nom: 'Claire', ordre: 2 },
+          { id: 's4', nom: 'David', ordre: 3 }
+        ]
+      }
+    })
+    const loaded = await loadCourse(id)
+    expect(loaded.mode).toBe('relay')
+    expect(loaded.participants).toHaveLength(1)
+    expect(loaded.groupStudents.g1).toHaveLength(4)
+    expect(loaded.groupStudents.g1[0]).toMatchObject({ nom: 'Alice', ordre: 0 })
+    expect(loaded.passagesByParticipant.g1[0].studentIndex).toBe(0)
+    expect(loaded.passagesByParticipant.g1[1].studentIndex).toBe(1)
   })
 
   it('deleteCourse supprime la course et ses données', async () => {

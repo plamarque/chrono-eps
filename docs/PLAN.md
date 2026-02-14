@@ -2,7 +2,7 @@
 
 ## Phase actuelle
 
-Slice 6 — Historique et MVP final (complet).
+Slice 7 — Mode relais (complet).
 
 ## Slices
 
@@ -14,6 +14,7 @@ Slice 6 — Historique et MVP final (complet).
 | 4     | Passages et calculs      | Tap = passage, temps tour/course, affichage  | Fait     |
 | 5     | Persistance + sauvegarde | IndexedDB, sauvegarde course nommée          | Fait     |
 | 6     | Historique + déploiement | Vue historique, PWA final, GitHub Pages     | Fait     |
+| 7     | Mode relais              | Groupes, config élèves, Couru/Prochain, course continue jusqu'à arrêt | Fait     |
 
 ## Objectif MVP
 
@@ -127,6 +128,25 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ---
 
+## Slice 7 — Mode relais
+
+**Objectif** : Course relais où chaque participant est un groupe ; élèves courent à tour de rôle en cycle ; configuration des élèves et couleurs avant la course ; affichage « Couru » / « Prochain » ; la course continue jusqu'à l'arrêt par le professeur.
+
+**Critères de sortie** : Sélecteur mode Individuel/Relais ; modal config groupe (élèves ordonnés, couleurs) ; tableau relay avec Couru/Prochain ; sauvegarde et chargement des courses relais.
+
+### Tâches
+
+- [x] Documentation (DOMAIN, SPEC, ARCH)
+- [x] Schéma DB v2 : mode, table relay_students
+- [x] courseStore : save/load/delete relay
+- [x] Modèle : createRelayGroup, createRelayStudent
+- [x] useChronometre : support relay (recordPassage groupe, état courant/prochain)
+- [x] TableauPassages Relay : Couru/Prochain, tap par groupe
+- [x] Modal configuration groupe (liste élèves, couleurs)
+- [x] HomeView : sélecteur mode, flux relay
+
+---
+
 ## Dépendances entre slices
 
 ```mermaid
@@ -137,6 +157,7 @@ flowchart LR
     S4[Slice 4: Passages]
     S5[Slice 5: Persistance]
     S6[Slice 6: Historique]
+    S7[Slice 7: Relais]
     
     S1 --> S2
     S1 --> S3
@@ -144,4 +165,4 @@ flowchart LR
     S3 --> S4
     S4 --> S5
     S5 --> S6
-```
+    S6 --> S7
