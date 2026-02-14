@@ -11,9 +11,8 @@ import TableauPassages from '../components/TableauPassages.vue'
 import TableauPassagesRelay from '../components/TableauPassagesRelay.vue'
 import { useChronometre } from '../composables/useChronometre.js'
 import { useToast } from 'primevue/usetoast'
-import { saveCourse, listCourses, loadCourse, deleteCourse } from '../services/courseStore.js'
+import { saveCourse, loadCourse } from '../services/courseStore.js'
 import { getMaxTotalMsFromPassages } from '../utils/courseUtils.js'
-import { formatCourseDate } from '../utils/formatDate.js'
 import { createRelayGroup } from '../models/participant.js'
 
 const route = useRoute()
@@ -91,22 +90,6 @@ async function doSave() {
 
 const currentCourse = ref(null) // { id, nom } quand une course est chargée (lecture seule)
 
-const showCoursesModal = ref(false)
-const coursesList = ref([])
-
-async function openCoursesModal() {
-  showCoursesModal.value = true
-  try {
-    coursesList.value = await listCourses()
-  } catch (err) {
-    toast.add({ severity: 'error', summary: 'Erreur', detail: err?.message || 'Impossible de charger les courses.', life: 5000 })
-  }
-}
-
-function closeCoursesModal() {
-  showCoursesModal.value = false
-}
-
 async function doLoadCourse(courseId) {
   try {
     const course = await loadCourse(courseId)
@@ -120,7 +103,6 @@ async function doLoadCourse(courseId) {
     reset()
     passagesByParticipant.value = { ...course.passagesByParticipant }
     currentCourse.value = { id: course.id, nom: course.nom }
-    closeCoursesModal()
     toast.add({
       severity: 'success',
       summary: 'Chargée',
@@ -129,21 +111,6 @@ async function doLoadCourse(courseId) {
     })
   } catch (err) {
     toast.add({ severity: 'error', summary: 'Erreur', detail: err?.message || 'Impossible de charger.', life: 5000 })
-  }
-}
-
-async function doDeleteCourse(courseId, event) {
-  event?.stopPropagation()
-  if (!confirm('Supprimer cette course ?')) return
-  try {
-    await deleteCourse(courseId)
-    coursesList.value = coursesList.value.filter((c) => c.id !== courseId)
-    if (currentCourse.value?.id === courseId) {
-      startNewCourse()
-    }
-    toast.add({ severity: 'success', summary: 'Supprimée', life: 3000 })
-  } catch (err) {
-    toast.add({ severity: 'error', summary: 'Erreur', detail: err?.message || 'Impossible de supprimer.', life: 5000 })
   }
 }
 
@@ -309,13 +276,6 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
           />
           <div class="home-actions-bar">
             <Button
-              label="Courses"
-              icon="pi pi-folder-open"
-              severity="secondary"
-              class="home-action-btn"
-              @click="openCoursesModal"
-            />
-            <Button
               label="Enregistrer"
               icon="pi pi-save"
               severity="secondary"
@@ -349,45 +309,6 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
         <Button label="Annuler" severity="secondary" @click="closeSaveModal" />
         <Button label="Enregistrer" severity="primary" icon="pi pi-check" @click="doSave" />
       </template>
-    </Dialog>
-
-    <Dialog
-      v-model:visible="showCoursesModal"
-      header="Courses"
-      modal
-      :style="{ width: 'min(90vw, 28rem)' }"
-      @hide="closeCoursesModal"
-    >
-      <div v-if="coursesList.length === 0" class="home-courses-empty">
-        Aucune course sauvegardée.
-      </div>
-      <ul v-else class="home-courses-list">
-        <li
-          v-for="c in coursesList"
-          :key="c.id"
-          class="home-courses-item"
-          role="button"
-          tabindex="0"
-          @click="doLoadCourse(c.id)"
-          @keydown.enter="doLoadCourse(c.id)"
-          @keydown.space.prevent="doLoadCourse(c.id)"
-        >
-          <span class="home-courses-nom">{{ c.nom }}</span>
-          <span class="home-courses-meta">
-            <span class="home-courses-date">{{ formatCourseDate(c.createdAt) }}</span>
-            <Button
-              icon="pi pi-trash"
-              severity="danger"
-              text
-              rounded
-              size="small"
-              aria-label="Supprimer"
-              class="home-courses-delete"
-              @click.stop="doDeleteCourse(c.id, $event)"
-            />
-          </span>
-        </li>
-      </ul>
     </Dialog>
   </div>
 </template>
@@ -439,52 +360,6 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
 
 .home-action-btn {
   min-height: 44px;
-}
-
-.home-courses-empty {
-  color: var(--p-text-muted-color, #6b7280);
-  padding: 1rem;
-  text-align: center;
-}
-
-.home-courses-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.home-courses-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  border-radius: var(--p-border-radius, 6px);
-  cursor: pointer;
-  min-height: 44px;
-}
-
-.home-courses-item:hover {
-  background: var(--p-surface-100, #f3f4f6);
-}
-
-.home-courses-delete {
-  flex-shrink: 0;
-}
-
-.home-courses-nom {
-  font-weight: 500;
-  color: var(--p-text-color, #1a1a1a);
-}
-
-.home-courses-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.home-courses-date {
-  font-size: 0.875rem;
-  color: var(--p-text-muted-color, #6b7280);
 }
 
 .home-save-form label {
