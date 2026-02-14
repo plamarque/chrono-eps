@@ -322,12 +322,8 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
               severity="secondary"
               class="home-action-btn"
               :disabled="!canSave"
-              :title="!canSave ? 'Enregistrez au moins un passage (bouton Tour ou tap sur une cellule) pour enregistrer' : undefined"
               @click="openSaveModal"
             />
-            <span v-if="!currentCourse && status !== 'running' && !hasAnyPassage" class="home-save-hint">
-              Enregistrez un passage (bouton « Tour » ou tap sur une cellule) pour pouvoir enregistrer
-            </span>
           </div>
         </section>
       </template>
@@ -446,11 +442,6 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
   align-items: center;
   gap: 0.5rem;
   margin-top: 1rem;
-}
-
-.home-save-hint {
-  font-size: 0.8rem;
-  color: var(--p-text-muted-color, #6b7280);
 }
 
 .home-action-btn {
