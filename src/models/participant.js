@@ -74,7 +74,8 @@ export function createRelayGroup(nomOrIndex, color) {
 export function createRelayStudent(nomOrIndex, ordre = 0) {
   let nom
   if (typeof nomOrIndex === 'number') {
-    nom = `Élève ${nomOrIndex}`
+    const n = Number.isFinite(nomOrIndex) ? Math.max(1, Math.floor(nomOrIndex)) : 1
+    nom = `Élève ${n}`
   } else {
     const trimmed = typeof nomOrIndex === 'string' ? nomOrIndex.trim() : ''
     nom = trimmed || 'Élève'
@@ -84,4 +85,16 @@ export function createRelayStudent(nomOrIndex, ordre = 0) {
     nom,
     ordre
   }
+}
+
+/**
+ * Nom d'affichage sûr pour un élève relais (évite "Élève NaN" sur données existantes).
+ * @param {string} nom - Nom stocké
+ * @param {number} fallbackIndex - Index 0-based pour le fallback (ex. 0 → "Élève 1")
+ */
+export function safeRelayStudentNom(nom, fallbackIndex = 0) {
+  const trimmed = (nom ?? '').trim()
+  if (trimmed && !trimmed.includes('NaN')) return trimmed
+  const n = Number.isFinite(fallbackIndex) ? Math.max(1, fallbackIndex + 1) : 1
+  return `Élève ${n}`
 }

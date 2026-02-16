@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
-import { createRelayGroup, COULEURS_PALETTE } from '../models/participant.js'
+import { createRelayGroup, COULEURS_PALETTE, safeRelayStudentNom } from '../models/participant.js'
 import { formatTime } from '../utils/formatTime.js'
 import RelayGroupModal from './RelayGroupModal.vue'
 
@@ -39,6 +39,15 @@ const emit = defineEmits(['add', 'update', 'remove', 'record', 'start-participan
 
 const showGroupModal = ref(false)
 const editedGroup = ref(null)
+
+/** Nombre total d'élèves dans tous les groupes (pour numérotation continue). */
+const totalStudentsCount = computed(() => {
+  let n = 0
+  for (const students of Object.values(props.groupStudents ?? {})) {
+    n += Array.isArray(students) ? students.length : 0
+  }
+  return n
+})
 
 function addGroup() {
   const used = new Set(props.participants.map((p) => p.color))
@@ -84,9 +93,10 @@ function getPassagesList(groupId) {
   const students = (props.groupStudents[groupId] ?? []).slice().sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
   const passages = (props.passagesByParticipant[groupId] ?? []).slice().sort((a, b) => a.tourNum - b.tourNum)
   return passages.map((p) => {
-    const idx = p.studentIndex ?? 0
-    const student = students[idx] ?? { nom: `Élève ${idx + 1}` }
-    return { nom: student.nom, lapMs: p.lapMs }
+    const idx = Number.isFinite(p.studentIndex) ? p.studentIndex : 0
+    const student = students[idx]
+    const nom = student ? safeRelayStudentNom(student.nom, idx) : safeRelayStudentNom('', idx)
+    return { nom, lapMs: p.lapMs }
   })
 }
 
@@ -102,16 +112,16 @@ function getPerformancesByStudent(groupId) {
   const byStudent = {}
   for (let i = 0; i < students.length; i++) {
     const student = students[i]
-    byStudent[i] = { nom: student.nom, passages: [] }
+    byStudent[i] = { nom: safeRelayStudentNom(student?.nom, i), passages: [] }
   }
   if (students.length === 0) {
-    byStudent[0] = { nom: 'Élève 1', passages: [] }
+    byStudent[0] = { nom: safeRelayStudentNom('', 0), passages: [] }
   }
 
   passages.forEach((p) => {
-    const idx = p.studentIndex ?? 0
+    const idx = Number.isFinite(p.studentIndex) ? p.studentIndex : 0
     if (!byStudent[idx]) {
-      byStudent[idx] = { nom: `Élève ${idx + 1}`, passages: [] }
+      byStudent[idx] = { nom: safeRelayStudentNom('', idx), passages: [] }
     }
     byStudent[idx].passages.push({
       pNum: byStudent[idx].passages.length + 1,
@@ -141,9 +151,14 @@ function getCurrentAndNext(groupId) {
   const isComplete = false // La course continue tant que le professeur n'arrête pas
 
   // Ordre : Tour 1 (élève 0), Tour 2 (élève 1), ..., Tour n (élève n-1), Tour n+1 (élève 0), ...
-  const currentStudent = nbStudents > 0 ? students[currentIndex % nbStudents] : null
-  const nextStudent = nbStudents > 0 ? students[(currentIndex + 1) % nbStudents] : null
-  const lastStudent = passages.length > 0 && nbStudents > 0 ? students[(passages.length - 1) % nbStudents] : null
+  const withSafeNom = (s, idx) =>
+    s ? { ...s, nom: safeRelayStudentNom(s.nom, idx) } : null
+  const currentStudent = nbStudents > 0 ? withSafeNom(students[currentIndex % nbStudents], currentIndex % nbStudents) : null
+  const nextStudent = nbStudents > 0 ? withSafeNom(students[(currentIndex + 1) % nbStudents], (currentIndex + 1) % nbStudents) : null
+  const lastStudent =
+    passages.length > 0 && nbStudents > 0
+      ? withSafeNom(students[(passages.length - 1) % nbStudents], (passages.length - 1) % nbStudents)
+      : null
 
   return {
     currentStudent,
@@ -370,6 +385,7 @@ const hasAnyPassage = computed(() =>
       v-model:visible="showGroupModal"
       :group="editedGroup"
       :students="editedGroup ? (groupStudents[editedGroup.id] ?? []) : []"
+      :total-students-count="totalStudentsCount"
       @save="saveGroupStudents"
       @remove="deleteGroup"
       @hide="closeGroupModal"

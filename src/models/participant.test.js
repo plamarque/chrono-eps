@@ -4,6 +4,7 @@ import {
   createRelayGroup,
   createRelayStudent,
   getColorName,
+  safeRelayStudentNom,
   COULEURS_PALETTE
 } from './participant.js'
 
@@ -120,6 +121,28 @@ describe('createRelayStudent', () => {
   it('utilise ordre 0 par défaut', () => {
     const s = createRelayStudent('Claire')
     expect(s.ordre).toBe(0)
+  })
+
+  it('ne produit jamais "Élève NaN" pour un numéro invalide', () => {
+    expect(createRelayStudent(NaN).nom).toBe('Élève 1')
+    expect(createRelayStudent(undefined).nom).toBe('Élève')
+  })
+})
+
+describe('safeRelayStudentNom', () => {
+  it('retourne le nom si valide', () => {
+    expect(safeRelayStudentNom('Alice', 0)).toBe('Alice')
+    expect(safeRelayStudentNom('Élève 3', 2)).toBe('Élève 3')
+  })
+
+  it('remplace un nom contenant NaN par un fallback', () => {
+    expect(safeRelayStudentNom('Élève NaN', 0)).toBe('Élève 1')
+    expect(safeRelayStudentNom('Élève NaN', 2)).toBe('Élève 3')
+  })
+
+  it('utilise le fallback pour une chaîne vide', () => {
+    expect(safeRelayStudentNom('', 0)).toBe('Élève 1')
+    expect(safeRelayStudentNom('', 4)).toBe('Élève 5')
   })
 })
 

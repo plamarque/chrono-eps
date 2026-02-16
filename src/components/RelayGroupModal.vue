@@ -3,13 +3,15 @@ import { ref, watch } from 'vue'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
-import { createRelayStudent } from '../models/participant.js'
+import { createRelayStudent, safeRelayStudentNom } from '../models/participant.js'
 import { COULEURS_PALETTE } from '../models/participant.js'
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
   group: { type: Object, default: null },
-  students: { type: Array, default: () => [] }
+  students: { type: Array, default: () => [] },
+  /** Nombre total d'élèves dans tous les groupes (numérotation continue entre groupes). */
+  totalStudentsCount: { type: Number, default: 0 }
 })
 
 const emit = defineEmits(['update:visible', 'save', 'remove', 'hide'])
@@ -26,11 +28,12 @@ watch(
       groupColor.value = props.group.color ?? COULEURS_PALETTE[0]
       let sorted = [...(props.students ?? [])].sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
       if (sorted.length === 0) {
-        sorted = [createRelayStudent(1, 0)]
+        const total = Number(props.totalStudentsCount) || 0
+        sorted = [createRelayStudent(total + 1, 0)]
       }
       studentsForm.value = sorted.map((s, i) => ({
         id: s.id ?? crypto.randomUUID(),
-        nom: s.nom ?? '',
+        nom: safeRelayStudentNom(s.nom ?? '', i),
         ordre: i
       }))
     }
@@ -47,7 +50,10 @@ function updateStudent(index, field, value) {
 
 function addStudent() {
   const n = studentsForm.value.length
-  studentsForm.value = [...studentsForm.value, createRelayStudent(n + 1, n)]
+  const total = Number(props.totalStudentsCount) || 0
+  const currentGroupSavedCount = props.students?.length ?? 0
+  const nextNum = total - currentGroupSavedCount + n + 1
+  studentsForm.value = [...studentsForm.value, createRelayStudent(nextNum, n)]
 }
 
 function removeLastStudent() {
@@ -57,11 +63,17 @@ function removeLastStudent() {
 
 function save() {
   if (!props.group) return
-  const students = studentsForm.value.map((s) => ({
-    ...s,
-    nom: (s.nom ?? '').trim() || `Élève ${s.ordre + 1}`,
-    ordre: s.ordre ?? 0
-  }))
+  const total = Number(props.totalStudentsCount) || 0
+  const currentGroupSavedCount = props.students?.length ?? 0
+  const students = studentsForm.value.map((s, i) => {
+    const defaultNum = total - currentGroupSavedCount + i + 1
+    const safeDefaultNum = Number.isFinite(defaultNum) ? Math.max(1, defaultNum) : i + 1
+    return {
+      ...s,
+      nom: (s.nom ?? '').trim() || `Élève ${safeDefaultNum}`,
+      ordre: s.ordre ?? i
+    }
+  })
   const groupUpdate = {
     ...props.group,
     nom: (groupNom.value ?? '').trim() || props.group.nom,
