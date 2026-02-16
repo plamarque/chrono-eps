@@ -371,10 +371,11 @@ const hasAnyPassage = computed(() =>
                 v-for="(p, i) in student.passages"
                 :key="p.pNum"
               >
-                <span v-if="i > 0">  </span>
-                <span>P{{ p.pNum }}: {{ formatTime(p.lapMs) }}</span>
+                <span v-if="i > 0" class="tableau-passages-resume-sep" aria-hidden="true"> · </span>
+                <span class="tableau-passages-resume-passage-item">P{{ p.pNum }}: {{ formatTime(p.lapMs) }}</span>
               </template>
-              <span class="tableau-passages-resume-student-total">  Total : {{ formatTime(student.totalLapMs) }}</span>
+              <span class="tableau-passages-resume-sep tableau-passages-resume-sep-total" aria-hidden="true"> · </span>
+              <span class="tableau-passages-resume-student-total">Total : {{ formatTime(student.totalLapMs) }}</span>
             </span>
           </div>
         </div>
@@ -659,6 +660,20 @@ const hasAnyPassage = computed(() =>
 .tableau-passages-resume-student-passages {
   font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
   color: #6b7280;
+}
+
+.tableau-passages-resume-sep {
+  margin: 0 0.35em;
+  color: #9ca3af;
+  user-select: none;
+}
+
+.tableau-passages-resume-sep-total {
+  margin-left: 0.5em;
+}
+
+.tableau-passages-resume-passage-item {
+  white-space: nowrap;
 }
 
 .tableau-passages-resume-student-total {
