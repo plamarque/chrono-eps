@@ -3,17 +3,21 @@ import { ref, computed, watch, onUnmounted, unref } from 'vue'
 /**
  * Calcule la position interpolée sur la piste (en tours) pour un participant à un instant donné.
  * position = N + (T - T1) / (T2 - T1) entre deux passages (N à T1, N+1 à T2).
+ * Avant le premier passage : interpolation de 0 à 1 de t=0 à firstTotal (tous partent en même temps au top chrono).
  * @param {Array<{tourNum:number,totalMs:number}>} passages - Passages triés par tourNum
  * @param {number} currentMs - Temps écoulé (ms depuis le début)
- * @returns {{ position: number, hasStarted: boolean }} position en tours (0+), hasStarted si le participant a au moins un passage
+ * @returns {{ position: number, hasStarted: boolean }} position en tours (0+), hasStarted si le participant a démarré (t=0)
  */
 export function getPositionAtTime(passages, currentMs) {
   if (!Array.isArray(passages) || passages.length === 0) {
     return { position: 0, hasStarted: false }
   }
   const firstTotal = passages[0].totalMs ?? 0
+  // Avant le premier passage : tous partent à t=0, interpolation position 0→1 sur le premier tour
   if (currentMs < firstTotal) {
-    return { position: 0, hasStarted: false }
+    if (currentMs < 0) return { position: 0, hasStarted: false }
+    const fraction = firstTotal <= 0 ? 1 : Math.min(1, currentMs / firstTotal)
+    return { position: fraction, hasStarted: true }
   }
   const lastPassage = passages[passages.length - 1]
   const lastTotal = lastPassage.totalMs ?? 0
