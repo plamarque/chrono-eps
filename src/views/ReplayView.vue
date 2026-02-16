@@ -52,9 +52,10 @@ const participants = computed(() => course.value?.participants ?? [])
 const mode = computed(() => course.value?.mode ?? 'individual')
 const groupStudents = computed(() => course.value?.groupStudents ?? {})
 
-const trackSize = { width: 320, height: 200 }
-const centerX = trackSize.width / 2
-const centerY = trackSize.height / 2
+const trackSize = { width: 360, height: 270 }
+const trackPadding = { top: 35, left: 20 }
+const centerX = 160
+const centerY = 100
 const rx = 140
 const ry = 85
 
@@ -77,6 +78,15 @@ function getMarkerCoords(participantId, participantIndex, totalParticipants) {
   return { x, y, hasStarted: getPositionAtTime(passages, currentMs.value).hasStarted }
 }
 
+function getParticipantLabel(participantId) {
+  if (mode.value === 'relay') {
+    const runnerLabel = getRunnerLabel(participantId)
+    if (runnerLabel) return runnerLabel
+  }
+  const p = participants.value.find((x) => x.id === participantId)
+  return p?.nom ?? ''
+}
+
 function getRunnerLabel(participantId) {
   if (mode.value !== 'relay') return null
   const passages = course.value?.passagesByParticipant?.[participantId] ?? []
@@ -86,6 +96,59 @@ function getRunnerLabel(participantId) {
   const student = students[idx]
   return student?.nom ?? ''
 }
+
+/** Regroupe les participants dont les marqueurs sont proches (même zone sur la piste). */
+const LABEL_CLUSTER_DIST = 50
+const LABEL_LINE_HEIGHT = 14
+
+function clusterByPosition(markerDataList) {
+  const clusters = []
+  const used = new Set()
+  for (let i = 0; i < markerDataList.length; i++) {
+    if (used.has(i)) continue
+    const cluster = [markerDataList[i]]
+    used.add(i)
+    for (let j = i + 1; j < markerDataList.length; j++) {
+      if (used.has(j)) continue
+      const a = markerDataList[i]
+      const b = markerDataList[j]
+      const dx = a.x - b.x
+      const dy = a.y - b.y
+      if (Math.sqrt(dx * dx + dy * dy) <= LABEL_CLUSTER_DIST) {
+        cluster.push(markerDataList[j])
+        used.add(j)
+      }
+    }
+    clusters.push(cluster)
+  }
+  return clusters
+}
+
+/** Données des labels groupés : chaque cluster a une liste de { label, color, offsetY } pour empiler verticalement. */
+const labelClusters = computed(() => {
+  const list = participants.value.map((p, idx) => {
+    const coords = getMarkerCoords(p.id, idx, participants.value.length)
+    return {
+      participantId: p.id,
+      label: getParticipantLabel(p.id),
+      color: p.color ?? '#94a3b8',
+      x: coords.x,
+      y: coords.y,
+      hasStarted: coords.hasStarted
+    }
+  })
+  const clusters = clusterByPosition(list)
+  return clusters.map((cluster) => {
+    const baseY = Math.min(...cluster.map((c) => c.y)) - 18
+    const baseX = cluster.reduce((s, c) => s + c.x, 0) / cluster.length
+    const items = cluster.map((item, i) => ({
+      ...item,
+      labelX: baseX,
+      labelY: baseY - i * LABEL_LINE_HEIGHT
+    }))
+    return items
+  })
+})
 
 const trackPath = computed(() => {
   const points = []
@@ -133,7 +196,7 @@ watch(() => route.params.id, fetchCourse)
         <section class="replay-track-section" aria-label="Piste virtuelle">
           <div class="replay-track-container">
             <svg
-              :viewBox="`0 0 ${trackSize.width} ${trackSize.height}`"
+              :viewBox="`${-trackPadding.left} ${-trackPadding.top} ${trackSize.width} ${trackSize.height}`"
               class="replay-track-svg"
               aria-hidden="true"
             >
@@ -169,14 +232,22 @@ watch(() => route.params.id, fetchCourse)
                   stroke-dasharray="4 4"
                   class="replay-marker"
                 />
+              </g>
+              <g
+                v-for="(cluster, ci) in labelClusters"
+                :key="`cluster-${ci}`"
+              >
                 <text
-                  :x="getMarkerCoords(p.id, idx, participants.length).x"
-                  :y="getMarkerCoords(p.id, idx, participants.length).y - 22"
+                  v-for="item in cluster"
+                  :key="item.participantId"
+                  :x="item.labelX"
+                  :y="item.labelY"
                   text-anchor="middle"
                   class="replay-marker-label"
                   font-size="11"
+                  :fill="item.color"
                 >
-                  {{ mode === 'relay' ? (getRunnerLabel(p.id) || p.nom) : p.nom }}
+                  {{ item.label }}
                 </text>
               </g>
             </svg>
@@ -305,9 +376,12 @@ watch(() => route.params.id, fetchCourse)
 }
 
 .replay-marker-label {
-  fill: var(--p-text-color, #1f2937);
-  font-weight: 500;
+  font-weight: 600;
   pointer-events: none;
+  paint-order: stroke fill;
+  stroke: white;
+  stroke-width: 2px;
+  stroke-linejoin: round;
 }
 
 .replay-controls {
