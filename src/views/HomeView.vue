@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
@@ -7,7 +7,7 @@ import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import SelectButton from 'primevue/selectbutton'
 import Chronometre from '../components/Chronometre.vue'
-import TableauPassages from '../components/TableauPassages.vue'
+import TableauPassagesCompact from '../components/TableauPassagesCompact.vue'
 import TableauPassagesRelay from '../components/TableauPassagesRelay.vue'
 import { useChronometre } from '../composables/useChronometre.js'
 import { useToast } from 'primevue/usetoast'
@@ -144,6 +144,13 @@ function handleReset() {
   if (currentCourse.value) {
     startNewCourse()
   } else {
+    // Si mode individuel sans participants valides, réinitialiser proprement
+    if (mode.value === 'individual' && participants.value.length === 0) {
+      ensureIndividualHasDefaultParticipant()
+    }
+    if (mode.value === 'relay' && participants.value.length === 0) {
+      ensureRelayHasDefaultGroup()
+    }
     reset()
   }
 }
@@ -193,34 +200,29 @@ async function maybeLoadFromQuery() {
   await doLoadCourse(id)
 }
 
-watch(mode, (newMode) => {
-  if (newMode === 'individual') {
-    groupStudents.value = {}
-    if (participants.value.length === 0) {
-      ensureIndividualHasDefaultParticipant()
-    } else {
-      participants.value = participants.value.map((p, i) => {
-        const m = p.nom?.match(/^Groupe (\d+)$/)
-        if (m) return { ...p, nom: `Elève ${m[1]}` }
-        return p
-      })
+watch(
+  mode,
+  async (newMode, oldMode) => {
+    // Isoler les modes : pas de réutilisation des données d'un mode à l'autre
+    if (currentCourse.value) return
+    if (oldMode === undefined || oldMode === newMode) return
+
+    if (newMode === 'individual') {
+      participants.value = [createParticipant(1)]
+      groupStudents.value = {}
+      passagesByParticipant.value = {}
+      reset()
+    } else if (newMode === 'relay') {
+      const group = createRelayGroup(0)
+      participants.value = [group]
+      groupStudents.value = { [group.id]: [] }
+      passagesByParticipant.value = {}
+      reset()
     }
-  }
-  if (newMode === 'relay') {
-    // En mode relais, les entêtes sont des groupes (Groupe 1, Groupe 2), pas des élèves
-    if (participants.value.length === 0) {
-      ensureRelayHasDefaultGroup()
-    } else {
-      participants.value = participants.value.map((p, i) => {
-        const m = p.nom?.match(/^Elève (\d+)$/)
-        if (m) {
-          return { ...p, nom: `Groupe ${i + 1}` }
-        }
-        return p
-      })
-    }
-  }
-})
+    await nextTick()
+  },
+  { flush: 'sync' }
+)
 
 onMounted(async () => {
   await maybeLoadFromQuery()
@@ -276,21 +278,37 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
             </template>
           </Chronometre>
         </section>
-        <section class="home-section" aria-label="Passages">
-          <TableauPassages
-            v-if="mode !== 'relay'"
-            :participants="participants"
-            :participant-states="participantStates"
-            :passages-by-participant="passagesByParticipant"
-            :status="status"
-            :read-only="!!currentCourse"
-            @add="addParticipant"
-            @update="updateParticipant"
-            @remove="removeParticipant"
-            @record="recordPassage"
-            @start-participant="startParticipant"
-            @stop-participant="stopParticipant"
-          />
+        <section class="home-section" aria-label="Participants">
+          <template v-if="mode === 'individual'">
+            <TableauPassagesCompact
+              :participants="participants"
+              :participant-states="participantStates"
+              :passages-by-participant="passagesByParticipant"
+              :status="status"
+              :read-only="!!currentCourse"
+              @add="addParticipant"
+              @update="updateParticipant"
+              @remove="removeParticipant"
+              @record="recordPassage"
+              @start-participant="startParticipant"
+              @stop-participant="stopParticipant"
+            />
+            <!-- Vue tableau conservée en attente des retours utilisateurs
+            <TableauPassages
+              :participants="participants"
+              :participant-states="participantStates"
+              :passages-by-participant="passagesByParticipant"
+              :status="status"
+              :read-only="!!currentCourse"
+              @add="addParticipant"
+              @update="updateParticipant"
+              @remove="removeParticipant"
+              @record="recordPassage"
+              @start-participant="startParticipant"
+              @stop-participant="stopParticipant"
+            />
+            -->
+          </template>
           <TableauPassagesRelay
             v-else
             :participants="participants"

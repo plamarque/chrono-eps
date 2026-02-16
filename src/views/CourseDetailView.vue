@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
 import Chronometre from '../components/Chronometre.vue'
-import TableauPassages from '../components/TableauPassages.vue'
+import TableauPassagesCompact from '../components/TableauPassagesCompact.vue'
 import TableauPassagesRelay from '../components/TableauPassagesRelay.vue'
 import { loadCourse } from '../services/courseStore.js'
 import { getMaxTotalMsFromPassages } from '../utils/courseUtils.js'
@@ -119,15 +119,25 @@ watch(() => route.params.id, fetchCourse)
             </template>
           </Chronometre>
         </section>
-        <section class="course-detail-section" aria-label="Passages">
-          <TableauPassages
-            v-if="course.mode !== 'relay'"
-            :participants="course.participants"
-            :participant-states="emptyParticipantStates"
-            :passages-by-participant="course.passagesByParticipant"
-            status="idle"
-            :read-only="true"
-          />
+        <section class="course-detail-section" aria-label="Participants">
+          <template v-if="course.mode !== 'relay'">
+            <TableauPassagesCompact
+              :participants="course.participants"
+              :participant-states="emptyParticipantStates"
+              :passages-by-participant="course.passagesByParticipant"
+              status="idle"
+              :read-only="true"
+            />
+            <!-- Vue tableau conservée en attente des retours utilisateurs
+            <TableauPassages
+              :participants="course.participants"
+              :participant-states="emptyParticipantStates"
+              :passages-by-participant="course.passagesByParticipant"
+              status="idle"
+              :read-only="true"
+            />
+            -->
+          </template>
           <TableauPassagesRelay
             v-else
             :participants="course.participants"
