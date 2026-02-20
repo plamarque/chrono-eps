@@ -159,4 +159,31 @@ describe('HomeView', () => {
     expect(demarrer.exists()).toBe(true)
     wrapper.unmount()
   })
+
+  it('newFromCourseId charge en mode template : groupes/élèves conservés, pas de nom ni passages', async () => {
+    const sourceCourse = {
+      id: 'source-1',
+      nom: 'Course du 10 février',
+      participants: [{ id: 'g1', nom: 'Groupe 1', color: '#ef4444' }],
+      passagesByParticipant: { g1: [{ tourNum: 1, lapMs: 60000, totalMs: 60000 }] },
+      chronoStartMs: 1000,
+      statusAtSave: 'paused',
+      mode: 'relay',
+      groupStudents: { g1: [{ id: 's1', nom: 'Alice', ordre: 0 }, { id: 's2', nom: 'Bob', ordre: 1 }] }
+    }
+    mockLoadCourse.mockResolvedValue(sourceCourse)
+
+    const { wrapper } = await mountHomeView({
+      path: '/',
+      query: { newFromCourseId: sourceCourse.id }
+    })
+    await vi.runAllTimersAsync()
+    await wrapper.vm.$nextTick()
+
+    expect(mockLoadCourse).toHaveBeenCalledWith('source-1')
+    expect(wrapper.find('.home-course-title').exists()).toBe(false)
+    expect(wrapper.text()).toContain('Groupe 1')
+    expect(wrapper.text()).toContain('Alice')
+    wrapper.unmount()
+  })
 })

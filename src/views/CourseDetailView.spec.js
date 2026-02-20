@@ -14,6 +14,7 @@ async function mountCourseDetail(courseId) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
+      { path: '/', name: 'home', component: { template: '<div/>' } },
       { path: '/historique', name: 'historique', component: { template: '<div/>' } },
       { path: '/historique/:id', name: 'course-detail', component: CourseDetailView }
     ]
@@ -79,6 +80,33 @@ describe('CourseDetailView', () => {
     expect(replay.exists()).toBe(true)
     const lancer = wrapper.findAll('button').find((b) => b.text() === 'Lancer')
     expect(lancer).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('bouton Nouvelle course navigue vers /?newFromCourseId=xxx', async () => {
+    const completedCourse = {
+      id: 'completed-1',
+      nom: 'Course du 15 février',
+      createdAt: new Date().toISOString(),
+      participants: [{ id: 'p1', nom: 'Alice', color: '#3b82f6' }],
+      passagesByParticipant: {
+        p1: [{ tourNum: 1, lapMs: 60000, totalMs: 60000 }]
+      },
+      statusAtSave: 'paused',
+      mode: 'individual'
+    }
+    mockLoadCourse.mockResolvedValue(completedCourse)
+
+    const { wrapper, router } = await mountCourseDetail('completed-1')
+    await new Promise((r) => setTimeout(r, 50))
+    await wrapper.vm.$nextTick()
+
+    const pushSpy = vi.spyOn(router, 'push')
+    const nouvelleCourse = wrapper.findAll('button').find((b) => b.text() === 'Nouvelle course')
+    expect(nouvelleCourse.exists()).toBe(true)
+    await nouvelleCourse.trigger('click')
+
+    expect(pushSpy).toHaveBeenCalledWith({ path: '/', query: { newFromCourseId: 'completed-1' } })
     wrapper.unmount()
   })
 })

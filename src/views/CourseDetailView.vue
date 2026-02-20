@@ -71,6 +71,11 @@ function goToReplay() {
   router.push({ name: 'course-replay', params: { id: course.value.id } })
 }
 
+function createNewFromThis() {
+  if (!course.value) return
+  router.push({ path: '/', query: { newFromCourseId: course.value.id } })
+}
+
 onMounted(fetchCourse)
 watch(() => route.params.id, fetchCourse)
 </script>
@@ -104,7 +109,7 @@ watch(() => route.params.id, fetchCourse)
             status="idle"
             :show-tour="false"
             :is-viewing-loaded-course="true"
-            @reset="goBack"
+            @reset="createNewFromThis"
           >
             <template #extra-controls>
               <Button

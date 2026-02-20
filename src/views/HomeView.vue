@@ -120,6 +120,34 @@ async function doLoadCourse(courseId) {
   }
 }
 
+async function doLoadCourseAsTemplate(courseId) {
+  try {
+    const course = await loadCourse(courseId)
+    if (!course) {
+      toast.add({ severity: 'warn', summary: 'Course introuvable', life: 3000 })
+      return
+    }
+    participants.value = [...course.participants]
+    mode.value = course.mode || 'individual'
+    const gs = course.groupStudents || {}
+    groupStudents.value = Object.fromEntries(
+      Object.entries(gs).map(([gid, students]) => [gid, Array.isArray(students) ? [...students] : []])
+    )
+    passagesByParticipant.value = {}
+    currentCourse.value = null
+    suggestedSaveNom.value = ''
+    reset()
+    toast.add({
+      severity: 'success',
+      summary: 'Nouvelle course prête',
+      detail: `À partir de « ${course.nom} » — groupes et élèves conservés.`,
+      life: 3000
+    })
+  } catch (err) {
+    toast.add({ severity: 'error', summary: 'Erreur', detail: err?.message || 'Impossible de charger.', life: 5000 })
+  }
+}
+
 function ensureRelayHasDefaultGroup() {
   if (mode.value !== 'relay' || currentCourse.value || participants.value.length > 0) return
   const group = createRelayGroup(0)
@@ -209,10 +237,16 @@ function updateGroupStudents({ groupId, students }) {
 }
 
 async function maybeLoadFromQuery() {
-  const id = route.query.loadCourseId
-  if (!id) return
+  const newFromId = route.query.newFromCourseId
+  if (newFromId) {
+    router.replace({ path: '/', query: {} })
+    await doLoadCourseAsTemplate(newFromId)
+    return
+  }
+  const loadId = route.query.loadCourseId
+  if (!loadId) return
   router.replace({ path: '/', query: {} })
-  await doLoadCourse(id)
+  await doLoadCourse(loadId)
 }
 
 watch(
@@ -247,7 +281,10 @@ onMounted(async () => {
     ensureIndividualHasDefaultParticipant()
   }
 })
-watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
+watch(
+  () => route.query.loadCourseId || route.query.newFromCourseId,
+  (val) => val && maybeLoadFromQuery()
+)
 </script>
 
 <template>
