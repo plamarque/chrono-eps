@@ -45,6 +45,7 @@ export async function saveCourse({
   // Passages : convertir lapMs/totalMs en timestampMs
   const passagesToSave = []
   const startMs = chronoStartMs ?? 0
+
   for (const [participantId, passages] of Object.entries(passagesByParticipant)) {
     if (!Array.isArray(passages)) continue
     for (const p of passages) {
@@ -130,7 +131,13 @@ export async function loadCourse(courseId) {
   const chronoStartMs = course.chronoStartMs
   const passagesByParticipant = {}
 
-  for (const p of passages) {
+  // Trier les passages par (participantId, tourNum) pour que le calcul de lapMs soit correct
+  const passagesSorted = [...passages].sort((a, b) => {
+    if (a.participantId !== b.participantId) return String(a.participantId).localeCompare(b.participantId)
+    return a.tourNum - b.tourNum
+  })
+
+  for (const p of passagesSorted) {
     if (!passagesByParticipant[p.participantId]) passagesByParticipant[p.participantId] = []
     const timestampMs = p.timestampMs
     const totalMs = chronoStartMs != null ? timestampMs - chronoStartMs : timestampMs
