@@ -72,7 +72,7 @@ describe('TableauPassagesCompact', () => {
     expect(wrapper.emitted('record')[0][0]).toBe('1')
   })
 
-  it('masque les cartes des élèves stoppés quand hideFinished est true', () => {
+  it('masque les cartes des élèves stoppés quand hideFinished est true et chrono en cours', () => {
     const participants = [
       { id: '1', nom: 'Elève 1', color: '#ef4444' },
       { id: '2', nom: 'Elève 2', color: '#3b82f6' }
@@ -90,6 +90,25 @@ describe('TableauPassagesCompact', () => {
     const cards = wrapper.findAll('.tableau-passages-compact-card')
     expect(cards.length).toBe(1)
     expect(cards[0].text()).toContain('Elève 1')
+  })
+
+  it('affiche toutes les cartes quand chrono global arrêté (status paused/idle) même si tous paused', () => {
+    const participants = [
+      { id: '1', nom: 'Elève 1', color: '#ef4444' },
+      { id: '2', nom: 'Elève 2', color: '#3b82f6' }
+    ]
+    const participantStates = {
+      '1': { status: 'paused' },
+      '2': { status: 'paused' }
+    }
+    const wrapper = mountTableauPassagesCompact({
+      participants,
+      participantStates,
+      status: 'paused',
+      hideFinished: true
+    })
+    const cards = wrapper.findAll('.tableau-passages-compact-card')
+    expect(cards.length).toBe(2)
   })
 
   it('affiche toutes les cartes quand hideFinished est false', () => {

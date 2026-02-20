@@ -55,7 +55,11 @@ const gridParticipants = computed(() => {
   if (props.readOnly || !props.hideFinished) {
     return displayParticipants.value
   }
-  // Masquer uniquement les participants explicitement arrêtés (paused)
+  // Quand le chrono global est arrêté (idle/paused), afficher tous les participants
+  if (props.status !== 'running') {
+    return displayParticipants.value
+  }
+  // Pendant la course : masquer uniquement les participants explicitement arrêtés individuellement
   return displayParticipants.value.filter(
     (p) => props.participantStates[p.id]?.status !== 'paused'
   )
