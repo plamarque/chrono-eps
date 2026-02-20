@@ -211,4 +211,70 @@ describe('TableauPassagesCompact', () => {
     const wrapper = mountTableauPassagesCompact({ participants, readOnly: true })
     expect(wrapper.find('.tableau-passages-compact-card-actions').exists()).toBe(false)
   })
+
+  it('affiche le temps en cours (P1 : temps) quand un participant court', () => {
+    const participants = [{ id: '1', nom: 'Elève 1', color: '#ef4444' }]
+    const participantStates = { '1': { elapsedMs: 69400, status: 'running' } }
+    const wrapper = mountTableauPassagesCompact({
+      participants,
+      participantStates,
+      status: 'running'
+    })
+    const card = wrapper.find('.tableau-passages-compact-card')
+    expect(card.text()).toContain('P1')
+    expect(card.text()).toContain('01:09.40')
+  })
+
+  it('affiche P2 : temps quand le participant est au 2e tour', () => {
+    const participants = [{ id: '1', nom: 'Elève 1' }]
+    const participantStates = { '1': { elapsedMs: 95000, status: 'running' } }
+    const passagesByParticipant = {
+      '1': [{ tourNum: 1, lapMs: 45000, totalMs: 45000 }]
+    }
+    const wrapper = mountTableauPassagesCompact({
+      participants,
+      participantStates,
+      passagesByParticipant,
+      status: 'running'
+    })
+    const card = wrapper.find('.tableau-passages-compact-card')
+    expect(card.text()).toContain('P2')
+    expect(card.text()).toContain('00:50.00')
+  })
+
+  it('affiche le temps total dans la carte quand le chrono est arrêté (passages enregistrés)', () => {
+    const participants = [
+      { id: '1', nom: 'Elève 1' },
+      { id: '2', nom: 'Elève 2' }
+    ]
+    const participantStates = {
+      '1': { status: 'paused' },
+      '2': { status: 'paused' }
+    }
+    const passagesByParticipant = {
+      '1': [{ tourNum: 1, lapMs: 45000, totalMs: 45000 }],
+      '2': [{ tourNum: 1, lapMs: 52000, totalMs: 52000 }]
+    }
+    const wrapper = mountTableauPassagesCompact({
+      participants,
+      participantStates,
+      passagesByParticipant,
+      status: 'paused'
+    })
+    const cards = wrapper.findAll('.tableau-passages-compact-card')
+    expect(cards[0].text()).toContain('00:45.00')
+    expect(cards[1].text()).toContain('00:52.00')
+  })
+
+  it('affiche le temps total dans la carte quand participant paused sans passage', () => {
+    const participants = [{ id: '1', nom: 'Elève 1' }]
+    const participantStates = { '1': { elapsedMs: 38000, status: 'paused' } }
+    const wrapper = mountTableauPassagesCompact({
+      participants,
+      participantStates,
+      status: 'paused'
+    })
+    const card = wrapper.find('.tableau-passages-compact-card')
+    expect(card.text()).toContain('00:38.00')
+  })
 })

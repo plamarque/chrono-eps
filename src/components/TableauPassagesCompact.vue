@@ -145,6 +145,24 @@ function canTap(participantId) {
   return isParticipantRunning(participantId) && isNextTour(participantId, nextTourNum)
 }
 
+function getLiveElapsed(participantId) {
+  const s = props.participantStates[participantId]
+  if (!s) return { lapMs: 0, totalMs: 0 }
+  const totalMs = s.elapsedMs ?? 0
+  const passages = props.passagesByParticipant[participantId] ?? []
+  const lastTotal = passages.length > 0 ? passages[passages.length - 1].totalMs : 0
+  const lapMs = totalMs - lastTotal
+  return { lapMs, totalMs }
+}
+
+function getTotalMs(participantId) {
+  const passages = (props.passagesByParticipant[participantId] ?? []).slice().sort((a, b) => (a.tourNum ?? 0) - (b.tourNum ?? 0))
+  if (passages.length > 0) return passages[passages.length - 1].totalMs
+  const s = props.participantStates[participantId]
+  if (s?.status === 'paused' && (s.elapsedMs ?? 0) > 0) return s.elapsedMs
+  return null
+}
+
 function onTap(participantId) {
   emit('record', participantId)
 }
@@ -217,6 +235,19 @@ function toggleParticipant(participant) {
             class="tableau-passages-compact-card-btn"
             @click.stop="onTap(p.id)"
           />
+        </div>
+        <div
+          v-if="isParticipantRunning(p.id)"
+          class="tableau-passages-compact-card-time"
+        >
+          <span class="tableau-passages-compact-card-time-label">P{{ (passagesByParticipant[p.id] ?? []).length + 1 }} :</span>
+          {{ formatTime(getLiveElapsed(p.id).lapMs) }}
+        </div>
+        <div
+          v-else-if="getTotalMs(p.id) !== null"
+          class="tableau-passages-compact-card-time"
+        >
+          {{ formatTime(getTotalMs(p.id)) }}
         </div>
       </div>
     </div>
@@ -366,6 +397,21 @@ function toggleParticipant(participant) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.tableau-passages-compact-card-time {
+  font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  white-space: nowrap;
+}
+
+.tableau-passages-compact-card-time-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-right: 0.25em;
 }
 
 .tableau-passages-compact-card-name-clickable {
