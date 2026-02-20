@@ -45,7 +45,12 @@ const hasAnyPassage = computed(() => {
 })
 
 const canSave = computed(
-  () => !currentCourse.value && status.value !== 'running' && hasAnyPassage.value
+  () => !currentCourse.value && status.value !== 'running'
+)
+
+const isPreparedCourse = computed(
+  () =>
+    currentCourse.value?.statusAtSave === 'idle' && !hasAnyPassage.value
 )
 
 const displayedElapsedMs = computed(() =>
@@ -56,9 +61,10 @@ const displayedElapsedMs = computed(() =>
 
 const showSaveModal = ref(false)
 const saveNom = ref('')
+const suggestedSaveNom = ref('')
 
 function openSaveModal() {
-  saveNom.value = ''
+  saveNom.value = suggestedSaveNom.value || ''
   showSaveModal.value = true
 }
 
@@ -102,7 +108,7 @@ async function doLoadCourse(courseId) {
     groupStudents.value = { ...(course.groupStudents || {}) }
     reset()
     passagesByParticipant.value = { ...course.passagesByParticipant }
-    currentCourse.value = { id: course.id, nom: course.nom }
+    currentCourse.value = { id: course.id, nom: course.nom, statusAtSave: course.statusAtSave || 'idle' }
     toast.add({
       severity: 'success',
       summary: 'Chargée',
@@ -129,6 +135,7 @@ function ensureIndividualHasDefaultParticipant() {
 
 function startNewCourse() {
   currentCourse.value = null
+  suggestedSaveNom.value = ''
   participants.value = []
   groupStudents.value = {}
   reset()
@@ -138,6 +145,14 @@ function startNewCourse() {
   } else {
     ensureIndividualHasDefaultParticipant()
   }
+}
+
+function handleStart() {
+  if (isPreparedCourse.value) {
+    suggestedSaveNom.value = currentCourse.value.nom || ''
+    currentCourse.value = null
+  }
+  start()
 }
 
 function handleReset() {
@@ -260,8 +275,8 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
             :elapsed-ms="displayedElapsedMs"
             :status="status"
             :show-tour="participants.length === 0 && mode !== 'relay'"
-            :is-viewing-loaded-course="!!currentCourse"
-            @start="start"
+            :is-viewing-loaded-course="!!currentCourse && !isPreparedCourse"
+            @start="handleStart"
             @stop="stop"
             @reset="handleReset"
             @record-tour="() => recordPassage('__solo__')"
@@ -285,7 +300,7 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
               :participant-states="participantStates"
               :passages-by-participant="passagesByParticipant"
               :status="status"
-              :read-only="!!currentCourse"
+              :read-only="!!currentCourse && !isPreparedCourse"
               @add="addParticipant"
               @update="updateParticipant"
               @remove="removeParticipant"
@@ -299,7 +314,7 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
               :participant-states="participantStates"
               :passages-by-participant="passagesByParticipant"
               :status="status"
-              :read-only="!!currentCourse"
+              :read-only="!!currentCourse && !isPreparedCourse"
               @add="addParticipant"
               @update="updateParticipant"
               @remove="removeParticipant"
@@ -316,7 +331,7 @@ watch(() => route.query.loadCourseId, (val) => val && maybeLoadFromQuery())
             :passages-by-participant="passagesByParticipant"
             :group-students="groupStudents"
             :status="status"
-            :read-only="!!currentCourse"
+            :read-only="!!currentCourse && !isPreparedCourse"
             @add="addParticipant"
             @update="updateParticipant"
             @remove="removeParticipant"

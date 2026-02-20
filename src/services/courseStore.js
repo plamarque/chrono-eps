@@ -114,7 +114,7 @@ export async function saveCourse({
 /**
  * Charge une course par ID.
  * @param {string} courseId
- * @returns {Promise<{id:string,nom:string,createdAt:string,participants:Array,passagesByParticipant:Object,mode:string,nbPassagesRelay:number|null,groupStudents:Object}>}
+ * @returns {Promise<{id:string,nom:string,createdAt:string,participants:Array,passagesByParticipant:Object,mode:string,nbPassagesRelay:number|null,groupStudents:Object,statusAtSave:string}>}
  */
 export async function loadCourse(courseId) {
   const [course, participantsRows, passages, relayStudents] = await Promise.all([
@@ -187,7 +187,8 @@ export async function loadCourse(courseId) {
     chronoStartMs,
     mode,
     nbPassagesRelay: mode === 'relay' ? (course.nbPassagesRelay ?? 2) : null,
-    groupStudents
+    groupStudents,
+    statusAtSave: course.statusAtSave || 'idle'
   }
 }
 

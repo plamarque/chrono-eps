@@ -38,7 +38,7 @@ Chrono EPS est une application web PWA destinée aux enseignants d'EPS pour chro
 
 - **Entrée** : L'enseignant saisit ou sélectionne les élèves, lance le chrono, enregistre les passages par touches/taps.
 - **Sortie** : Données stockées localement (performances, historique) ; affichage en temps réel du chrono et des passages.
-- **Flux** : Création/sélection d'une course → ajout des élèves → lancement du chrono → enregistrement des passages au fil du temps → enregistrement nommé → consultation des performances (lecture seule, temps total affiché) ou suppression.
+- **Flux** : Création/sélection d'une course → ajout des élèves (ou équipes en relais) → [optionnel] démarrage du chrono et enregistrement des passages → enregistrement nommé → consultation (lecture seule) ou, pour une course préparée (sans temps ni passage), lancement depuis l'historique.
 
 ## Limites
 

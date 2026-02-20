@@ -55,6 +55,30 @@ describe('courseStore', () => {
     expect(result).toBeNull()
   })
 
+  it('loadCourse retourne statusAtSave', async () => {
+    const id = await saveCourse({
+      nom: 'Course idle',
+      participants: [{ id: 'p1', nom: 'Alice', color: '#fff' }],
+      passagesByParticipant: {},
+      chronoStartMs: null,
+      statusAtSave: 'idle'
+    })
+    const loaded = await loadCourse(id)
+    expect(loaded.statusAtSave).toBe('idle')
+  })
+
+  it('loadCourse retourne statusAtSave paused pour une course terminée', async () => {
+    const id = await saveCourse({
+      nom: 'Course terminée',
+      participants: [{ id: 'p1', nom: 'Bob', color: '#fff' }],
+      passagesByParticipant: { p1: [{ tourNum: 1, lapMs: 60000, totalMs: 60000 }] },
+      chronoStartMs: 0,
+      statusAtSave: 'paused'
+    })
+    const loaded = await loadCourse(id)
+    expect(loaded.statusAtSave).toBe('paused')
+  })
+
   it('listCourses retourne les courses triées par date décroissante', async () => {
     await saveCourse({
       nom: 'Première',

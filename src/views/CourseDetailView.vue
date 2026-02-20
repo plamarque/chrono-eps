@@ -22,6 +22,14 @@ const displayedElapsedMs = computed(() =>
   course.value ? getMaxTotalMsFromPassages(course.value.passagesByParticipant) : 0
 )
 
+const isPreparedCourse = computed(() => {
+  const c = course.value
+  if (!c) return false
+  if (c.statusAtSave !== 'idle') return false
+  const pbp = c.passagesByParticipant || {}
+  return Object.values(pbp).every((arr) => !arr?.length)
+})
+
 const emptyParticipantStates = {}
 
 async function fetchCourse() {
@@ -100,22 +108,21 @@ watch(() => route.params.id, fetchCourse)
           >
             <template #extra-controls>
               <Button
+                v-if="isPreparedCourse"
+                label="Lancer"
+                icon="pi pi-play"
+                severity="primary"
+                class="chronometre-btn"
+                @click="startNewFromThis"
+              />
+              <Button
+                v-else
                 label="Replay"
                 icon="pi pi-play"
                 severity="secondary"
                 class="chronometre-btn"
                 @click="goToReplay"
               />
-              <!-- Slice 10 — Dupliquer : masqué en attendant retours utilisateurs et nouvelles exigences (réouvrir slice) -->
-              <!--
-              <Button
-                label="Dupliquer"
-                icon="pi pi-copy"
-                severity="secondary"
-                class="chronometre-btn"
-                @click="startNewFromThis"
-              />
-              -->
             </template>
           </Chronometre>
         </section>
