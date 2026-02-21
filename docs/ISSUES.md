@@ -43,3 +43,11 @@
 **État :** Résolu
 
 **Solution :** Suppression du div `tableau-passages-title` contenant « Relais » dans `TableauPassagesRelay.vue`.
+
+### [UX] Espacer les boutons Stop et Tour en mode individuel
+
+**Problème :** En mode individuel, les boutons Stop et Tour sont trop proches, ce qui augmente le risque d'appui involontaire pendant la saisie.
+
+**État :** Résolu
+
+**Solution :** Dans `TableauPassagesCompact.vue`, la rangée d'actions utilise désormais `justify-content: space-between` avec largeur complète, Stop à gauche et Tour à droite, espacement augmenté (`gap: 0.75rem`) et tailles tactiles portées à 44px.

@@ -182,11 +182,15 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ## Vue compacte mode individuel (expérimental)
 
-**Objectif** : Proposer une alternative à la vue tableau pour le mode individuel, optimisée smartphone : grille de mini-cartes (numéro tappable), temps affichés en dessous, masquage progressif des élèves terminés.
+**Objectif** : Proposer une alternative à la vue tableau pour le mode individuel, optimisée smartphone : grille de mini-cartes (numéro tappable), temps affichés en dessous, états visuels explicites pour les coureurs actifs/inactifs.
 
 **Livrables** : TableauPassagesCompact.vue ; commutateur Tableau / Compacte dans HomeView et CourseDetailView ; persistance du choix (localStorage).
 
 **Statut** : Implémenté. En évaluation auprès des professeurs. L'ancienne vue tableau reste disponible.
+
+### Ajustements demandés (retours terrain)
+
+- [ ] En mode individuel, quand un coureur est stoppé, conserver sa cellule visible (fond gris), conserver les temps affichés, et afficher un bouton Play vert pour permettre la reprise.
 
 ---
 
@@ -202,6 +206,8 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 - [x] Renommer « Nouvelle course à partir de » en « Dupliquer » (issue 5)
 - [x] Remonter le bouton à côté du chronomètre (Nouvelle course) dans CourseDetailView.vue (issue 6)
+- [x] En mode individuel, « Nouvelle course » doit reprendre la configuration des coureurs de la course source et réinitialiser les temps.
+- [x] En mode individuel, si la course source contient des temps, pré-trier automatiquement les coureurs par temps total croissant (plus rapide en premier) dans la nouvelle course.
 
 ---
 

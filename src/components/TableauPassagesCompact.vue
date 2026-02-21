@@ -224,7 +224,7 @@ function toggleParticipant(participant) {
             :icon="isParticipantRunning(p.id) ? 'pi pi-stop' : 'pi pi-play'"
             :severity="isParticipantRunning(p.id) ? 'danger' : 'success'"
             :aria-label="isParticipantRunning(p.id) ? `Arrêter ${p.nom}` : `Démarrer ${p.nom}`"
-            class="tableau-passages-compact-card-btn"
+            class="tableau-passages-compact-card-btn tableau-passages-compact-card-btn-stop"
             @click.stop="toggleParticipant(p)"
           />
           <Button
@@ -232,7 +232,7 @@ function toggleParticipant(participant) {
             icon="pi pi-flag"
             severity="secondary"
             aria-label="Marquer passage"
-            class="tableau-passages-compact-card-btn"
+            class="tableau-passages-compact-card-btn tableau-passages-compact-card-btn-tour"
             @click.stop="onTap(p.id)"
           />
         </div>
@@ -424,13 +424,23 @@ function toggleParticipant(participant) {
 
 .tableau-passages-compact-card-actions {
   display: flex;
-  gap: 0.25rem;
+  width: 100%;
+  justify-content: space-between;
+  gap: 0.75rem;
   align-items: center;
 }
 
 .tableau-passages-compact-card-btn {
-  min-height: 36px;
-  min-width: 36px;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.tableau-passages-compact-card-btn-stop {
+  margin-right: auto;
+}
+
+.tableau-passages-compact-card-btn-tour {
+  margin-left: auto;
 }
 
 .tableau-passages-compact-resume {

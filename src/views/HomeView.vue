@@ -12,7 +12,7 @@ import TableauPassagesRelay from '../components/TableauPassagesRelay.vue'
 import { useChronometre } from '../composables/useChronometre.js'
 import { useToast } from 'primevue/usetoast'
 import { saveCourse, loadCourse } from '../services/courseStore.js'
-import { getMaxTotalMsFromPassages } from '../utils/courseUtils.js'
+import { getMaxTotalMsFromPassages, sortParticipantsByTotalTimeAsc } from '../utils/courseUtils.js'
 import { createRelayGroup, createParticipant } from '../models/participant.js'
 
 const route = useRoute()
@@ -103,8 +103,8 @@ async function doLoadCourse(courseId) {
       toast.add({ severity: 'warn', summary: 'Course introuvable', life: 3000 })
       return
     }
-    participants.value = [...course.participants]
     mode.value = course.mode || 'individual'
+    participants.value = [...course.participants]
     groupStudents.value = { ...(course.groupStudents || {}) }
     reset()
     passagesByParticipant.value = { ...course.passagesByParticipant }
@@ -127,8 +127,24 @@ async function doLoadCourseAsTemplate(courseId) {
       toast.add({ severity: 'warn', summary: 'Course introuvable', life: 3000 })
       return
     }
-    participants.value = [...course.participants]
+    // Mettre à jour le mode avant les participants pour éviter que le watch mode
+    // n'écrase participants avec une valeur par défaut
     mode.value = course.mode || 'individual'
+    const hasPassages = Object.values(course.passagesByParticipant ?? {}).some(
+      (arr) => Array.isArray(arr) && arr.length > 0
+    )
+    if (
+      course.mode === 'individual' &&
+      course.participants?.length > 0 &&
+      hasPassages
+    ) {
+      participants.value = sortParticipantsByTotalTimeAsc(
+        course.participants,
+        course.passagesByParticipant
+      )
+    } else {
+      participants.value = [...course.participants]
+    }
     const gs = course.groupStudents || {}
     groupStudents.value = Object.fromEntries(
       Object.entries(gs).map(([gid, students]) => [gid, Array.isArray(students) ? [...students] : []])
@@ -185,7 +201,7 @@ function handleStart() {
 
 function handleReset() {
   if (currentCourse.value) {
-    startNewCourse()
+    doLoadCourseAsTemplate(currentCourse.value.id)
   } else {
     // Si mode individuel sans participants valides, réinitialiser proprement
     if (mode.value === 'individual' && participants.value.length === 0) {

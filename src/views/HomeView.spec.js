@@ -160,6 +160,47 @@ describe('HomeView', () => {
     wrapper.unmount()
   })
 
+  it('cliquer Nouvelle course sur une course chargée (individuel) conserve la config des élèves et efface les temps', async () => {
+    const savedCourse = {
+      id: 'saved-indiv-1',
+      nom: 'Course enregistrée',
+      participants: [
+        { id: '1', nom: 'Elève 1', color: '#ef4444' },
+        { id: '2', nom: 'Elève 2', color: '#3b82f6' }
+      ],
+      passagesByParticipant: {
+        '1': [{ tourNum: 1, lapMs: 45000, totalMs: 45000 }],
+        '2': [{ tourNum: 1, lapMs: 50000, totalMs: 50000 }]
+      },
+      chronoStartMs: 1000,
+      statusAtSave: 'paused',
+      mode: 'individual'
+    }
+    mockLoadCourse.mockResolvedValue(savedCourse)
+
+    const { wrapper } = await mountHomeView({
+      path: '/',
+      query: { loadCourseId: savedCourse.id }
+    })
+    await vi.runAllTimersAsync()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('.home-course-title').exists()).toBe(true)
+    expect(wrapper.vm.participants).toHaveLength(2)
+
+    const nouvelleCourseBtn = wrapper.findAll('button').find((b) => b.text() === 'Nouvelle course')
+    expect(nouvelleCourseBtn.exists()).toBe(true)
+    await nouvelleCourseBtn.trigger('click')
+    await vi.runAllTimersAsync()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('.home-course-title').exists()).toBe(false)
+    expect(wrapper.vm.participants).toHaveLength(2)
+    expect(wrapper.vm.participants.map((p) => p.nom)).toEqual(['Elève 1', 'Elève 2'])
+    expect(Object.keys(wrapper.vm.passagesByParticipant)).toHaveLength(0)
+    wrapper.unmount()
+  })
+
   it('newFromCourseId charge en mode template : groupes/élèves conservés, pas de nom ni passages', async () => {
     const sourceCourse = {
       id: 'source-1',
@@ -184,6 +225,143 @@ describe('HomeView', () => {
     expect(wrapper.find('.home-course-title').exists()).toBe(false)
     expect(wrapper.text()).toContain('Groupe 1')
     expect(wrapper.text()).toContain('Alice')
+    wrapper.unmount()
+  })
+
+  it('newFromCourseId mode individuel : config des coureurs conservée, temps réinitialisés', async () => {
+    const sourceCourse = {
+      id: 'source-indiv-1',
+      nom: 'Course individuelle',
+      participants: [
+        { id: '1', nom: 'Elève 1', color: '#ef4444' },
+        { id: '2', nom: 'Elève 2', color: '#3b82f6' },
+        { id: '3', nom: 'Elève 3', color: '#22c55e' }
+      ],
+      passagesByParticipant: {
+        '1': [{ tourNum: 1, lapMs: 45000, totalMs: 45000 }],
+        '2': [{ tourNum: 1, lapMs: 50000, totalMs: 50000 }],
+        '3': [{ tourNum: 1, lapMs: 55000, totalMs: 55000 }]
+      },
+      chronoStartMs: 1000,
+      statusAtSave: 'paused',
+      mode: 'individual'
+    }
+    mockLoadCourse.mockResolvedValue(sourceCourse)
+
+    const { wrapper } = await mountHomeView({
+      path: '/',
+      query: { newFromCourseId: sourceCourse.id }
+    })
+    await vi.runAllTimersAsync()
+    await wrapper.vm.$nextTick()
+
+    expect(mockLoadCourse).toHaveBeenCalledWith('source-indiv-1')
+    expect(wrapper.find('.home-course-title').exists()).toBe(false)
+    expect(wrapper.text()).toContain('Elève 1')
+    expect(wrapper.text()).toContain('Elève 2')
+    expect(wrapper.text()).toContain('Elève 3')
+    expect(wrapper.vm.participants).toHaveLength(3)
+    expect(wrapper.vm.participants.map((p) => p.nom)).toEqual(['Elève 1', 'Elève 2', 'Elève 3'])
+    expect(Object.keys(wrapper.vm.passagesByParticipant)).toHaveLength(0)
+    expect(wrapper.vm.currentCourse).toBeNull()
+    wrapper.unmount()
+  })
+
+  it('newFromCourseId mode individuel avec passages : participants triés par temps croissant', async () => {
+    const sourceCourse = {
+      id: 'source-tri-1',
+      nom: 'Course à trier',
+      participants: [
+        { id: '1', nom: 'Elève 1', color: '#ef4444' },
+        { id: '2', nom: 'Elève 2', color: '#3b82f6' },
+        { id: '3', nom: 'Elève 3', color: '#22c55e' }
+      ],
+      passagesByParticipant: {
+        '1': [{ tourNum: 1, lapMs: 90000, totalMs: 90000 }],
+        '2': [{ tourNum: 1, lapMs: 60000, totalMs: 60000 }],
+        '3': [{ tourNum: 1, lapMs: 120000, totalMs: 120000 }]
+      },
+      chronoStartMs: 1000,
+      statusAtSave: 'paused',
+      mode: 'individual'
+    }
+    mockLoadCourse.mockResolvedValue(sourceCourse)
+
+    const { wrapper } = await mountHomeView({
+      path: '/',
+      query: { newFromCourseId: sourceCourse.id }
+    })
+    await vi.runAllTimersAsync()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.participants.map((p) => p.nom)).toEqual([
+      'Elève 2',
+      'Elève 1',
+      'Elève 3'
+    ])
+    expect(Object.keys(wrapper.vm.passagesByParticipant)).toHaveLength(0)
+    wrapper.unmount()
+  })
+
+  it('newFromCourseId mode individuel sans passages : ordre conservé', async () => {
+    const sourceCourse = {
+      id: 'source-nopass-1',
+      nom: 'Course sans passages',
+      participants: [
+        { id: '1', nom: 'Alice' },
+        { id: '2', nom: 'Bob' },
+        { id: '3', nom: 'Charlie' }
+      ],
+      passagesByParticipant: {},
+      chronoStartMs: null,
+      statusAtSave: 'idle',
+      mode: 'individual'
+    }
+    mockLoadCourse.mockResolvedValue(sourceCourse)
+
+    const { wrapper } = await mountHomeView({
+      path: '/',
+      query: { newFromCourseId: sourceCourse.id }
+    })
+    await vi.runAllTimersAsync()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.participants.map((p) => p.nom)).toEqual([
+      'Alice',
+      'Bob',
+      'Charlie'
+    ])
+    wrapper.unmount()
+  })
+
+  it('newFromCourseId mode individuel : participants sans passage en fin de liste', async () => {
+    const sourceCourse = {
+      id: 'source-mix-1',
+      nom: 'Course mixte',
+      participants: [
+        { id: '1', nom: 'Sans passage 1' },
+        { id: '2', nom: 'Avec temps' },
+        { id: '3', nom: 'Sans passage 2' }
+      ],
+      passagesByParticipant: {
+        '2': [{ tourNum: 1, lapMs: 50000, totalMs: 50000 }]
+      },
+      chronoStartMs: 1000,
+      statusAtSave: 'paused',
+      mode: 'individual'
+    }
+    mockLoadCourse.mockResolvedValue(sourceCourse)
+
+    const { wrapper } = await mountHomeView({
+      path: '/',
+      query: { newFromCourseId: sourceCourse.id }
+    })
+    await vi.runAllTimersAsync()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.participants[0].nom).toBe('Avec temps')
+    expect(wrapper.vm.participants.map((p) => p.nom)).toContain('Sans passage 1')
+    expect(wrapper.vm.participants.map((p) => p.nom)).toContain('Sans passage 2')
     wrapper.unmount()
   })
 })

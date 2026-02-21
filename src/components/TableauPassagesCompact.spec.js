@@ -72,6 +72,22 @@ describe('TableauPassagesCompact', () => {
     expect(wrapper.emitted('record')[0][0]).toBe('1')
   })
 
+  it('positionne Stop à gauche et Tour à droite sur une carte en cours', () => {
+    const participants = [{ id: '1', nom: 'Elève 1', color: '#ef4444' }]
+    const participantStates = { '1': { elapsedMs: 1000, status: 'running' } }
+    const wrapper = mountTableauPassagesCompact({
+      participants,
+      participantStates,
+      status: 'running'
+    })
+    const stopBtn = wrapper.find('.tableau-passages-compact-card-btn-stop')
+    const tourBtn = wrapper.find('.tableau-passages-compact-card-btn-tour')
+    expect(stopBtn.exists()).toBe(true)
+    expect(tourBtn.exists()).toBe(true)
+    expect(stopBtn.attributes('aria-label')).toContain('Arrêter')
+    expect(tourBtn.attributes('aria-label')).toBe('Marquer passage')
+  })
+
   it('masque les cartes des élèves stoppés quand hideFinished est true et chrono en cours', () => {
     const participants = [
       { id: '1', nom: 'Elève 1', color: '#ef4444' },
