@@ -47,6 +47,7 @@ Application PWA **client-only** : pas de backend obligatoire pour la première v
 | **Liste Élèves** | Gestion et sélection des élèves pour une course | src/ |
 | **Saisie Passages** | Enregistrement des passages (tap sur élève, enregistrement timestamp) | src/ |
 | **Tableau relais** | Affichage « Couru » / « Prochain » par groupe, tap par groupe | src/components/ |
+| **Vue compacte (individuel)** | Grille de cartes par coureur ; Stop/Start individuel ; carte stoppée = fond gris, temps affichés, bouton Play pour reprendre | src/components/TableauPassagesCompact.vue |
 | **Stockage local** | Persistance des données (élèves, courses, passages, performances) ; liste, chargement, suppression | IndexedDB (Dexie.js) |
 | **Couche PWA** | Service worker, manifeste ; installation, cache, offline | public/, sw.js ou équivalent |
 | **UI responsive** | Layout adapté tablette et smartphone | PrimeVue |

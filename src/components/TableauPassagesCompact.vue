@@ -52,17 +52,8 @@ const displayParticipants = computed(() => {
 const isSoloMode = computed(() => props.participants.length === 0)
 
 const gridParticipants = computed(() => {
-  if (props.readOnly || !props.hideFinished) {
-    return displayParticipants.value
-  }
-  // Quand le chrono global est arrêté (idle/paused), afficher tous les participants
-  if (props.status !== 'running') {
-    return displayParticipants.value
-  }
-  // Pendant la course : masquer uniquement les participants explicitement arrêtés individuellement
-  return displayParticipants.value.filter(
-    (p) => props.participantStates[p.id]?.status !== 'paused'
-  )
+  // Afficher tous les participants (running + paused) : les stoppés restent visibles avec fond gris et bouton Play
+  return displayParticipants.value
 })
 
 const performancesByParticipant = computed(() => {
@@ -138,6 +129,10 @@ function isParticipantRunning(participantId) {
   return props.participantStates[participantId]?.status === 'running'
 }
 
+function isParticipantPaused(participantId) {
+  return props.participantStates[participantId]?.status === 'paused'
+}
+
 function canTap(participantId) {
   if (props.readOnly) return false
   const passages = props.passagesByParticipant[participantId] ?? []
@@ -201,7 +196,8 @@ function toggleParticipant(participant) {
         class="tableau-passages-compact-card"
         :class="{
           'tableau-passages-compact-card-tappable': canTap(p.id),
-          'tableau-passages-compact-card-running': isParticipantRunning(p.id)
+          'tableau-passages-compact-card-running': isParticipantRunning(p.id),
+          'tableau-passages-compact-card-paused': isParticipantPaused(p.id)
         }"
         :style="{
           borderLeftColor: p.color ?? '#94a3b8'
@@ -384,6 +380,10 @@ function toggleParticipant(participant) {
 
 .tableau-passages-compact-card-running {
   background: #eff6ff;
+}
+
+.tableau-passages-compact-card-paused {
+  background: #e5e7eb;
 }
 
 .tableau-passages-compact-card-tappable {

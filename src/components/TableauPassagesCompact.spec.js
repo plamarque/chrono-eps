@@ -88,24 +88,100 @@ describe('TableauPassagesCompact', () => {
     expect(tourBtn.attributes('aria-label')).toBe('Marquer passage')
   })
 
-  it('masque les cartes des élèves stoppés quand hideFinished est true et chrono en cours', () => {
+  it('émet start-participant au clic sur Play d\'un coureur stoppé (reprise individuelle)', async () => {
     const participants = [
       { id: '1', nom: 'Elève 1', color: '#ef4444' },
       { id: '2', nom: 'Elève 2', color: '#3b82f6' }
     ]
     const participantStates = {
       '1': { status: 'running' },
-      '2': { status: 'paused' }
+      '2': { status: 'paused', elapsedMs: 45000 }
+    }
+    const passagesByParticipant = {
+      '2': [{ tourNum: 1, lapMs: 45000, totalMs: 45000 }]
     }
     const wrapper = mountTableauPassagesCompact({
       participants,
       participantStates,
+      passagesByParticipant,
+      status: 'running'
+    })
+    const cardPaused = wrapper.findAll('.tableau-passages-compact-card')[1]
+    const playBtn = cardPaused.find('button[aria-label*="Démarrer"]')
+    expect(playBtn.exists()).toBe(true)
+    await playBtn.trigger('click')
+    expect(wrapper.emitted('start-participant')).toBeTruthy()
+    expect(wrapper.emitted('start-participant')[0][0]).toBe('2')
+  })
+
+  it('émet stop-participant au clic sur Stop d\'un coureur en course', async () => {
+    const participants = [{ id: '1', nom: 'Elève 1', color: '#ef4444' }]
+    const participantStates = { '1': { status: 'running', elapsedMs: 30000 } }
+    const wrapper = mountTableauPassagesCompact({
+      participants,
+      participantStates,
+      status: 'running'
+    })
+    const stopBtn = wrapper.find('button[aria-label*="Arrêter"]')
+    expect(stopBtn.exists()).toBe(true)
+    await stopBtn.trigger('click')
+    expect(wrapper.emitted('stop-participant')).toBeTruthy()
+    expect(wrapper.emitted('stop-participant')[0][0]).toBe('1')
+  })
+
+  it('carte running a fond bleu, carte paused a fond gris', () => {
+    const participants = [
+      { id: '1', nom: 'Elève 1', color: '#ef4444' },
+      { id: '2', nom: 'Elève 2', color: '#3b82f6' }
+    ]
+    const participantStates = {
+      '1': { status: 'running' },
+      '2': { status: 'paused', elapsedMs: 45000 }
+    }
+    const passagesByParticipant = {
+      '2': [{ tourNum: 1, lapMs: 45000, totalMs: 45000 }]
+    }
+    const wrapper = mountTableauPassagesCompact({
+      participants,
+      participantStates,
+      passagesByParticipant,
+      status: 'running'
+    })
+    const cards = wrapper.findAll('.tableau-passages-compact-card')
+    expect(cards[0].classes()).toContain('tableau-passages-compact-card-running')
+    expect(cards[0].classes()).not.toContain('tableau-passages-compact-card-paused')
+    expect(cards[1].classes()).toContain('tableau-passages-compact-card-paused')
+    expect(cards[1].classes()).not.toContain('tableau-passages-compact-card-running')
+  })
+
+  it('affiche les cartes des coureurs stoppés avec fond gris et bouton Play quand chrono en cours', () => {
+    const participants = [
+      { id: '1', nom: 'Elève 1', color: '#ef4444' },
+      { id: '2', nom: 'Elève 2', color: '#3b82f6' }
+    ]
+    const participantStates = {
+      '1': { status: 'running' },
+      '2': { status: 'paused', elapsedMs: 45000 }
+    }
+    const passagesByParticipant = {
+      '2': [{ tourNum: 1, lapMs: 45000, totalMs: 45000 }]
+    }
+    const wrapper = mountTableauPassagesCompact({
+      participants,
+      participantStates,
+      passagesByParticipant,
       status: 'running',
       hideFinished: true
     })
     const cards = wrapper.findAll('.tableau-passages-compact-card')
-    expect(cards.length).toBe(1)
+    expect(cards.length).toBe(2)
     expect(cards[0].text()).toContain('Elève 1')
+    expect(cards[1].text()).toContain('Elève 2')
+    const cardPaused = cards[1]
+    expect(cardPaused.classes()).toContain('tableau-passages-compact-card-paused')
+    const playBtn = cardPaused.find('button[aria-label*="Démarrer"]')
+    expect(playBtn.exists()).toBe(true)
+    expect(cardPaused.text()).toContain('00:45.00')
   })
 
   it('affiche toutes les cartes quand chrono global arrêté (status paused/idle) même si tous paused', () => {

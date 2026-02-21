@@ -26,7 +26,7 @@ Chrono EPS est une application web PWA destinée aux enseignants d'EPS pour chro
 
 ## Capacités principales
 
-1. **Chronomètre multi-élèves** — L'enseignant lance une course avec plusieurs élèves ; un chronomètre commun mesure le temps écoulé.
+1. **Chronomètre multi-élèves** — L'enseignant lance une course avec plusieurs élèves ; un chronomètre commun mesure le temps écoulé. En mode individuel, chaque coureur a un démarrage/arrêt individuel (Stop sur la carte = arrêt du chrono de ce coureur ; la carte reste visible sur fond gris avec temps affichés et bouton Start pour reprendre).
 2. **Enregistrement des passages de tours** — À chaque passage d'un élève à un point de contrôle (ex. tour de piste), l'enseignant enregistre le passage par une action rapide (tap) ; l'heure du passage est associée automatiquement.
 3. **Identification des élèves** — Les élèves sont identifiés par un nom ou un identifiant ; une liste d'élèves est associée à la course.
 4. **Stockage des performances** — Les performances (temps, tours complétés) sont conservées localement ; l'historique est consultable ; les courses peuvent être chargées (affichage lecture seule avec temps total), supprimées ou servir de base à une nouvelle course.

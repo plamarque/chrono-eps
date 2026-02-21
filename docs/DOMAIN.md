@@ -16,6 +16,7 @@ Ce document définit le vocabulaire, les entités et les règles du domaine pour
 | **Passage (relais)** | Un tour de piste complété par un élève d'un groupe ; l'ordre cycle sur les élèves (ex. Alice, Bob, Claire, Daniel, Alice, Bob...) ; la course continue jusqu'à l'arrêt par le professeur. |
 | **Groupe (relais)** | Ensemble ordonné d'élèves qui courent l'un après l'autre ; a une couleur (chasubles communes) et une liste de noms d'élèves. |
 | **Performance** | Résultat associé à un élève pour une course : temps, nombre de tours complétés, etc. |
+| **Arrêt individuel** | Action qui stoppe le chrono d'un seul coureur en mode individuel ; la carte du coureur reste visible (fond gris, temps affichés, bouton Start pour reprendre). |
 | **Replay** | Visualisation différée d'une course sauvegardée : relecture au fil du temps avec position des participants sur une piste virtuelle. |
 | **Piste virtuelle** | Représentation graphique (ovale ou anneau) de la piste sur laquelle les positions des participants sont affichées pendant le replay. |
 
@@ -40,6 +41,7 @@ Ce document définit le vocabulaire, les entités et les règles du domaine pour
 3. Les passages sont ordonnés chronologiquement ; le timestamp est non modifiable une fois enregistré. [ASSUMPTION]
 4. Les performances sont dérivées des passages : temps du premier passage, du dernier, nombre de tours, etc.
 5. [ASSUMPTION] Format temps : mm:ss.ms ou équivalent pour l'affichage et le stockage.
+6. En mode individuel, l'arrêt d'un coureur (Stop sur sa carte) conserve sa cellule visible : fond gris, temps affichés, bouton Start pour reprendre le chrono de ce coureur.
 
 ## Hypothèses et incertitudes
 
