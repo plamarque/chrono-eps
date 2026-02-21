@@ -67,7 +67,11 @@ echo "Bump version ($BUMP)..."
 NEW_TAG=$(npm version "$BUMP")
 # NEW_TAG = "v0.1.1"
 
-# 6. Créer release GitHub avec changelog
+# 6. Pousser (tag doit exister sur GitHub avant gh release create)
+echo "Push vers origin..."
+git push origin main --tags
+
+# 7. Créer release GitHub avec changelog
 NOTES_FILE=$(mktemp)
 trap "rm -f $NOTES_FILE" EXIT
 echo "## Changements" > "$NOTES_FILE"
@@ -76,9 +80,5 @@ echo "$CHANGELOG" >> "$NOTES_FILE"
 
 echo "Création de la release $NEW_TAG..."
 gh release create "$NEW_TAG" --notes-file "$NOTES_FILE"
-
-# 7. Pousser
-echo "Push vers origin..."
-git push origin main --tags
 
 echo "Release $NEW_TAG créée et poussée."
