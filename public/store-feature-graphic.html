@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chrono EPS - Bannière Play Store</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          sans-serif;
+        background: #1e293b;
+        padding: 2rem;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+      }
+      .banner {
+        width: 1024px;
+        height: 500px;
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2.5rem;
+        padding: 3rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      }
+      .banner-icon {
+        width: 200px;
+        height: 200px;
+        flex-shrink: 0;
+        background: white;
+        border-radius: 24px;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .banner-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .banner-text {
+        color: white;
+      }
+      .banner-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        margin-bottom: 0.5rem;
+      }
+      .banner-tagline {
+        font-size: 1.5rem;
+        font-weight: 500;
+        opacity: 0.95;
+        max-width: 420px;
+      }
+      .instructions {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+      .btn {
+        background: #2563eb;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .btn:hover {
+        background: #1d4ed8;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="banner" class="banner">
+      <div class="banner-icon">
+        <img src="pwa-512x512.png" alt="Chrono EPS" />
+      </div>
+      <div class="banner-text">
+        <h1 class="banner-title">Chrono EPS</h1>
+        <p class="banner-tagline">
+          Chronomètre multi-élèves pour les enseignants d'EPS
+        </p>
+      </div>
+    </div>
+    <p class="instructions">
+      Cliquez sur le bouton pour télécharger l'image (1024×500 px)
+    </p>
+    <button class="btn" id="downloadBtn">Télécharger l'image PNG</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+      document.getElementById('downloadBtn').addEventListener('click', async () => {
+        const banner = document.getElementById('banner')
+        const btn = document.getElementById('downloadBtn')
+        btn.disabled = true
+        btn.textContent = 'Génération…'
+        try {
+          const canvas = await html2canvas(banner, {
+            scale: 1,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: null,
+            logging: false
+          })
+          const link = document.createElement('a')
+          link.download = 'chrono-eps-feature-graphic-1024x500.png'
+          link.href = canvas.toDataURL('image/png')
+          link.click()
+        } finally {
+          btn.disabled = false
+          btn.textContent = 'Télécharger l\'image PNG'
+        }
+      })
+    </script>
+  </body>
+</html>
