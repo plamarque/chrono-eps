@@ -4,3 +4,4 @@ export const APP_RELEASE_URL =
   typeof __APP_RELEASE_URL__ !== 'undefined'
     ? __APP_RELEASE_URL__
     : 'https://github.com/plamarque/chrono-eps/releases'
+export const APP_PRIVACY_URL = 'https://plamarque.github.io/chrono-eps/privacy.html'

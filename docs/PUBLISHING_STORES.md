@@ -101,7 +101,7 @@ Apple peut refuser les apps qui ressemblent à de simples « sites web dans une 
 | Icône 512×512 | Déjà présente dans le projet (`public/pwa-512x512.png`) |
 | Description courte | Ex. : « Chronomètre multi-élèves pour les enseignants d'EPS » |
 | Description longue | Détail des fonctionnalités (chrono, passages, historique, hors ligne) |
-| Politique de confidentialité | URL requise — Chrono EPS stocke les données localement ; préciser l'absence de collecte serveur |
+| Politique de confidentialité | URL : `https://plamarque.github.io/chrono-eps/privacy.html` — Chrono EPS stocke les données localement ; l'absence de collecte serveur y est détaillée |
 | Catégorie | Ex. : Éducation, Productivité |
 
 ## 7. Limitations et points d'attention (Chrono EPS)
