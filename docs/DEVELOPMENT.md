@@ -4,6 +4,7 @@
 
 - Node.js 20+
 - npm
+- [GitHub CLI (gh)](https://cli.github.com/) pour les releases (authentification requise)
 
 ## Commandes
 
@@ -15,6 +16,23 @@
 | `npm run preview` | Prévisualiser le build (localement)                   |
 | `npm run test` | Lancer les tests unitaires (Vitest)                       |
 | `npm run test:watch` | Lancer les tests en mode watch                      |
+| `npm run release -- --patch` | Créer une release (voir section Release)   |
+
+## Release
+
+Pour créer une release avec version sémantique et publication sur GitHub :
+
+```bash
+./scripts/release-version.sh --patch   # 0.1.0 → 0.1.1
+./scripts/release-version.sh --minor   # 0.1.1 → 0.2.0
+./scripts/release-version.sh --major   # 0.2.0 → 1.0.0
+```
+
+Ou via npm : `npm run release -- --patch` (idem pour --minor, --major).
+
+**Étapes du script :** vérification du working tree et de `gh`, tests, build, génération du changelog à partir des commits depuis le dernier tag, bump de version, création de la release GitHub, push.
+
+**Prérequis :** GitHub CLI installé et authentifié (`gh auth login`).
 
 ## URL de développement
 

@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Toast from 'primevue/toast'
+import { APP_VERSION, APP_RELEASE_URL } from './appInfo.js'
+
 const route = useRoute()
 
 const navItems = [
@@ -21,16 +23,29 @@ const activeIndex = computed(() => {
   <div class="app-layout">
     <Toast />
     <nav class="app-nav" aria-label="Navigation principale">
-      <router-link
-        v-for="(item, idx) in navItems"
-        :key="item.to"
-        :to="item.to"
-        class="app-nav-link"
-        :class="{ 'app-nav-link-active': activeIndex === idx }"
-      >
-        <i :class="item.icon" aria-hidden="true"></i>
-        <span>{{ item.label }}</span>
-      </router-link>
+      <div class="app-nav-links">
+        <router-link
+          v-for="(item, idx) in navItems"
+          :key="item.to"
+          :to="item.to"
+          class="app-nav-link"
+          :class="{ 'app-nav-link-active': activeIndex === idx }"
+        >
+          <i :class="item.icon" aria-hidden="true"></i>
+          <span>{{ item.label }}</span>
+        </router-link>
+      </div>
+      <div class="app-brand">
+        <a
+          :href="APP_RELEASE_URL"
+          target="_blank"
+          rel="noopener"
+          class="app-version"
+          :title="`Voir la release v${APP_VERSION}`"
+        >
+          Chrono EPS <span class="app-version-num">v{{ APP_VERSION }}</span>
+        </a>
+      </div>
     </nav>
     <main class="app-main">
       <router-view />
@@ -47,8 +62,30 @@ const activeIndex = computed(() => {
 
 .app-nav {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
+}
+
+.app-nav-links {
+  display: flex;
+}
+
+.app-brand {
+  padding-inline: 1rem;
+}
+
+.app-version {
+  color: var(--p-text-muted-color, #64748b);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+
+.app-version:hover {
+  color: var(--p-primary-color, #3b82f6);
 }
 
 .app-nav-link {
