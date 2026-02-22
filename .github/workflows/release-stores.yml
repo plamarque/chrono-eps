@@ -71,6 +71,9 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Restore keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android-twa/android.keystore
@@ -81,7 +84,7 @@ jobs:
       - name: Configure Bubblewrap (JDK + Android SDK)
         run: |
           mkdir -p ~/.bubblewrap
-          SDK_PATH="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          SDK_PATH="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
           # updateConfig peut poser des questions (JDK) — yes y évite le blocage en CI
           yes y | npx @bubblewrap/cli updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$SDK_PATH"
 
