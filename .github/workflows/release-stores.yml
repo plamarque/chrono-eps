@@ -79,7 +79,9 @@ jobs:
         run: npm ci
 
       - name: Configure Bubblewrap (JDK path)
-        run: npx @bubblewrap/cli updateConfig --jdkPath="$JAVA_HOME"
+        run: |
+          mkdir -p ~/.bubblewrap
+          echo "{\"jdkPath\": \"$JAVA_HOME\"}" > ~/.bubblewrap/config.json
 
       - name: Build Android AAB
         env:
