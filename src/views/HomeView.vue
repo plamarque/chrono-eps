@@ -477,6 +477,11 @@ watch(
   flex: 1;
 }
 
+.home :deep(.home-card) {
+  border: none !important;
+  box-shadow: none !important;
+}
+
 .home-course-title {
   font-size: 1.1rem;
   font-weight: 600;
