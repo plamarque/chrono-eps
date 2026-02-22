@@ -82,7 +82,8 @@ jobs:
         run: |
           mkdir -p ~/.bubblewrap
           SDK_PATH="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
-          npx @bubblewrap/cli updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$SDK_PATH"
+          # updateConfig peut poser des questions (JDK) — yes y évite le blocage en CI
+          yes y | npx @bubblewrap/cli updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$SDK_PATH"
 
       - name: Build Android AAB
         env:
