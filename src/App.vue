@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Toast from 'primevue/toast'
-import { APP_VERSION, APP_RELEASE_URL, APP_PRIVACY_URL } from './appInfo.js'
+import { APP_VERSION, APP_RELEASE_URL } from './appInfo.js'
 
 const route = useRoute()
 
@@ -36,15 +36,6 @@ const activeIndex = computed(() => {
         </router-link>
       </div>
       <div class="app-brand">
-        <a
-          :href="APP_PRIVACY_URL"
-          target="_blank"
-          rel="noopener"
-          class="app-nav-link app-brand-link"
-          title="Politique de confidentialité"
-        >
-          Confidentialité
-        </a>
         <a
           :href="APP_RELEASE_URL"
           target="_blank"
@@ -82,14 +73,7 @@ const activeIndex = computed(() => {
 }
 
 .app-brand {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
   padding-inline: 1rem;
-}
-
-.app-brand-link {
-  padding: 0.5rem 0.75rem;
 }
 
 .app-version {

@@ -9,6 +9,8 @@ lerna-debug.log*
 
 node_modules
 dist
+.env
+
 dist-ssr
 *.local
 
@@ -22,6 +24,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Android TWA (Bubblewrap)
+android-twa/*.keystore
 
 # iOS / Xcode
 ios/Pods/

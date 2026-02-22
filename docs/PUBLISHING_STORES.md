@@ -42,6 +42,45 @@ Workflow PWABuilder :
 
 PWABuilder génère un projet Android (Trusted Web Activity via Bubblewrap) ou un AAB prêt à uploader.
 
+### 4.0 Génération du bundle Android (automatisée)
+
+Le bundle AAB peut être généré en ligne de commande via [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap).
+
+**Configuration one-time** (à exécuter une seule fois) :
+
+```bash
+npx @bubblewrap/cli init \
+  --manifest="https://plamarque.github.io/chrono-eps/manifest.webmanifest" \
+  --directory="android-twa"
+```
+
+Répondre aux questions (package name, domain, etc.). Une clé de signature est générée dans `android-twa/`. **Sauvegarder le keystore et ses mots de passe.** Le keystore est ignoré par git (`.gitignore`).
+
+**Génération du AAB :**
+
+Créer un fichier `.env` à la racine du projet (non commité) avec les mots de passe :
+
+```bash
+cp .env.example .env
+# Éditer .env et renseigner BUBBLEWRAP_KEYSTORE_PASSWORD et BUBBLEWRAP_KEY_PASSWORD
+```
+
+Puis lancer :
+
+```bash
+npm run android:bundle
+```
+
+Le script charge automatiquement `.env`. Le AAB est produit dans `dist/chrono-eps-android.aab`.
+
+**Intégration à la release :**
+
+```bash
+./scripts/release-version.sh --patch
+```
+
+Le AAB est automatiquement généré et attaché à la release GitHub.
+
 ### 4.1 Digital Asset Links
 
 PWABuilder indique le `package name` et le fingerprint SHA-256. Il faut créer le fichier `/.well-known/assetlinks.json` sur le domaine (`plamarque.github.io`) pour lier l'app Android au site.

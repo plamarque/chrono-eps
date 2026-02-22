@@ -7,9 +7,11 @@ cd "$ROOT_DIR"
 
 usage() {
   echo "Usage: $0 --patch | --minor | --major"
-  echo "  --patch  0.1.0 → 0.1.1"
-  echo "  --minor  0.1.1 → 0.2.0"
-  echo "  --major  0.2.0 → 1.0.0"
+  echo "  --patch   0.1.0 → 0.1.1"
+  echo "  --minor   0.1.1 → 0.2.0"
+  echo "  --major   0.2.0 → 1.0.0"
+  echo ""
+  echo "Le bundle Android AAB est généré et attaché à la release par défaut."
   exit 1
 }
 
@@ -80,5 +82,12 @@ echo "$CHANGELOG" >> "$NOTES_FILE"
 
 echo "Création de la release $NEW_TAG..."
 gh release create "$NEW_TAG" --notes-file "$NOTES_FILE"
+
+echo "Génération du bundle Android..."
+"$SCRIPT_DIR/build-android-bundle.sh"
+if [ -f "$ROOT_DIR/dist/chrono-eps-android.aab" ]; then
+  gh release upload "$NEW_TAG" "$ROOT_DIR/dist/chrono-eps-android.aab"
+  echo "AAB attaché à la release $NEW_TAG."
+fi
 
 echo "Release $NEW_TAG créée et poussée."

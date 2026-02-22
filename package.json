@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "release": "./scripts/release-version.sh"
+    "release": "./scripts/release-version.sh",
+    "android:bundle": "./scripts/build-android-bundle.sh"
   },
   "dependencies": {
     "@primeuix/themes": "^2.0.3",
