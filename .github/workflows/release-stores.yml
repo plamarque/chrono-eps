@@ -112,7 +112,7 @@ jobs:
           gh release upload "$TAG" dist/chrono-eps-android.aab --clobber
 
   build-ios:
-    runs-on: macos-14
+    runs-on: macos-15  # Xcode plus récent pour Firebase/CocoaPods
     needs: create-release
     permissions:
       contents: write  # pour gh release upload
