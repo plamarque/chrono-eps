@@ -126,17 +126,21 @@ Générer une clé de signature pour l'AAB si PWABuilder ne le fait pas automati
 
 PWABuilder génère un projet Xcode (Swift + WebKit) à compiler.
 
+**Guide détaillé pas à pas** : [IOS_APP_STORE_PROCESS.md](IOS_APP_STORE_PROCESS.md) — screenshots, archive, upload.
+
 ### 5.1 Matériel et logiciel
 
 - Mac avec Xcode installé
 - Compte Apple Developer
+- Runtime iOS installé (Xcode → Settings → Platforms ; cliquer « Get » si « Not Installed »)
 
-### 5.2 Étapes de build et soumission
+### 5.2 Résumé des étapes
 
-1. **Ouvrir le projet** : décompresser le paquet iOS, ouvrir le workspace `.xcworkspace` dans Xcode
-2. **Configurer dans Apple Developer** : créer un App ID (Bundle ID) dans [Certificates, Identifiers & Profiles](https://developer.apple.com/account/resources) ; configurer les capabilities si nécessaire (push, in-app purchase, etc.)
-3. **Build et signature** : signer l'app avec un certificat de distribution ; archiver (Product → Archive) ; uploader vers App Store Connect via Organizer
-4. **App Store Connect** : créer une fiche app (nom, description, captures d'écran, politique de confidentialité) ; sélectionner le build uploadé ; soumettre pour révision
+1. **Ouvrir** : `ios/Chrono EPS.xcworkspace` (pas le .xcodeproj)
+2. **Screenshots** : lancer sur simulateur iPhone 17 Pro Max / iPad Pro 13" ; capturer avec Cmd+S ; stocker dans `public/screenshots/ios/iphone/` et `ios/ipad/`
+3. **Archive** : sélectionner « Any iOS Device (arm64) » → Product → Archive
+4. **Upload** : Organizer → Distribute App → App Store Connect → Upload
+5. **App Store Connect** : remplir le formulaire (contenu dans [APP_STORE_CONNECT_CONTENT.md](APP_STORE_CONNECT_CONTENT.md)) ; téléverser les screenshots ; sélectionner le build ; soumettre
 
 ### 5.3 Notes importantes
 
