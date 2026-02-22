@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Toast from 'primevue/toast'
+import ConfirmDialog from 'primevue/confirmdialog'
 import { APP_VERSION, APP_RELEASE_URL } from './appInfo.js'
 
 const route = useRoute()
@@ -22,6 +23,7 @@ const activeIndex = computed(() => {
 <template>
   <div class="app-layout">
     <Toast />
+    <ConfirmDialog />
     <nav class="app-nav" aria-label="Navigation principale">
       <div class="app-nav-links">
         <router-link

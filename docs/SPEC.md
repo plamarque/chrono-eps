@@ -12,6 +12,7 @@ Chrono EPS est une application web PWA destinée aux enseignants d'EPS pour chro
   - Enregistrement des passages de tours par élève
   - Mode relais : groupes d'élèves ; l'ordre cycle sur les élèves ; la course continue jusqu'à l'arrêt par le professeur
   - Configuration : jusqu'à 8 groupes, nom et couleur du groupe (chasubles, 6 couleurs réutilisées cycliquement), déclaration des noms des élèves dans l'ordre du premier tour
+  - Dialogue de confirmation avant de changer de mode (Relais/Individuel) lorsque la configuration ou le chrono en cours serait perdu
   - Affichage en temps réel « Couru » / « Prochain » par groupe pendant la course
   - Identification et nommage des élèves
   - Stockage des performances (historique)

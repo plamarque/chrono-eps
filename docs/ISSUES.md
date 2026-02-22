@@ -51,3 +51,11 @@
 **État :** Résolu
 
 **Solution :** Dans `TableauPassagesCompact.vue`, la rangée d'actions utilise désormais `justify-content: space-between` avec largeur complète, Stop à gauche et Tour à droite, espacement augmenté (`gap: 0.75rem`) et tailles tactiles portées à 44px.
+
+### [UX] Perte de configuration au changement de mode sans enregistrer
+
+**Problème :** En mode relais avec des groupes configurés (ou en mode individuel avec chrono en cours), un clic accidentel sur l'autre mode faisait perdre toute la configuration sans avertissement.
+
+**État :** Résolu
+
+**Solution :** Dialogue de confirmation (PrimeVue ConfirmDialog) affiché uniquement si le changement ferait perdre une configuration non sauvegardée (groupes, participants, passages, chrono en cours). Boutons Continuer / Annuler, Annuler en style secondaire.

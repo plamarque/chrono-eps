@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
+import ConfirmationService from 'primevue/confirmationservice'
 import HomeView from './HomeView.vue'
 
 const mockLoadCourse = vi.fn()
@@ -32,7 +33,7 @@ async function mountHomeView(routerOptions = {}) {
 
   const wrapper = mount(HomeView, {
     global: {
-      plugins: [PrimeVue, ToastService, router],
+      plugins: [PrimeVue, ToastService, ConfirmationService, router],
       stubs: {
         Dialog: {
           template: '<div v-if="visible"><slot></slot><slot name="footer"></slot></div>',
@@ -331,6 +332,58 @@ describe('HomeView', () => {
       'Bob',
       'Charlie'
     ])
+    wrapper.unmount()
+  })
+
+  it('changement de mode avec config non sauvegardée : dialogue de confirmation (mode inchangé tant que non confirmé)', async () => {
+    const { wrapper } = await mountHomeView()
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(wrapper.vm.mode).toBe('relay')
+    const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
+    await demarrer.trigger('click')
+    await vi.advanceTimersByTimeAsync(10)
+
+    const individuelBtn = wrapper.findAll('button').find((b) => b.text() === 'Individuel')
+    expect(individuelBtn.exists()).toBe(true)
+    await individuelBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.mode).toBe('relay')
+    wrapper.unmount()
+  })
+
+  it('changement de mode sans config à perdre : bascule immédiate', async () => {
+    const { wrapper } = await mountHomeView()
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(wrapper.vm.mode).toBe('relay')
+    const individuelBtn = wrapper.findAll('button').find((b) => b.text() === 'Individuel')
+    await individuelBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.mode).toBe('individual')
+    wrapper.unmount()
+  })
+
+  it('changement Individuel → Relais avec chrono en cours : dialogue de confirmation', async () => {
+    const { wrapper } = await mountHomeView()
+    await vi.advanceTimersByTimeAsync(0)
+
+    const individuelBtn = wrapper.findAll('button').find((b) => b.text() === 'Individuel')
+    await individuelBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.mode).toBe('individual')
+
+    const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
+    await demarrer.trigger('click')
+    await vi.advanceTimersByTimeAsync(10)
+
+    const relaisBtn = wrapper.findAll('button').find((b) => b.text() === 'Relais')
+    await relaisBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.mode).toBe('individual')
     wrapper.unmount()
   })
 

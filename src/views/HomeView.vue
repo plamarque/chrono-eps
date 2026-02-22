@@ -11,6 +11,7 @@ import TableauPassagesCompact from '../components/TableauPassagesCompact.vue'
 import TableauPassagesRelay from '../components/TableauPassagesRelay.vue'
 import { useChronometre } from '../composables/useChronometre.js'
 import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
 import { saveCourse, loadCourse } from '../services/courseStore.js'
 import { getMaxTotalMsFromPassages, sortParticipantsByTotalTimeAsc } from '../utils/courseUtils.js'
 import { createRelayGroup, createParticipant } from '../models/participant.js'
@@ -18,6 +19,7 @@ import { createRelayGroup, createParticipant } from '../models/participant.js'
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const confirm = useConfirm()
 const participants = ref([])
 const mode = ref('relay')
 const groupStudents = ref({})
@@ -43,6 +45,21 @@ const hasAnyPassage = computed(() => {
   const pbp = passagesByParticipant.value
   return Object.values(pbp).some((arr) => Array.isArray(arr) && arr.length > 0)
 })
+
+const hasUnsavedRelayConfig = computed(
+  () =>
+    participants.value.length > 1 ||
+    Object.values(groupStudents.value).some((arr) => arr?.length > 0) ||
+    hasAnyPassage.value ||
+    status.value !== 'idle'
+)
+
+const hasUnsavedIndividualConfig = computed(
+  () =>
+    participants.value.length > 1 ||
+    hasAnyPassage.value ||
+    status.value !== 'idle'
+)
 
 const canSave = computed(
   () => !currentCourse.value && status.value !== 'running'
@@ -252,6 +269,30 @@ function updateGroupStudents({ groupId, students }) {
   }
 }
 
+function onModeChange(newMode) {
+  if (newMode === mode.value) return
+  const wouldLoseData =
+    mode.value === 'relay' ? hasUnsavedRelayConfig.value : hasUnsavedIndividualConfig.value
+  if (currentCourse.value || !wouldLoseData) {
+    mode.value = newMode
+    return
+  }
+  const message =
+    mode.value === 'relay'
+      ? 'Vous allez perdre les groupes et élèves configurés. Continuer ?'
+      : 'Vous allez perdre les participants configurés. Continuer ?'
+  confirm.require({
+    header: 'Changer de mode ?',
+    message,
+    acceptLabel: 'Continuer',
+    rejectLabel: 'Annuler',
+    rejectProps: { severity: 'secondary' },
+    accept: () => {
+      mode.value = newMode
+    }
+  })
+}
+
 async function maybeLoadFromQuery() {
   const newFromId = route.query.newFromCourseId
   if (newFromId) {
@@ -312,7 +353,7 @@ watch(
       <template #content>
         <section v-if="!currentCourse" class="home-section home-mode-selector" aria-label="Mode de course">
           <SelectButton
-            v-model="mode"
+            :model-value="mode"
             :options="[
               { label: 'Relais', value: 'relay' },
               { label: 'Individuel', value: 'individual' }
@@ -320,6 +361,7 @@ watch(
             option-label="label"
             option-value="value"
             class="home-mode-buttons"
+            @update:model-value="onModeChange"
           />
         </section>
         <section class="home-section home-section-chrono" aria-labelledby="chrono-heading">
