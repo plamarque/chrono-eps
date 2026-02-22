@@ -224,19 +224,10 @@ const hasAnyPassage = computed(() =>
 
 <template>
   <div class="tableau-passages tableau-passages-relay">
-    <div class="tableau-passages-header">
-      <Button
-        v-if="!readOnly && participants.length < MAX_GROUPS"
-        label="Ajouter un groupe"
-        icon="pi pi-plus"
-        severity="primary"
-        class="participant-btn"
-        aria-label="Ajouter un groupe"
-        @click="addGroup"
-      />
-    </div>
-
-    <div v-if="participants.length > 0" class="tableau-relay-grid">
+    <div
+      v-if="participants.length > 0 || (!readOnly && participants.length < MAX_GROUPS)"
+      class="tableau-relay-grid"
+    >
       <div
         v-for="group in participants"
         :key="group.id"
@@ -336,6 +327,19 @@ const hasAnyPassage = computed(() =>
           </div>
         </div>
       </div>
+      <div
+        v-if="!readOnly && participants.length < MAX_GROUPS"
+        class="tableau-relay-add-cell"
+      >
+        <Button
+          label="Ajouter un groupe"
+          icon="pi pi-plus"
+          severity="primary"
+          class="participant-btn"
+          aria-label="Ajouter un groupe"
+          @click="addGroup"
+        />
+      </div>
     </div>
 
     <section
@@ -401,8 +405,18 @@ const hasAnyPassage = computed(() =>
   border-top: 1px solid var(--p-surface-200, #e5e7eb);
 }
 
-.tableau-passages-header {
-  margin-bottom: 1rem;
+.tableau-relay-add-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 6rem;
+}
+
+/* En mobile portrait : bouton sur sa propre ligne pour position stable (tap-tap-tap) */
+@media (max-width: 600px) {
+  .tableau-relay-add-cell {
+    grid-column: 1 / -1;
+  }
 }
 
 .tableau-relay-grid {

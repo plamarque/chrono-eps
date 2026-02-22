@@ -174,22 +174,11 @@ function toggleParticipant(participant) {
 
 <template>
   <div class="tableau-passages-compact">
-    <div
-      v-if="!readOnly && participants.length < MAX_PARTICIPANTS"
-      class="tableau-passages-compact-header"
-    >
-      <Button
-        label="Ajouter"
-        icon="pi pi-plus"
-        severity="primary"
-        class="participant-btn"
-        aria-label="Ajouter un participant"
-        @click="addParticipant"
-      />
-    </div>
-
     <!-- Grille des coureurs : nom + stop/start + passage -->
-    <div v-if="gridParticipants.length > 0" class="tableau-passages-compact-grid">
+    <div
+      v-if="gridParticipants.length > 0 || (!readOnly && participants.length < MAX_PARTICIPANTS)"
+      class="tableau-passages-compact-grid"
+    >
       <div
         v-for="p in gridParticipants"
         :key="p.id"
@@ -245,6 +234,19 @@ function toggleParticipant(participant) {
         >
           {{ formatTime(getTotalMs(p.id)) }}
         </div>
+      </div>
+      <div
+        v-if="!readOnly && participants.length < MAX_PARTICIPANTS"
+        class="tableau-passages-compact-add-cell"
+      >
+        <Button
+          label="Ajouter"
+          icon="pi pi-plus"
+          severity="primary"
+          class="participant-btn"
+          aria-label="Ajouter un participant"
+          @click="addParticipant"
+        />
       </div>
     </div>
 
@@ -344,13 +346,18 @@ function toggleParticipant(participant) {
   border-top: 1px solid var(--p-surface-200, #e5e7eb);
 }
 
-.tableau-passages-compact-header {
+.tableau-passages-compact-add-cell {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  justify-content: center;
+  min-height: 52px;
+}
+
+/* En mobile portrait : bouton sur sa propre ligne pour position stable (tap-tap-tap) */
+@media (max-width: 600px) {
+  .tableau-passages-compact-add-cell {
+    grid-column: 1 / -1;
+  }
 }
 
 .participant-btn {
