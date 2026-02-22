@@ -23,8 +23,10 @@ platform :ios do
       export_method: "app-store",
       output_directory: "./build",
       output_name: "ChronoEPS.ipa",
-      # Utiliser le profil Match (éviter signature automatique qui requiert des devices)
+      # Forcer le profil Match (Xcode ignore export_options si signing=Automatic)
+      xcargs: "CODE_SIGN_STYLE=Manual PROVISIONING_PROFILE_SPECIFIER=\"match AppStore io.github.plamarque\"",
       export_options: {
+        signingStyle: "manual",
         provisioningProfiles: {
           "io.github.plamarque" => "match AppStore io.github.plamarque"
         }
