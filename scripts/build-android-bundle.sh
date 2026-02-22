@@ -34,11 +34,14 @@ fi
 VERSION=$(node -p "require('./package.json').version")
 echo "Version: $VERSION"
 
-# VersionCode Play Store : major*10000 + minor*100 + patch (ex: 0.2.5 -> 205)
-VERSION_CODE=$(VERSION="$VERSION" node -e "
+# VersionCode Play Store : major*10000 + minor*100 + patch (+ run_number en CI pour unicité)
+# Ex: 0.2.5 -> 205 ; 0.2.5 + run 42 -> 205042 (évite "version code already used" sur ré-upload)
+VERSION_CODE=$(VERSION="$VERSION" RUN_NUMBER="${GITHUB_RUN_NUMBER:-0}" node -e "
   const v = process.env.VERSION.match(/^(\d+)\.(\d+)\.(\d+)/);
   if (!v) process.exit(1);
-  const code = parseInt(v[1])*10000 + parseInt(v[2])*100 + parseInt(v[3]);
+  const base = parseInt(v[1])*10000 + parseInt(v[2])*100 + parseInt(v[3]);
+  const run = parseInt(process.env.RUN_NUMBER) || 0;
+  const code = run > 0 ? base * 1000 + (run % 1000) : base;
   console.log(code);
 ")
 echo "VersionCode: $VERSION_CODE"
