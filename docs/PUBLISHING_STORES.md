@@ -196,11 +196,34 @@ Avant la première exécution du job iOS :
 ### 9.3 Flux complet
 
 ```
-./scripts/release-version.sh --patch
+Release : ./scripts/release-version.sh --patch
     → push main + tag v*
     → workflow : create-release → build-android | build-ios (parallèle)
     → Release GitHub + Play Store internal + TestFlight + binaires attachés
+
+Promote : ./scripts/promote-to-stores.sh v0.1.2
+    → workflow promote-stores.yml (déclenché manuellement)
+    → Play Store production + soumission App Store pour review
 ```
+
+### 9.4 Promotion vers la production
+
+Une fois une version validée par les testeurs (internal + TestFlight), elle peut être promue vers la production des stores.
+
+**Distinction release / promote :**
+
+| Action | Cible | Commande |
+|--------|-------|----------|
+| **Release** | Testeurs (internal, TestFlight) | `./scripts/release-version.sh --patch` |
+| **Promote** | Production (stores publics) | `./scripts/promote-to-stores.sh v0.1.2` ou `latest` |
+
+**Prérequis :** La version doit déjà avoir été release (présente sur internal + TestFlight avec binaires attachés à la release GitHub).
+
+**Comportement :**
+- **Android** : télécharge l'AAB depuis la release, l'uploade vers la piste `production` du Play Store
+- **iOS** : soumet le build TestFlight correspondant pour review App Store (via Fastlane `deliver`)
+
+**Rappel :** Une revue Apple et Google est obligatoire à chaque mise à jour en production ; les délais sont variables (souvent 24–48 h).
 
 ## 10. Liens et références
 

@@ -1,0 +1,63 @@
+name: Promote to Stores
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag de la version à promouvoir (ex. v0.1.2)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  promote-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download AAB from release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ inputs.tag }}"
+          mkdir -p dist
+          gh release download "$TAG" --pattern 'chrono-eps-android.aab' --dir dist
+
+      - name: Upload to Play Store (production)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT }}
+          packageName: io.github.plamarque.twa
+          releaseFiles: dist/chrono-eps-android.aab
+          track: production
+
+  promote-ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+          working-directory: ios
+
+      - name: Install Fastlane
+        run: bundle install
+        working-directory: ios
+
+      - name: Promote to App Store (submit for review)
+        working-directory: ios
+        env:
+          CI: "true"
+          LANG: "en_US.UTF-8"
+          LC_ALL: "en_US.UTF-8"
+          PROMOTE_TAG: ${{ inputs.tag }}
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+        run: bundle exec fastlane promote

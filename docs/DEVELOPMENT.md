@@ -17,6 +17,7 @@
 | `npm run test` | Lancer les tests unitaires (Vitest)                       |
 | `npm run test:watch` | Lancer les tests en mode watch                      |
 | `npm run release -- --patch` | Créer une release (voir section Release)   |
+| `./scripts/promote-to-stores.sh <tag>` | Promouvoir une version vers les stores (tag ou latest) |
 
 ## Release
 
@@ -38,6 +39,17 @@ Ou via npm : `npm run release -- --patch` (idem pour --minor, --major).
 - attache les binaires à la release.
 
 **Prérequis :** GitHub CLI installé et authentifié (`gh auth login`). Secrets GitHub configurés (voir [PUBLISHING_STORES.md](PUBLISHING_STORES.md#9-pipeline-cicd)).
+
+### Promotion vers la production
+
+Pour promouvoir une version déjà testée vers la production des stores :
+
+```bash
+./scripts/promote-to-stores.sh v0.1.2   # version spécifique
+./scripts/promote-to-stores.sh latest   # dernière release
+```
+
+Le script déclenche le workflow `.github/workflows/promote-stores.yml` qui uploade l'AAB vers Play Store (production) et soumet le build TestFlight pour review App Store. Voir [PUBLISHING_STORES.md](PUBLISHING_STORES.md#94-promotion-vers-la-production).
 
 ## URL de développement
 

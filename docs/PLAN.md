@@ -2,7 +2,7 @@
 
 ## Phase actuelle
 
-Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 11 — Replay (complet). Slice 10 — Dupliquer : réouverte (masquée en attente retours utilisateurs). **Vue compacte mode individuel** : implémentée en parallèle de la vue tableau (à l’essai auprès des professeurs). Prochain : Slice 8.
+Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 11 — Replay (complet). Slice 10 — Dupliquer : réouverte (masquée en attente retours utilisateurs). **Vue compacte mode individuel** : implémentée en parallèle de la vue tableau (à l’essai auprès des professeurs). **Promote to stores** : script et workflow implémentés (release → testeurs ; promote → production). Prochain : Slice 8.
 
 ## Slices
 

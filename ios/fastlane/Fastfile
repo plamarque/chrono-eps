@@ -43,4 +43,24 @@ platform :ios do
       )
     )
   end
+
+  desc "Submit build from TestFlight to App Store review"
+  lane :promote do |options|
+    tag = options[:tag] || ENV["PROMOTE_TAG"]
+    raise "Tag requis. Utiliser: fastlane promote tag:v0.1.2 ou PROMOTE_TAG=v0.1.2" if tag.to_s.empty?
+    app_version = tag.to_s.sub(/^v/, "")
+
+    deliver(
+      app_identifier: "io.github.plamarque",
+      submit_for_review: true,
+      skip_metadata: true,
+      skip_screenshots: true,
+      app_version: app_version,
+      app_store_connect_api_key: app_store_connect_api_key(
+        key_id: ENV["APPSTORE_KEY_ID"],
+        issuer_id: ENV["APPSTORE_ISSUER_ID"],
+        key_content: ENV["APPSTORE_API_PRIVATE_KEY"]
+      )
+    )
+  end
 end
