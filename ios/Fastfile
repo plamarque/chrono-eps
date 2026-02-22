@@ -1,0 +1,39 @@
+# frozen_string_literal: true
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Build and upload to TestFlight"
+  lane :beta do
+    cocoapods(use_bundle_exec: true)
+
+    # Récupère certificat et provisioning profile (Match)
+    # Prérequis : exécuter une fois "bundle exec fastlane match appstore"
+    # et configurer MATCH_PASSWORD, MATCH_GIT_BASIC_AUTHORIZATION en secrets
+    match(
+      type: "appstore",
+      readonly: true,
+      app_identifier: "io.github.plamarque"
+    )
+
+    increment_build_number(xcodeproj: "Chrono EPS.xcodeproj")
+
+    build_app(
+      workspace: "Chrono EPS.xcworkspace",
+      scheme: "Chrono EPS",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "ChronoEPS.ipa"
+    )
+
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      ipa: "./build/ChronoEPS.ipa",
+      app_store_connect_api_key: app_store_connect_api_key(
+        key_id: ENV["APPSTORE_KEY_ID"],
+        issuer_id: ENV["APPSTORE_ISSUER_ID"],
+        key_content: ENV["APPSTORE_API_PRIVATE_KEY"]
+      )
+    )
+  end
+end

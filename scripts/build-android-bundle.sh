@@ -34,24 +34,26 @@ fi
 VERSION=$(node -p "require('./package.json').version")
 echo "Version: $VERSION"
 
-# VersionCode Play Store : doit être > à la dernière version uploadée (6 en fév 2026)
-MIN_VERSION_CODE=7
+# VersionCode Play Store : major*10000 + minor*100 + patch (ex: 0.2.5 -> 205)
+VERSION_CODE=$(VERSION="$VERSION" node -e "
+  const v = process.env.VERSION.match(/^(\d+)\.(\d+)\.(\d+)/);
+  if (!v) process.exit(1);
+  const code = parseInt(v[1])*10000 + parseInt(v[2])*100 + parseInt(v[3]);
+  console.log(code);
+")
+echo "VersionCode: $VERSION_CODE"
 
 echo "Mise à jour du projet Android..."
 npx @bubblewrap/cli update --appVersionName="$VERSION" --manifest="$ANDROID_DIR/twa-manifest.json"
 
-# S'assurer que versionCode >= MIN_VERSION_CODE (requis par Play Store)
+# Appliquer le versionCode calculé
 MANIFEST="$ANDROID_DIR/twa-manifest.json"
-CURRENT_CODE=$(node -p "require('$MANIFEST').appVersionCode")
-if [ "${CURRENT_CODE:-0}" -lt "$MIN_VERSION_CODE" ] 2>/dev/null; then
-  echo "Correction versionCode: $CURRENT_CODE -> $MIN_VERSION_CODE"
-  node -e "
-    const fs = require('fs');
-    const m = JSON.parse(fs.readFileSync('$MANIFEST', 'utf8'));
-    m.appVersionCode = $MIN_VERSION_CODE;
-    fs.writeFileSync('$MANIFEST', JSON.stringify(m, null, 2));
-  "
-fi
+node -e "
+  const fs = require('fs');
+  const m = JSON.parse(fs.readFileSync('$MANIFEST', 'utf8'));
+  m.appVersionCode = $VERSION_CODE;
+  fs.writeFileSync('$MANIFEST', JSON.stringify(m, null, 2));
+"
 
 echo "Build du bundle..."
 npx @bubblewrap/cli build --manifest="$ANDROID_DIR/twa-manifest.json"

@@ -11,7 +11,8 @@ usage() {
   echo "  --minor   0.1.1 → 0.2.0"
   echo "  --major   0.2.0 → 1.0.0"
   echo ""
-  echo "Le bundle Android AAB est généré et attaché à la release par défaut."
+  echo "Le workflow release-stores.yml (déclenché par le tag) crée la release,"
+  echo "build iOS/Android, distribue sur TestFlight et Play Store, et attache les binaires."
   exit 1
 }
 
@@ -51,43 +52,17 @@ npm run test
 echo "Build..."
 npm run build
 
-# 4. Capturer changelog (avant bump)
-PREV=$(git describe --tags --abbrev=0 2>/dev/null || true)
-if [ -n "$PREV" ]; then
-  CHANGELOG=$(git log "$PREV..HEAD" --pretty=format:"- %s (%h)")
-else
-  CHANGELOG=$(git log --pretty=format:"- %s (%h)")
-fi
-
-# Fallback si vide
-if [ -z "$CHANGELOG" ]; then
-  CHANGELOG="- Aucun commit depuis le dernier tag"
-fi
-
-# 5. Incrémenter version (crée commit + tag)
+# 4. Incrémenter version (crée commit + tag)
 echo "Bump version ($BUMP)..."
 NEW_TAG=$(npm version "$BUMP")
 # NEW_TAG = "v0.1.1"
 
-# 6. Pousser (tag doit exister sur GitHub avant gh release create)
+# 5. Pousser (déclenche le workflow release-stores.yml)
 echo "Push vers origin..."
 git push origin main --tags
 
-# 7. Créer release GitHub avec changelog
-NOTES_FILE=$(mktemp)
-trap "rm -f $NOTES_FILE" EXIT
-echo "## Changements" > "$NOTES_FILE"
-echo "" >> "$NOTES_FILE"
-echo "$CHANGELOG" >> "$NOTES_FILE"
-
-echo "Création de la release $NEW_TAG..."
-gh release create "$NEW_TAG" --notes-file "$NOTES_FILE"
-
-echo "Génération du bundle Android..."
-"$SCRIPT_DIR/build-android-bundle.sh"
-if [ -f "$ROOT_DIR/dist/chrono-eps-android.aab" ]; then
-  gh release upload "$NEW_TAG" "$ROOT_DIR/dist/chrono-eps-android.aab"
-  echo "AAB attaché à la release $NEW_TAG."
-fi
-
-echo "Release $NEW_TAG créée et poussée."
+echo ""
+echo "Release $NEW_TAG poussée. Le workflow GitHub Actions va :"
+echo "  - Créer la release avec le changelog"
+echo "  - Builder et distribuer sur Play Store (internal) et TestFlight"
+echo "  - Attacher les binaires AAB et IPA à la release"

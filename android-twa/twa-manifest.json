@@ -17,7 +17,7 @@
   "maskableIconUrl": "https://plamarque.github.io/chrono-eps/pwa-512x512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
-    "path": "/Users/patrice/GitHub/chrono-eps/android-twa/android.keystore",
+    "path": "android-twa/android.keystore",
     "alias": "android"
   },
   "appVersionName": "0.2.4",

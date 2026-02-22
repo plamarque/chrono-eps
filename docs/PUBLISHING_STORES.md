@@ -73,13 +73,7 @@ npm run android:bundle
 
 Le script charge automatiquement `.env`. Le AAB est produit dans `dist/chrono-eps-android.aab`.
 
-**Intégration à la release :**
-
-```bash
-./scripts/release-version.sh --patch
-```
-
-Le AAB est automatiquement généré et attaché à la release GitHub.
+**Intégration à la release :** exécuter `./scripts/release-version.sh --patch` déclenche le workflow CI qui génère l'AAB et le distribue sur Play Store (piste internal).
 
 ### 4.1 Digital Asset Links (apparence standalone)
 
@@ -171,7 +165,44 @@ Apple peut refuser les apps qui ressemblent à de simples « sites web dans une 
 | **base path** | `base: '/chrono-eps/'` — vérifier que `start_url` et les chemins sont corrects dans le manifeste pour le packaging. |
 | **Icône 512** | Non precachée (cf. [ISSUES.md](ISSUES.md)) ; acceptable pour le packaging stores. |
 
-## 8. Liens et références
+## 9. Pipeline CI/CD
+
+Le workflow `.github/workflows/release-stores.yml` s'exécute à chaque push de tag `v*` et automatise la release complète.
+
+### 9.1 Secrets GitHub requis
+
+| Secret | Description |
+|--------|-------------|
+| `PLAY_STORE_SERVICE_ACCOUNT` | JSON du Service Account (Google Cloud) ayant accès à l'API Play Console |
+| `ANDROID_KEYSTORE_BASE64` | Keystore encodé en base64 (`base64 -i android-twa/android.keystore`) |
+| `BUBBLEWRAP_KEYSTORE_PASSWORD` | Mot de passe du keystore |
+| `BUBBLEWRAP_KEY_PASSWORD` | Mot de passe de la clé |
+| `APPSTORE_ISSUER_ID` | Issuer ID (App Store Connect → Intégrations) |
+| `APPSTORE_KEY_ID` | Key ID de la clé API |
+| `APPSTORE_API_PRIVATE_KEY` | Contenu du fichier .p8 (clé API) |
+| `MATCH_PASSWORD` | Mot de passe pour décrypter les certificats Match |
+| `MATCH_GIT_URL` | URL HTTPS du dépôt privé contenant les certificats (ex. `https://github.com/user/certificates`) |
+| `MATCH_GIT_BASIC_AUTHORIZATION` | Base64 de `username:token` ou `x-access-token:TOKEN` pour cloner le dépôt Match |
+
+### 9.2 Configuration Fastlane Match (iOS)
+
+Avant la première exécution du job iOS :
+
+1. Créer un dépôt Git privé (ex. `chrono-eps-certificates`)
+2. Dans `ios/` : `bundle install` puis `bundle exec fastlane match appstore`
+3. Suivre les invites (git_url, mot de passe) pour stocker certificat et provisioning profile
+4. Ajouter les secrets `MATCH_*` dans GitHub
+
+### 9.3 Flux complet
+
+```
+./scripts/release-version.sh --patch
+    → push main + tag v*
+    → workflow : create-release → build-android | build-ios (parallèle)
+    → Release GitHub + Play Store internal + TestFlight + binaires attachés
+```
+
+## 10. Liens et références
 
 - [PWABuilder](https://pwabuilder.com/)
 - [PWABuilder docs — Android](https://docs.pwabuilder.com/#/builder/android)

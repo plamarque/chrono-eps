@@ -20,7 +20,7 @@
 
 ## Release
 
-Pour créer une release avec version sémantique et publication sur GitHub :
+Pour créer une release avec version sémantique et publication sur les stores :
 
 ```bash
 ./scripts/release-version.sh --patch   # 0.1.0 → 0.1.1
@@ -30,9 +30,14 @@ Pour créer une release avec version sémantique et publication sur GitHub :
 
 Ou via npm : `npm run release -- --patch` (idem pour --minor, --major).
 
-**Étapes du script :** vérification du working tree et de `gh`, tests, build, génération du changelog à partir des commits depuis le dernier tag, bump de version, création de la release GitHub, push.
+**Étapes du script (local) :** vérification du working tree et de `gh`, tests, build PWA, bump de version, push (main + tags).
 
-**Prérequis :** GitHub CLI installé et authentifié (`gh auth login`).
+**Déclenchement du workflow** : le push de tag lance `.github/workflows/release-stores.yml` qui :
+- crée la release GitHub avec changelog ;
+- build Android (AAB) et iOS (IPA), les distribue sur Play Store (internal) et TestFlight ;
+- attache les binaires à la release.
+
+**Prérequis :** GitHub CLI installé et authentifié (`gh auth login`). Secrets GitHub configurés (voir [PUBLISHING_STORES.md](PUBLISHING_STORES.md#9-pipeline-cicd)).
 
 ## URL de développement
 
