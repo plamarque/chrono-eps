@@ -278,7 +278,7 @@ function toggleParticipant(participant) {
             :key="item.label"
             class="tableau-passages-compact-resume-passage"
           >
-            <span class="tableau-passages-compact-resume-passage-nom">{{ item.label }}</span>
+            <span class="tableau-passages-compact-resume-passage-nom">{{ item.label }} :</span>
             <span class="tableau-passages-compact-resume-passage-time">{{
               formatTime(item.lapMs)
             }}</span>
@@ -499,9 +499,8 @@ function toggleParticipant(participant) {
 
 .tableau-passages-compact-resume-passage {
   display: flex;
-  justify-content: space-between;
   align-items: baseline;
-  gap: 0.5rem;
+  gap: 0.35em;
   font-size: 0.8rem;
   padding-left: 0.5rem;
   border-left: 2px solid #e5e7eb;

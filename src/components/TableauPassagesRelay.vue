@@ -311,7 +311,7 @@ const hasAnyPassage = computed(() =>
                 :key="i"
                 class="tableau-relay-passage-line"
               >
-                <span class="tableau-relay-passage-nom">{{ item.nom }}</span>
+                <span class="tableau-relay-passage-nom">{{ item.nom }} :</span>
                 <span class="tableau-relay-passage-time">{{ formatTime(item.lapMs) }}</span>
               </div>
             </div>
@@ -561,9 +561,8 @@ const hasAnyPassage = computed(() =>
 
 .tableau-relay-passage-line {
   display: flex;
-  justify-content: space-between;
   align-items: baseline;
-  gap: 0.5rem;
+  gap: 0.35em;
   font-size: 0.8rem;
   margin-top: 0.2rem;
 }
@@ -709,9 +708,8 @@ const hasAnyPassage = computed(() =>
 
 .tableau-passages-resume-passage {
   display: flex;
-  justify-content: space-between;
   align-items: baseline;
-  gap: 0.5rem;
+  gap: 0.35em;
   font-size: 0.8rem;
   padding-left: 0.5rem;
   border-left: 2px solid #e5e7eb;
