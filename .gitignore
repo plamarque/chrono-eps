@@ -27,6 +27,23 @@ dist-ssr
 
 # Android TWA (Bubblewrap)
 android-twa/*.keystore
+android-twa/build/
+android-twa/.gradle/
+android-twa/app/build/
+# Générés par bubblewrap build (racine du projet)
+.gradle/
+/app/
+/build/
+app-release-bundle.aab
+app-release-signed.apk
+app-release-unsigned-aligned.apk
+*.apk.idsig
+manifest-checksum.txt
+store_icon.png
+# PEPK (export clé pour Play Console, usage ponctuel)
+pepk.jar
+encryption_public_key.pem
+encrypted_key.zip
 
 # iOS / Xcode
 ios/Pods/

@@ -41,11 +41,16 @@ echo "Build du bundle..."
 npx @bubblewrap/cli build --manifest="$ANDROID_DIR/twa-manifest.json"
 
 mkdir -p "$(dirname "$AAB_OUTPUT")"
-BUNDLE_SRC="$ANDROID_DIR/app-release-bundle.aab"
-if [ -f "$BUNDLE_SRC" ]; then
-  cp "$BUNDLE_SRC" "$AAB_OUTPUT"
-  echo "AAB généré: $AAB_OUTPUT"
-else
-  echo "Erreur: app-release-bundle.aab introuvable après le build"
-  exit 1
-fi
+# Bubblewrap génère l'AAB dans le cwd (racine du projet), pas dans android-twa
+for BUNDLE_SRC in "$ROOT_DIR/app-release-bundle.aab" "$ANDROID_DIR/app-release-bundle.aab"; do
+  if [ -f "$BUNDLE_SRC" ]; then
+    cp "$BUNDLE_SRC" "$AAB_OUTPUT"
+    echo "AAB généré: $AAB_OUTPUT"
+    # Nettoyer les artefacts temporaires (voir .gitignore)
+    rm -f "$ROOT_DIR/app-release-bundle.aab" "$ROOT_DIR/app-release-signed.apk" \
+          "$ROOT_DIR/app-release-unsigned-aligned.apk" "$ROOT_DIR"/*.apk.idsig 2>/dev/null || true
+    exit 0
+  fi
+done
+echo "Erreur: app-release-bundle.aab introuvable après le build"
+exit 1
