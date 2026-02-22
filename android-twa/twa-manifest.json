@@ -20,8 +20,8 @@
     "path": "/Users/patrice/GitHub/chrono-eps/android-twa/android.keystore",
     "alias": "android"
   },
-  "appVersionName": "0.2.0",
-  "appVersionCode": 2,
+  "appVersionName": "0.2.3",
+  "appVersionCode": 7,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://plamarque.github.io/chrono-eps/manifest.webmanifest",
@@ -43,5 +43,5 @@
   "fileHandlers": [],
   "launchHandlerClientMode": "",
   "displayOverride": [],
-  "appVersion": "0.2.0"
+  "appVersion": "0.2.3"
 }
