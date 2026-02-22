@@ -6,6 +6,7 @@ default_platform(:ios)
 platform :ios do
   desc "Build and upload to TestFlight"
   lane :beta do
+    setup_ci(force: true)  # Keychain CI — évite blocage Embed Pods Frameworks
     cocoapods(use_bundle_exec: true)
 
     # Récupère certificat et provisioning profile (Match)

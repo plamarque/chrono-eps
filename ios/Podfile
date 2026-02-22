@@ -1,5 +1,7 @@
 # Uncomment the next line to define a global platform for your project
 platform :ios, '15.0'
+# Désactiver les chemins parallèles — évite le blocage "[CP] Embed Pods Frameworks" en CI
+install! 'cocoapods', :disable_input_output_paths => true
 
 target 'Chrono EPS' do
   # Comment the next line if you don't want to use dynamic frameworks
