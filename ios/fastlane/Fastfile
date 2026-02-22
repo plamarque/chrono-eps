@@ -22,7 +22,13 @@ platform :ios do
       scheme: "Chrono EPS",
       export_method: "app-store",
       output_directory: "./build",
-      output_name: "ChronoEPS.ipa"
+      output_name: "ChronoEPS.ipa",
+      # Utiliser le profil Match (éviter signature automatique qui requiert des devices)
+      export_options: {
+        provisioningProfiles: {
+          "io.github.plamarque" => "match AppStore io.github.plamarque"
+        }
+      }
     )
 
     upload_to_testflight(
