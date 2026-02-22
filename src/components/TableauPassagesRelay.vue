@@ -257,7 +257,11 @@ const hasAnyPassage = computed(() =>
           />
         </div>
 
-        <div class="tableau-relay-body">
+        <div
+          class="tableau-relay-body"
+          :class="{ 'tableau-relay-body-clickable': !readOnly && (groupStudents[group.id] ?? []).length > 0 }"
+          @click="!readOnly && (groupStudents[group.id] ?? []).length > 0 && openGroupModal(group)"
+        >
           <template v-if="(groupStudents[group.id] ?? []).length > 0">
             <div v-if="canTap(group.id)" class="tableau-relay-tap-zone">
               <div class="tableau-relay-tap-row">
@@ -269,7 +273,7 @@ const hasAnyPassage = computed(() =>
                   type="button"
                   class="tableau-relay-tap-btn"
                   aria-label="Enregistrer passage"
-                  @click="onTap(group.id)"
+                  @click.stop="onTap(group.id)"
                 >
                   <i class="pi pi-flag"></i>
                 </button>
@@ -461,6 +465,14 @@ const hasAnyPassage = computed(() =>
 .tableau-relay-body {
   padding: 0.75rem;
   min-height: 5rem;
+}
+
+.tableau-relay-body-clickable {
+  cursor: pointer;
+}
+
+.tableau-relay-body-clickable:hover {
+  background: #f8fafc;
 }
 
 .tableau-relay-tap-zone {
