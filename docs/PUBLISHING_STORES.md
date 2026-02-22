@@ -240,6 +240,7 @@ Apple peut refuser les apps qui ressemblent à de simples « sites web dans une 
 | **GitHub Pages + Digital Asset Links** | La contrainte `/.well-known/assetlinks.json` peut nécessiter un domaine personnalisé ou une configuration spécifique. Documenter la solution retenue. |
 | **base path** | `base: '/chrono-eps/'` — vérifier que `start_url` et les chemins sont corrects dans le manifeste pour le packaging. |
 | **Icône 512** | Non precachée (cf. [ISSUES.md](ISSUES.md)) ; acceptable pour le packaging stores. |
+| **Precache index.html** | `index.html` est exclu du precache Workbox pour que les apps TWA/iOS affichent la bonne version après mise à jour store sans refresh manuel. |
 
 ## 9. Pipeline CI/CD
 
@@ -282,6 +283,11 @@ Promote : ./scripts/promote-to-stores.sh v0.1.2
     → Play Store production + soumission App Store pour review
 ```
 
+**Jobs du workflow release-stores.yml :**
+- `create-release` : crée la release GitHub avec changelog (commits entre tags)
+- `build-android` : build AAB via Bubblewrap, upload Play Store (internal), `releaseName` + changelog
+- `build-ios` : build IPA via Fastlane, upload TestFlight, attache à la release
+
 ### 9.4 Promotion vers la production
 
 Une fois une version validée par les testeurs (internal + TestFlight), elle peut être promue vers la production des stores.
@@ -300,6 +306,31 @@ Une fois une version validée par les testeurs (internal + TestFlight), elle peu
 - **iOS** : soumet le build TestFlight correspondant pour review App Store (via Fastlane `deliver`)
 
 **Rappel :** Une revue Apple et Google est obligatoire à chaque mise à jour en production ; les délais sont variables (souvent 24–48 h).
+
+### 9.5 Détails d'implémentation du pipeline
+
+Points techniques importants pour la maintenance du pipeline :
+
+**Android (Bubblewrap) :**
+- **Prompts interactifs** : Bubblewrap pose des questions (JDK, SDK, licences). En CI, `yes y` est pipé pour répondre automatiquement. Ne pas limiter avec `head` — trop de prompts, le pipe se ferme et le build échoue (exit 130).
+- **Version écrasée par "y"** : La commande `update` lit stdin ; si elle reçoit "y", elle peut écraser la version. Le script utilise `update ... < /dev/null` pour isoler cette commande.
+- **versionCode unique** : Le Play Store exige un versionCode strictement croissant. En CI, `GITHUB_RUN_NUMBER` est intégré (ex. 0.2.7 + run 42 → 207042) pour permettre les ré-uploads.
+- **releaseName et changelog** : L'action `upload-google-play` reçoit `releaseName` (tag) et `whatsNewDirectory` (changelog depuis les commits entre tags) pour un affichage correct dans Play Console.
+
+**iOS (Fastlane) :**
+- **Authentification** : `upload_to_testflight` et `deliver` utilisent le paramètre `api_key` (pas `app_store_connect_api_key`).
+- **Build number unique** : TestFlight exige un CFBundleVersion strictement croissant. En CI, `GITHUB_RUN_NUMBER` est utilisé comme build number.
+- **Runner** : `macos-15` (Xcode 16) pour compatibilité Firebase/CocoaPods.
+- **SDK iOS** : À partir d'avril 2026, Apple exigera un SDK plus récent — voir [ISSUES.md](ISSUES.md).
+
+**PWA :**
+- **Cache index.html** : `index.html` est exclu du precache Workbox (vite.config.js). Sans cela, après une mise à jour Play Store, l'app afficherait l'ancienne version jusqu'à un refresh manuel.
+
+**Play Console :**
+- Le compte de service (Google Cloud) doit être ajouté dans Play Console avec les droits nécessaires à l'API. Sinon : « The caller does not have permission ».
+
+**TestFlight :**
+- Les testeurs reçoivent une notification (email/push) quand un build est disponible. La mise à jour se fait manuellement dans l'app TestFlight (pas d'auto-update).
 
 ## 10. Liens et références
 

@@ -38,7 +38,7 @@ Ou via npm : `npm run release -- --patch` (idem pour --minor, --major).
 - build Android (AAB) et iOS (IPA), les distribue sur Play Store (internal) et TestFlight ;
 - attache les binaires à la release.
 
-**Prérequis :** GitHub CLI installé et authentifié (`gh auth login`). Secrets GitHub configurés (voir [PUBLISHING_STORES.md](PUBLISHING_STORES.md#9-pipeline-cicd)).
+**Prérequis :** GitHub CLI installé et authentifié (`gh auth login`). Secrets GitHub configurés (voir [PUBLISHING_STORES.md](PUBLISHING_STORES.md#9-pipeline-cicd)). Détails d'implémentation et dépannage : [PUBLISHING_STORES.md](PUBLISHING_STORES.md) § 9.5.
 
 ### Promotion vers la production
 
