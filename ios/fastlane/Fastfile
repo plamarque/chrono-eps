@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+opt_out_usage  # Désactive les analytics pour éviter les prompts en CI
 
 default_platform(:ios)
 
