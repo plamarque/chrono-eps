@@ -81,14 +81,29 @@ Le script charge automatiquement `.env`. Le AAB est produit dans `dist/chrono-ep
 
 Le AAB est automatiquement généré et attaché à la release GitHub.
 
-### 4.1 Digital Asset Links
+### 4.1 Digital Asset Links (apparence standalone)
 
-PWABuilder indique le `package name` et le fingerprint SHA-256. Il faut créer le fichier `/.well-known/assetlinks.json` sur le domaine (`plamarque.github.io`) pour lier l'app Android au site.
+Sans ce fichier, l'app Android ouvre le site dans Custom Tabs avec la **barre du navigateur visible**. Les Digital Asset Links permettent le mode **standalone** (plein écran, sans barre d'adresse).
 
-**Point d'attention :** GitHub Pages ne permet pas facilement de servir `/.well-known/` à la racine pour les sites de projet (`*.github.io/repo/`). Options :
+Le fichier doit être accessible à : `https://plamarque.github.io/.well-known/assetlinks.json`
 
-- Utiliser un domaine personnalisé pointant vers GitHub Pages (ex. `chrono-eps.example.com`) et héberger `assetlinks.json` à la racine
-- Ou vérifier si les GitHub Pages project sites offrent un moyen de servir ce fichier (à documenter selon la solution retenue)
+**Étapes :**
+
+1. **Récupérer le fingerprint SHA-256** dans Play Console :
+   - *Paramètres* → *Intégrité de l'application* (ou *App signing*)
+   - Copier le **SHA-256 du certificat de signature de l'application** (clé gérée par Google, pas la clé de téléversement)
+
+2. **Remplacer dans** `public/.well-known/assetlinks.json` :
+   ```json
+   "sha256_cert_fingerprints": ["XX:XX:XX:XX:..."]
+   ```
+
+3. **Héberger à la racine du domaine** — le site chrono-eps est en `plamarque.github.io/chrono-eps/`, donc `/.well-known/` doit être servi par `plamarque.github.io` :
+   - Créer un dépôt **plamarque/plamarque.github.io** (s'il n'existe pas)
+   - Y ajouter le dossier `.well-known/` avec `assetlinks.json`
+   - Le fichier sera servi à `https://plamarque.github.io/.well-known/assetlinks.json`
+
+4. **Vérifier** : https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://plamarque.github.io&relation=delegate_permission/common.handle_all_urls
 
 ### 4.2 Clé de signature
 

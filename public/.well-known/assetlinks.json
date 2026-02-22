@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.plamarque.twa",
+      "sha256_cert_fingerprints": [
+        "FC:83:7C:3E:67:89:22:AD:A7:C5:4B:E8:A1:ED:38:E9:58:43:86:22:A5:6A:BD:32:72:E2:AE:0A:47:A2:33:FF"
+      ]
+    }
+  }
+]
