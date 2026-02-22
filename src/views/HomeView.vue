@@ -270,7 +270,8 @@ function updateGroupStudents({ groupId, students }) {
 }
 
 function onModeChange(newMode) {
-  if (newMode === mode.value) return
+  // Ignorer la désélection (SelectButton émet null quand on reclique sur l'option sélectionnée)
+  if (newMode == null || newMode === mode.value) return
   const wouldLoseData =
     mode.value === 'relay' ? hasUnsavedRelayConfig.value : hasUnsavedIndividualConfig.value
   if (currentCourse.value || !wouldLoseData) {
@@ -360,6 +361,7 @@ watch(
             ]"
             option-label="label"
             option-value="value"
+            :allow-empty="false"
             class="home-mode-buttons"
             @update:model-value="onModeChange"
           />

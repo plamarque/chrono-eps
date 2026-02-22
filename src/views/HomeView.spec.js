@@ -366,6 +366,38 @@ describe('HomeView', () => {
     wrapper.unmount()
   })
 
+  it('recliquer sur Individuel en mode individuel garde le mode individuel', async () => {
+    const { wrapper } = await mountHomeView()
+    await vi.advanceTimersByTimeAsync(0)
+
+    const individuelBtn = wrapper.findAll('button').find((b) => b.text() === 'Individuel')
+    await individuelBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.mode).toBe('individual')
+
+    // Recliquer sur Individuel ne doit pas basculer en relais
+    await individuelBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.mode).toBe('individual')
+    wrapper.unmount()
+  })
+
+  it('onModeChange(null) ne change pas le mode (désélection ignorée)', async () => {
+    const { wrapper } = await mountHomeView()
+    await vi.advanceTimersByTimeAsync(0)
+
+    wrapper.vm.mode = 'individual'
+    wrapper.vm.onModeChange(null)
+    expect(wrapper.vm.mode).toBe('individual')
+
+    wrapper.vm.mode = 'relay'
+    wrapper.vm.onModeChange(null)
+    expect(wrapper.vm.mode).toBe('relay')
+
+    wrapper.unmount()
+  })
+
   it('changement Individuel → Relais avec chrono en cours : dialogue de confirmation', async () => {
     const { wrapper } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
