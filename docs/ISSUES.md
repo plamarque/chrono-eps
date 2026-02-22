@@ -59,3 +59,13 @@
 **État :** Résolu
 
 **Solution :** Dialogue de confirmation (PrimeVue ConfirmDialog) affiché uniquement si le changement ferait perdre une configuration non sauvegardée (groupes, participants, passages, chrono en cours). Boutons Continuer / Annuler, Annuler en style secondaire.
+
+## iOS / App Store Connect
+
+### [iOS] Mise à jour SDK requise avant avril 2026
+
+**Problème :** App Store Connect avertit (ITMS-90725) : à partir du 28 avril 2026, les apps doivent être compilées avec un SDK plus récent (iOS 26 / Xcode 26 selon le message, probablement une erreur de libellé).
+
+**État :** Différé
+
+**Impact :** Actuellement build avec iOS 18.5 SDK (macos-15, Xcode 16). Livraison OK. À traiter avant la date limite en passant à un runner macOS/Xcode plus récent dans le workflow.
