@@ -42,6 +42,8 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ steps.get_tag.outputs.tag }}"
           echo "## Changements" > notes.md
@@ -85,6 +87,8 @@ jobs:
           track: internal
 
       - name: Attach AAB to GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ needs.create-release.outputs.tag }}"
           gh release upload "$TAG" dist/chrono-eps-android.aab --clobber
@@ -120,6 +124,8 @@ jobs:
         working-directory: ios
 
       - name: Attach IPA to GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ needs.create-release.outputs.tag }}"
           gh release upload "$TAG" ios/build/ChronoEPS.ipa --clobber
