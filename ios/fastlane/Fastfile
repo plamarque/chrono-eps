@@ -8,8 +8,6 @@ platform :ios do
     cocoapods(use_bundle_exec: true)
 
     # Récupère certificat et provisioning profile (Match)
-    # Prérequis : exécuter une fois "bundle exec fastlane match appstore"
-    # et configurer MATCH_PASSWORD, MATCH_GIT_BASIC_AUTHORIZATION en secrets
     match(
       type: "appstore",
       readonly: true,

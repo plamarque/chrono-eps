@@ -1,8 +1,6 @@
 # Fastlane Match — stockage des certificats iOS
-# Remplacer git_url par l'URL de votre dépôt Git privé (ex: certificats)
-# Créer le dépôt vide puis exécuter : bundle exec fastlane match appstore
-
 # MATCH_GIT_URL doit être défini (secret GitHub) : URL HTTPS du dépôt privé de certificats
+
 git_url(ENV["MATCH_GIT_URL"])
 storage_mode("git")
 type("appstore")
