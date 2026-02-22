@@ -82,7 +82,7 @@ jobs:
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
-        run: npm run android:bundle
+        run: echo "n" | npm run android:bundle  # "n" = utiliser le JDK 17 déjà installé (évite le prompt)
 
       - name: Upload to Play Store (internal testing)
         uses: r0adkll/upload-google-play@v1
