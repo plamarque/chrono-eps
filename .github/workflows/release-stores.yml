@@ -127,6 +127,7 @@ jobs:
         working-directory: ios
 
       - name: Build and upload to TestFlight
+        working-directory: ios
         env:
           CI: "true"
           LANG: "en_US.UTF-8"
@@ -137,10 +138,7 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-        run: |
-          cd ios
-          pwd && ls -la fastlane/ || true
-          bundle exec fastlane beta
+        run: bundle exec fastlane beta
 
       - name: Attach IPA to GitHub release
         env:
