@@ -58,6 +58,8 @@ jobs:
       contents: write  # pour gh release upload
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # pour git log entre tags (changelog)
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -85,16 +87,30 @@ jobs:
         run: |
           mkdir -p ~/.bubblewrap
           SDK_PATH="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
-          # updateConfig peut poser des questions (JDK) — yes y évite le blocage en CI
-          yes y | npx @bubblewrap/cli updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$SDK_PATH"
+          # head limite les 'y' (évite milliers de lignes en log + version "y" dans Play Console)
+          (yes y 2>/dev/null | head -n 30) | npx @bubblewrap/cli updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$SDK_PATH"
 
       - name: Build Android AAB
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          # yes y = répondre à tous les prompts interactifs (SDK install, terms, etc.)
-          yes y | npm run android:bundle
+          (yes y 2>/dev/null | head -n 50) | npm run android:bundle
+
+      - name: Prepare Play Store release notes
+        id: release_notes
+        run: |
+          TAG="${{ needs.create-release.outputs.tag }}"
+          PREV=$(git tag -l --sort=-v:refname | sed -n 2p)
+          if [ -n "$PREV" ]; then
+            CHANGELOG=$(git log "$PREV..$TAG" --pretty=format:"- %s (%h)")
+          else
+            CHANGELOG=$(git log "$TAG" --pretty=format:"- %s (%h)" -30)
+          fi
+          [ -z "$CHANGELOG" ] && CHANGELOG="- Aucun commit depuis le dernier tag"
+          mkdir -p dist/play-release-notes
+          echo "$CHANGELOG" > dist/play-release-notes/whatsnew-en-US
+          echo "$CHANGELOG" > dist/play-release-notes/whatsnew-fr-FR
 
       - name: Upload to Play Store (internal testing)
         uses: r0adkll/upload-google-play@v1
@@ -103,6 +119,8 @@ jobs:
           packageName: io.github.plamarque.twa
           releaseFiles: dist/chrono-eps-android.aab
           track: internal
+          releaseName: ${{ needs.create-release.outputs.tag }}
+          whatsNewDirectory: dist/play-release-notes
 
       - name: Attach AAB to GitHub release
         env:

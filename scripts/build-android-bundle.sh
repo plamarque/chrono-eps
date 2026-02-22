@@ -47,7 +47,8 @@ VERSION_CODE=$(VERSION="$VERSION" RUN_NUMBER="${GITHUB_RUN_NUMBER:-0}" node -e "
 echo "VersionCode: $VERSION_CODE"
 
 echo "Mise à jour du projet Android..."
-npx @bubblewrap/cli update --appVersionName="$VERSION" --manifest="$ANDROID_DIR/twa-manifest.json"
+# </dev/null évite que Bubblewrap lise 'y' sur stdin et écrase la version (side-effect de yes y en CI)
+npx @bubblewrap/cli update --appVersionName="$VERSION" --manifest="$ANDROID_DIR/twa-manifest.json" < /dev/null
 
 # Appliquer le versionCode calculé
 MANIFEST="$ANDROID_DIR/twa-manifest.json"
@@ -59,6 +60,7 @@ node -e "
 "
 
 echo "Build du bundle..."
+# stdin reste connecté au pipe yes y pour les prompts (licences SDK, etc.)
 npx @bubblewrap/cli build --manifest="$ANDROID_DIR/twa-manifest.json"
 
 mkdir -p "$(dirname "$AAB_OUTPUT")"
