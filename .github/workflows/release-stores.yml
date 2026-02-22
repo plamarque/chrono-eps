@@ -78,13 +78,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Configure Bubblewrap (JDK path)
+        run: npx @bubblewrap/cli updateConfig --jdkPath="$JAVA_HOME"
+
       - name: Build Android AAB
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
-        run: |
-          # Répondre aux prompts Bubblewrap : "n" (pas d'install JDK) puis chemin JAVA_HOME
-          printf 'n\n%s\n' "$JAVA_HOME" | npm run android:bundle
+        run: npm run android:bundle
 
       - name: Upload to Play Store (internal testing)
         uses: r0adkll/upload-google-play@v1
