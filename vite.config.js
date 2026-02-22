@@ -39,7 +39,8 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,svg}', 'pwa-192x192.png'],
+        globPatterns: ['**/*.{js,css,ico,svg}', 'pwa-192x192.png'],
+        globIgnores: ['**/index.html'],
         cleanupOutdatedCaches: true,
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024
       }
