@@ -120,30 +120,106 @@ Générer une clé de signature pour l'AAB si PWABuilder ne le fait pas automati
 
 PWABuilder génère un projet Xcode (Swift + WebKit) à compiler.
 
-**Guide détaillé pas à pas** : [IOS_APP_STORE_PROCESS.md](IOS_APP_STORE_PROCESS.md) — screenshots, archive, upload.
-
-### 5.1 Matériel et logiciel
+### 5.1 Prérequis
 
 - Mac avec Xcode installé
-- Compte Apple Developer
-- Runtime iOS installé (Xcode → Settings → Platforms ; cliquer « Get » si « Not Installed »)
+- Compte Apple Developer actif
+- Runtime iOS installé (Xcode → Settings → Platforms → iOS)
+- Projet iOS dans `ios/` (généré via PWABuilder)
 
-### 5.2 Résumé des étapes
+### 5.2 Ouvrir le projet
 
-1. **Ouvrir** : `ios/Chrono EPS.xcworkspace` (pas le .xcodeproj)
-2. **Screenshots** : lancer sur simulateur iPhone 17 Pro Max / iPad Pro 13" ; capturer avec Cmd+S ; stocker dans `public/screenshots/ios/iphone/` et `ios/ipad/`
-3. **Archive** : sélectionner « Any iOS Device (arm64) » → Product → Archive
-4. **Upload** : Organizer → Distribute App → App Store Connect → Upload
-5. **App Store Connect** : remplir le formulaire (contenu dans [APP_STORE_CONNECT_CONTENT.md](APP_STORE_CONNECT_CONTENT.md)) ; téléverser les screenshots ; sélectionner le build ; soumettre
+```bash
+open ios/Chrono\ EPS.xcworkspace
+```
 
-### 5.3 Notes importantes
+**Important** : ouvrir le `.xcworkspace`, pas le `.xcodeproj` (le projet utilise CocoaPods).
+
+### 5.3 Générer les screenshots
+
+#### 5.3.1 Screenshots iPhone
+
+1. Dans la barre d'outils Xcode, cliquer sur le sélecteur de destination (ex. « My Mac (Mac Catalyst) »).
+2. Choisir **iPhone 17 Pro Max** (ou un simulateur iPhone équivalent).
+3. Lancer l'app : **Cmd+R**.
+4. Attendre le chargement de la PWA dans le simulateur.
+5. Naviguer dans l'app pour afficher les écrans à capturer : Chrono / mode individuel, Mode relais, Historique, Replay, etc.
+6. **Capture** : **Cmd+S** dans le simulateur (ou clic droit → Save Screen).
+7. Les PNG sont sauvegardés sur le **Bureau** par défaut.
+8. Déplacer les captures dans `public/screenshots/ios/iphone/` avec des noms explicites (ex. `chrono-eps-iphone-historique.png`).
+
+**Tailles App Store** : iPhone 6.5" = 1284×2778 px (portrait). Le simulateur iPhone 17 Pro Max produit des dimensions conformes.
+
+#### 5.3.2 Screenshots iPad
+
+1. Arrêter le simulateur : **Cmd+.**.
+2. Choisir **iPad Pro 13-inch (M5)** ou **iPad Air 13-inch (M3)**.
+3. Lancer : **Cmd+R**.
+4. Capturer les mêmes écrans avec **Cmd+S**.
+5. Déplacer vers `public/screenshots/ios/ipad/`.
+
+**Tailles App Store** : iPad 13" = 2048×2732 px (portrait) ou 2732×2048 px (paysage).
+
+### 5.4 Créer l'archive (build)
+
+1. Sélectionner **Any iOS Device (arm64)** comme destination (section « Build » du menu).
+2. Menu **Product → Archive**.
+3. Si une fenêtre demande un mot de passe : saisir le **mot de passe de session macOS** (pour accéder au Keychain / certificat de développement). Optionnel : cocher « Toujours autoriser ».
+4. Si erreur de signature :
+   - Cliquer sur le projet **Chrono EPS** dans la sidebar
+   - Target **Chrono EPS** → onglet **Signing & Capabilities**
+   - Cocher **Automatically manage signing**
+   - Sélectionner votre **Team** (compte Apple Developer)
+5. Attendre la fin de la compilation.
+6. L'**Organizer** s'ouvre automatiquement.
+
+### 5.5 Uploader vers App Store Connect
+
+1. Dans **Organizer** (Window → Organizer si fermé), sélectionner l'archive créée.
+2. Cliquer **Distribute App**.
+3. Choisir **App Store Connect** → Next.
+4. Choisir **Upload** → Next.
+5. Accepter les options par défaut → Next.
+6. Sélectionner le profil de distribution → Next.
+7. Cliquer **Upload**.
+8. Attendre la fin (quelques minutes).
+9. Le build apparaît dans App Store Connect après traitement (15–30 min ou plus).
+
+### 5.6 Compléter App Store Connect
+
+1. Aller sur [App Store Connect](https://appstoreconnect.apple.com/).
+2. Sélectionner l'app **Chronomètre EPS** → Version iOS 1.0 (ou la version en cours).
+3. Remplir le formulaire avec le contenu de l'[Annexe A — Contenu App Store Connect](#annexe-a-contenu-app-store-connect).
+4. Téléverser les screenshots depuis `public/screenshots/ios/` :
+   - iPhone : onglet Phone → 6.5" Display
+   - iPad : onglet iPad → 13" Display
+5. Sélectionner le build uploadé dans la section « Build ».
+6. Renseigner les informations de contact pour App Review.
+7. Soumettre pour révision.
+
+**Structure des screenshots :**
+
+```
+public/screenshots/
+├── ios/                    # App Store (iPhone + iPad)
+│   ├── iphone/
+│   └── ipad/
+└── android/                # Play Store
+    ├── smartphone/
+    └── tablet/
+```
+
+Les screenshots iOS sont conservés dans `public/screenshots/ios/` pour pouvoir les réutiliser lors des mises à jour sur l'App Store.
+
+### 5.7 Notes importantes
 
 Apple peut refuser les apps qui ressemblent à de simples « sites web dans une frame ». Chrono EPS fournit une vraie valeur (chronomètre terrain, stockage local, historique) — conforme aux recommandations PWABuilder.
 
-### 5.4 Ressources iOS
+### 5.8 Ressources iOS
 
 - [PWABuilder iOS docs](https://docs.pwabuilder.com/#/builder/app-store)
 - [Blog post : Publish your PWA to the iOS App Store](https://blog.pwabuilder.com/posts/publish-your-pwa-to-the-ios-app-store)
+- [App Store Screenshot Specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/)
 
 ## 6. Pièces à préparer pour les deux stores
 
@@ -233,3 +309,73 @@ Une fois une version validée par les testeurs (internal + TestFlight), elle peu
 - [web.dev — PWAs in app stores](https://web.dev/articles/pwas-in-app-stores)
 - [Google Play Console](https://play.google.com/console)
 - [App Store Connect](https://appstoreconnect.apple.com/)
+
+---
+
+## Annexe A — Contenu App Store Connect
+
+Tout le texte à copier-coller dans le formulaire App Store Connect (iOS App Version 1.0).
+
+### Promotional Text (max 170 caractères)
+
+Chronomètre multi-élèves pour l'EPS : passages de tours par tap, mode relais, historique et replay. Optimisé tablette, hors ligne.
+
+### Description
+
+Chronomètre EPS est une application conçue pour les enseignants d'éducation physique. Chronométrez facilement les courses d'une classe entière, enregistrez les passages de tours, identifiez les élèves et conservez les performances sans feuille papier.
+
+Fonctionnalités :
+• Chronomètre multi-élèves avec arrêt individuel par coureur
+• Enregistrement des passages de tours par simple tap
+• Mode relais : groupes d'élèves, affichage Couru / Prochain
+• Identification et nommage des participants
+• Historique des courses sauvegardées
+• Replay visuel des courses sur piste virtuelle
+• Interface tactile optimisée pour tablette et smartphone
+• Données stockées localement (fonctionne hors ligne)
+
+### Keywords (max 100 caractères, virgules, sans espaces)
+
+EPS,chronomètre,course,piste,relais,élève,enseignant,éducation physique
+
+### URLs
+
+| Champ | Valeur |
+|-------|--------|
+| **Support URL** | https://github.com/plamarque/chrono-eps/issues |
+| **Marketing URL** (optionnel) | https://github.com/plamarque/chrono-eps |
+| **Politique de confidentialité** | https://plamarque.github.io/chrono-eps/privacy.html |
+
+### Copyright
+
+© 2026 Patrice Lamarque
+
+(Adapter le nom si nécessaire.)
+
+### App Review Information
+
+**Sign-in required** : Ne pas cocher — Chrono EPS n'exige pas d'authentification.
+
+**Notes (pour faciliter la revue)** : L'app est une PWA (Progressive Web App) wrappée pour iOS. Elle permet aux enseignants d'EPS de chronométrer des courses, enregistrer les passages de tours et conserver les performances. Les données sont stockées localement sur l'appareil. Aucun compte utilisateur n'est requis. L'app fonctionne hors ligne.
+
+**Contact Information** : À remplir manuellement : First Name, Last Name, Phone Number, Email.
+
+### What's New in This Version (si le champ est visible)
+
+Pour une première version 1.0, optionnel :
+
+Première version : chronomètre multi-élèves, passages de tours par tap, mode relais, historique et replay. Interface optimisée iPad et iPhone.
+
+### Checklist
+
+- [ ] Promotional Text
+- [ ] Description
+- [ ] Keywords
+- [ ] Support URL
+- [ ] Marketing URL (optionnel)
+- [ ] Copyright
+- [ ] Screenshots iPhone (1284×2778)
+- [ ] Screenshots iPad (2048×2732)
+- [ ] Build uploadé
+- [ ] App Review contact + Notes
+- [ ] Politique de confidentialité (section App Privacy ou équivalent)

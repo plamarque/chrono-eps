@@ -13,5 +13,5 @@ Captures d'écran pour les fiches App Store et Play Store.
 
 ## Régénération
 
-- **iOS** : via simulateur Xcode (voir [docs/IOS_APP_STORE_PROCESS.md](../../docs/IOS_APP_STORE_PROCESS.md))
+- **iOS** : via simulateur Xcode (voir [docs/PUBLISHING_STORES.md](../../docs/PUBLISHING_STORES.md#53-générer-les-screenshots))
 - **Android** : captures manuelles ou simulateur, tailles selon Play Console
