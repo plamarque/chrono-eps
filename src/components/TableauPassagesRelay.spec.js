@@ -25,7 +25,7 @@ function mountTableauPassagesRelay(props = {}) {
 }
 
 describe('TableauPassagesRelay', () => {
-  it('affiche la section Performances avec temps groupe et lignes par élève', () => {
+  it('affiche la section Temps avec temps groupe et lignes par élève', () => {
     const participants = [{ id: 'g1', nom: 'Groupe 1', color: '#ef4444' }]
     const groupStudents = {
       g1: [
@@ -48,7 +48,7 @@ describe('TableauPassagesRelay', () => {
       passagesByParticipant
     })
     expect(wrapper.find('.tableau-passages-resume').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Performances')
+    expect(wrapper.text()).toContain('Temps')
     expect(wrapper.text()).toContain('Groupe 1')
     expect(wrapper.text()).toContain('Total : 01:54.00')
     expect(wrapper.text()).toContain('Alice')

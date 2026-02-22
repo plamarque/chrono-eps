@@ -101,7 +101,7 @@ function getPassagesList(groupId) {
 }
 
 /**
- * Performances regroupées par élève pour la section Performances.
+ * Performances regroupées par élève pour la section Temps.
  * Retourne : { groupTotalMs, students: [{ nom, passages: [{ pNum, lapMs }], totalLapMs }] }
  */
 function getPerformancesByStudent(groupId) {
@@ -349,9 +349,9 @@ const hasAnyPassage = computed(() =>
     <section
       v-if="hasAnyPassage"
       class="tableau-passages-resume"
-      aria-label="Performances par groupe"
+      aria-label="Temps par groupe"
     >
-      <h3 class="tableau-passages-resume-title">Performances</h3>
+      <h3 class="tableau-passages-resume-title">Temps</h3>
       <div class="tableau-passages-resume-grid">
         <div
           v-for="perf in performancesByGroup"
