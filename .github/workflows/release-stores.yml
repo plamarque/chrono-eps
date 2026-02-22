@@ -87,15 +87,15 @@ jobs:
         run: |
           mkdir -p ~/.bubblewrap
           SDK_PATH="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
-          # head limite les 'y' (évite milliers de lignes en log + version "y" dans Play Console)
-          (yes y 2>/dev/null | head -n 30) | npx @bubblewrap/cli updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$SDK_PATH"
+          # yes y pour prompts interactifs (JDK, SDK, licences). Pas de head : trop de prompts.
+          yes y | npx @bubblewrap/cli updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$SDK_PATH"
 
       - name: Build Android AAB
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          (yes y 2>/dev/null | head -n 50) | npm run android:bundle
+          yes y | npm run android:bundle
 
       - name: Prepare Play Store release notes
         id: release_notes
