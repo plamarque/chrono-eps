@@ -192,6 +192,7 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 - [x] En mode individuel, quand un coureur est stoppé, conserver sa cellule visible (fond gris), conserver les temps affichés, et afficher un bouton Play vert pour permettre la reprise.
 - [x] Dialogue de confirmation au changement de mode (Relais/Individuel) si configuration ou chrono non sauvegardés — boutons Continuer / Annuler.
+- [x] Bouton « Nouvelle course » toujours visible sur l'écran d'accueil (en haut à gauche, même ligne que le switcher Relais/Individuel) ; dialogue de confirmation si configuration en cours serait perdue.
 
 ---
 

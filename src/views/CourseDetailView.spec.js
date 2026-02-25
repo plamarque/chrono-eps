@@ -83,7 +83,7 @@ describe('CourseDetailView', () => {
     wrapper.unmount()
   })
 
-  it('bouton Nouvelle course navigue vers /?newFromCourseId=xxx', async () => {
+  it('bouton Dupliquer navigue vers /?newFromCourseId=xxx', async () => {
     const completedCourse = {
       id: 'completed-1',
       nom: 'Course du 15 février',
@@ -102,9 +102,9 @@ describe('CourseDetailView', () => {
     await wrapper.vm.$nextTick()
 
     const pushSpy = vi.spyOn(router, 'push')
-    const nouvelleCourse = wrapper.findAll('button').find((b) => b.text() === 'Nouvelle course')
-    expect(nouvelleCourse.exists()).toBe(true)
-    await nouvelleCourse.trigger('click')
+    const dupliquer = wrapper.findAll('button').find((b) => b.text() === 'Dupliquer')
+    expect(dupliquer.exists()).toBe(true)
+    await dupliquer.trigger('click')
 
     expect(pushSpy).toHaveBeenCalledWith({ path: '/', query: { newFromCourseId: 'completed-1' } })
     wrapper.unmount()

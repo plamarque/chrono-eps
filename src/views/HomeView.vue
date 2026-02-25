@@ -294,6 +294,29 @@ function onModeChange(newMode) {
   })
 }
 
+function onNewCourseClick() {
+  const wouldLoseData =
+    mode.value === 'relay' ? hasUnsavedRelayConfig.value : hasUnsavedIndividualConfig.value
+  if (!wouldLoseData) {
+    startNewCourse()
+    return
+  }
+  const message =
+    mode.value === 'relay'
+      ? 'Vous allez perdre les groupes et élèves configurés. Continuer ?'
+      : 'Vous allez perdre les participants configurés. Continuer ?'
+  confirm.require({
+    header: 'Nouvelle course ?',
+    message,
+    acceptLabel: 'Continuer',
+    rejectLabel: 'Annuler',
+    rejectProps: { severity: 'secondary' },
+    accept: () => {
+      startNewCourse()
+    }
+  })
+}
+
 async function maybeLoadFromQuery() {
   const newFromId = route.query.newFromCourseId
   if (newFromId) {
@@ -352,7 +375,14 @@ watch(
         <span class="home-course-title">{{ currentCourse.nom }}</span>
       </template>
       <template #content>
-        <section v-if="!currentCourse" class="home-section home-mode-selector" aria-label="Mode de course">
+        <section class="home-section home-toolbar" aria-label="Actions et mode de course">
+          <Button
+            label="Nouvelle course"
+            icon="pi pi-plus"
+            severity="secondary"
+            class="home-toolbar-btn"
+            @click="onNewCourseClick"
+          />
           <SelectButton
             :model-value="mode"
             :options="[
@@ -493,15 +523,21 @@ watch(
   margin-bottom: 1.5rem;
 }
 
-.home-mode-selector {
+.home-toolbar {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   gap: 0.5rem;
   margin-bottom: 1rem;
 }
 
+.home-toolbar-btn {
+  min-height: 44px;
+}
+
 .home-mode-buttons {
-  align-self: flex-end;
+  flex-shrink: 0;
 }
 
 .home-section-chrono {

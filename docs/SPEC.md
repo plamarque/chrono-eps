@@ -13,6 +13,8 @@ Chrono EPS est une application web PWA destinée aux enseignants d'EPS pour chro
   - Mode relais : groupes d'élèves ; l'ordre cycle sur les élèves ; la course continue jusqu'à l'arrêt par le professeur
   - Configuration : jusqu'à 8 groupes, nom et couleur du groupe (chasubles, 6 couleurs réutilisées cycliquement), déclaration des noms des élèves dans l'ordre du premier tour
   - Dialogue de confirmation avant de changer de mode (Relais/Individuel) lorsque la configuration ou le chrono en cours serait perdu
+  - Bouton « Nouvelle course » toujours visible sur l'écran d'accueil, en haut à gauche sur la même ligne que le switcher Relais/Individuel ; dialogue de confirmation avant de perdre une configuration en cours (même logique que le changement de mode)
+  - Bouton « Dupliquer » (sous le chronomètre) : conserve participants et groupes, efface uniquement les temps et passages ; visible quand une course chargée a des passages ou a été lancée
   - Affichage en temps réel « Couru » / « Prochain » par groupe pendant la course
   - Identification et nommage des élèves
   - Stockage des performances (historique)
@@ -34,6 +36,18 @@ Chrono EPS est une application web PWA destinée aux enseignants d'EPS pour chro
 5. **UI adaptée tablettes et smartphones** — Interface tactile, optimisée pour écran mobile et tablette, sans feuille papier.
 6. **Mode relais** — Chaque participant est un groupe d'élèves ; les élèves courent l'un après l'autre en cycle ; configuration élèves et couleurs avant course ; affichage « Couru » / « Prochain » ; la course continue jusqu'à l'arrêt par le professeur.
 7. **Replay visuel** — Les courses sauvegardées peuvent être rejouées visuellement : piste virtuelle ovale, marqueurs colorés par participant ou groupe, position interpolée entre passages, nom du coureur actuel en mode relais ; contrôles play, pause et curseur temporel.
+
+## Actions « Nouvelle course » et « Dupliquer »
+
+Deux actions distinctes permettent de repartir sur une nouvelle course :
+
+| Bouton | Emplacement | Effet | Quand visible |
+|--------|-------------|-------|---------------|
+| **Nouvelle course** | Barre d'outils (en haut à gauche, même ligne que Relais/Individuel) | Réinitialisation complète : efface participants, groupes, passages et chrono ; repart sur une course vierge (1 groupe ou 1 participant par défaut) | Toujours sur l'écran d'accueil |
+| **Dupliquer** | Sous le chronomètre (à la place de Réinitialiser) | Conserve participants et groupes ; efface uniquement les temps et passages ; permet de refaire une course avec la même configuration | Quand une course chargée a des passages ou a été lancée (pas une course « préparée » sans run) |
+| **Réinitialiser** | Sous le chronomètre | Conserve la configuration ; remet le chrono à zéro et efface les passages | Quand le chrono est en pause, sans course chargée |
+
+Dialogue de confirmation : « Nouvelle course » et le switcher Relais/Individuel affichent le même dialogue si une configuration en cours serait perdue.
 
 ## Comportement
 

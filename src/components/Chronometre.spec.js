@@ -21,6 +21,11 @@ function mountChronometre(props = {}) {
   })
 }
 
+/**
+ * Boutons du chronomètre :
+ * - Réinitialiser : chrono en pause, garde config, efface passages
+ * - Dupliquer : course chargée avec passages, garde config, efface temps (parent gère doLoadCourseAsTemplate)
+ */
 describe('Chronometre', () => {
   it('affiche le temps à partir des props', () => {
     const wrapper = mountChronometre({ elapsedMs: 65000 })
@@ -48,7 +53,7 @@ describe('Chronometre', () => {
     wrapper.unmount()
   })
 
-  it('affiche Réinitialiser quand status est paused', () => {
+  it('affiche Réinitialiser quand status est paused (garde la config, efface passages)', () => {
     const wrapper = mountChronometre({ status: 'paused' })
     const reset = wrapper.findAll('button').find((b) => b.text() === 'Réinitialiser')
     expect(reset.exists()).toBe(true)
@@ -82,17 +87,17 @@ describe('Chronometre', () => {
     wrapper.unmount()
   })
 
-  it('affiche Nouvelle course et masque Démarrer quand isViewingLoadedCourse', () => {
+  it('affiche Dupliquer (et masque Démarrer) quand isViewingLoadedCourse — conserve config, efface temps', () => {
     const wrapper = mountChronometre({ status: 'idle', isViewingLoadedCourse: true })
     const buttons = wrapper.findAll('button')
-    expect(buttons.some((b) => b.text() === 'Nouvelle course')).toBe(true)
+    expect(buttons.some((b) => b.text() === 'Dupliquer')).toBe(true)
     expect(buttons.some((b) => b.text() === 'Démarrer')).toBe(false)
     wrapper.unmount()
   })
 
-  it('émet reset au clic sur Nouvelle course', async () => {
+  it('émet reset au clic sur Dupliquer (le parent gère doLoadCourseAsTemplate)', async () => {
     const wrapper = mountChronometre({ status: 'idle', isViewingLoadedCourse: true })
-    const btn = wrapper.findAll('button').find((b) => b.text() === 'Nouvelle course')
+    const btn = wrapper.findAll('button').find((b) => b.text() === 'Dupliquer')
     await btn.trigger('click')
     expect(wrapper.emitted('reset')).toBeTruthy()
     wrapper.unmount()

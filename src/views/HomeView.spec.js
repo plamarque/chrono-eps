@@ -5,6 +5,7 @@ import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import ConfirmationService from 'primevue/confirmationservice'
 import HomeView from './HomeView.vue'
+import Chronometre from '../components/Chronometre.vue'
 
 const mockLoadCourse = vi.fn()
 vi.mock('../services/courseStore.js', () => ({
@@ -50,6 +51,12 @@ async function mountHomeView(routerOptions = {}) {
   return { wrapper, router }
 }
 
+/**
+ * Distinction des boutons :
+ * - Nouvelle course (toolbar) : reset complet (efface participants, groupes, passages)
+ * - Dupliquer (chronomètre) : conserve config, efface uniquement temps et passages
+ * - Réinitialiser (chronomètre, chrono en pause) : conserve config, remet chrono à zéro
+ */
 describe('HomeView', () => {
   beforeEach(() => {
     vi.useFakeTimers()
@@ -161,7 +168,7 @@ describe('HomeView', () => {
     wrapper.unmount()
   })
 
-  it('cliquer Nouvelle course sur une course chargée (individuel) conserve la config des élèves et efface les temps', async () => {
+  it('Dupliquer (chronomètre) : conserve la config des élèves et efface uniquement les temps', async () => {
     const savedCourse = {
       id: 'saved-indiv-1',
       nom: 'Course enregistrée',
@@ -189,9 +196,11 @@ describe('HomeView', () => {
     expect(wrapper.find('.home-course-title').exists()).toBe(true)
     expect(wrapper.vm.participants).toHaveLength(2)
 
-    const nouvelleCourseBtn = wrapper.findAll('button').find((b) => b.text() === 'Nouvelle course')
-    expect(nouvelleCourseBtn.exists()).toBe(true)
-    await nouvelleCourseBtn.trigger('click')
+    // Clic sur le bouton « Dupliquer » du Chronomètre (réutiliser la config, effacer les temps)
+    const chronometre = wrapper.findComponent(Chronometre)
+    const dupliquerBtn = chronometre.findAll('button').find((b) => b.text() === 'Dupliquer')
+    expect(dupliquerBtn.exists()).toBe(true)
+    await dupliquerBtn.trigger('click')
     await vi.runAllTimersAsync()
     await wrapper.vm.$nextTick()
 
@@ -395,6 +404,78 @@ describe('HomeView', () => {
     wrapper.vm.onModeChange(null)
     expect(wrapper.vm.mode).toBe('relay')
 
+    wrapper.unmount()
+  })
+
+  it('Nouvelle course (toolbar) : toujours visible sur l\'écran d\'accueil', async () => {
+    const { wrapper } = await mountHomeView()
+    await vi.advanceTimersByTimeAsync(0)
+
+    const toolbar = wrapper.find('.home-toolbar')
+    const nouvelleCourseBtn = toolbar.findAll('button').find((b) => b.text() === 'Nouvelle course')
+    expect(nouvelleCourseBtn.exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('Nouvelle course (toolbar) avec config en cours : dialogue de confirmation, pas de reset sans accepter', async () => {
+    const { wrapper } = await mountHomeView()
+    await vi.advanceTimersByTimeAsync(0)
+
+    const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
+    await demarrer.trigger('click')
+    await vi.advanceTimersByTimeAsync(10)
+
+    const nouvelleCourseBtn = wrapper.find('.home-toolbar').findAll('button').find((b) => b.text() === 'Nouvelle course')
+    await nouvelleCourseBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.status).toBe('running')
+    wrapper.unmount()
+  })
+
+  it('Nouvelle course (toolbar) sans config à perdre : reset complet immédiat', async () => {
+    const { wrapper } = await mountHomeView()
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(wrapper.vm.mode).toBe('relay')
+    expect(wrapper.vm.participants).toHaveLength(1)
+
+    const nouvelleCourseBtn = wrapper.find('.home-toolbar').findAll('button').find((b) => b.text() === 'Nouvelle course')
+    await nouvelleCourseBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.participants).toHaveLength(1)
+    expect(wrapper.vm.currentCourse).toBeNull()
+    wrapper.unmount()
+  })
+
+  it('Nouvelle course (toolbar) : startNewCourse efface toute la config (vs Dupliquer qui la conserve)', async () => {
+    const savedCourse = {
+      id: 'saved-1',
+      nom: 'Course test',
+      participants: [
+        { id: '1', nom: 'Alice', color: '#ef4444' },
+        { id: '2', nom: 'Bob', color: '#3b82f6' }
+      ],
+      passagesByParticipant: { '1': [{ tourNum: 1, lapMs: 45000, totalMs: 45000 }] },
+      chronoStartMs: 1000,
+      statusAtSave: 'paused',
+      mode: 'individual'
+    }
+    mockLoadCourse.mockResolvedValue(savedCourse)
+
+    const { wrapper } = await mountHomeView({ path: '/', query: { loadCourseId: savedCourse.id } })
+    await vi.runAllTimersAsync()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.participants).toHaveLength(2)
+
+    wrapper.vm.startNewCourse()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.participants).toHaveLength(1)
+    expect(wrapper.vm.currentCourse).toBeNull()
+    expect(Object.keys(wrapper.vm.passagesByParticipant)).toHaveLength(0)
     wrapper.unmount()
   })
 

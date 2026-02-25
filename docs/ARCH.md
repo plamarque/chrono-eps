@@ -41,7 +41,7 @@ Application PWA **client-only** : pas de backend obligatoire pour la première v
 
 | Composant | Responsabilité | Emplacement / Tech cible |
 |-----------|----------------|--------------------------|
-| **UI Chronomètre** | Affichage temps en cours (ou temps total pour course chargée), boutons start/stop/reset/nouvelle course ; en vue détail : Replay, Dupliquer | src/components/Chronometre.vue |
+| **UI Chronomètre** | Affichage temps ; boutons Démarrer/Arrêter ; Réinitialiser (chrono en pause, garde la config) ou Dupliquer (course chargée avec passages, garde config et efface temps) ; en vue détail : Replay, Dupliquer. Voir SPEC « Actions Nouvelle course et Dupliquer ». | src/components/Chronometre.vue |
 | **Vue Replay** | Replay visuel d'une course : piste virtuelle ovale, marqueurs par participant, contrôles play/pause/slider | src/views/ReplayView.vue |
 | **useReplay** | Logique replay : interpolation position, coureur actuel (relais), playback | src/composables/useReplay.js |
 | **Liste Élèves** | Gestion et sélection des élèves pour une course | src/ |

@@ -19,6 +19,8 @@ Ce document définit le vocabulaire, les entités et les règles du domaine pour
 | **Arrêt individuel** | Action qui stoppe le chrono d'un seul coureur en mode individuel ; la carte du coureur reste visible (fond gris, temps affichés, bouton Start pour reprendre). |
 | **Replay** | Visualisation différée d'une course sauvegardée : relecture au fil du temps avec position des participants sur une piste virtuelle. |
 | **Piste virtuelle** | Représentation graphique (ovale ou anneau) de la piste sur laquelle les positions des participants sont affichées pendant le replay. |
+| **Nouvelle course** | Action (bouton barre d'outils) : réinitialisation complète ; efface participants, groupes, passages ; repart sur une course vierge. |
+| **Dupliquer** | Action (bouton chronomètre) : conserve participants et groupes ; efface uniquement les temps et passages ; permet de refaire une course avec la même configuration. |
 
 ## Entités et relations
 

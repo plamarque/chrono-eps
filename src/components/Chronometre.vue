@@ -52,7 +52,7 @@ const displayedTime = computed(() => formatTime(props.elapsedMs))
       />
       <Button
         v-if="isViewingLoadedCourse || status === 'paused'"
-        :label="isViewingLoadedCourse ? 'Nouvelle course' : 'Réinitialiser'"
+        :label="isViewingLoadedCourse ? 'Dupliquer' : 'Réinitialiser'"
         icon="pi pi-refresh"
         severity="secondary"
         class="chronometre-btn"
