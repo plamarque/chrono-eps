@@ -43,7 +43,7 @@ Deux actions distinctes permettent de repartir sur une nouvelle course :
 
 | Bouton | Emplacement | Effet | Quand visible |
 |--------|-------------|-------|---------------|
-| **Nouvelle course** | Barre d'outils (en haut à gauche, même ligne que Relais/Individuel) | Réinitialisation complète : efface participants, groupes, passages et chrono ; repart sur une course vierge (1 groupe ou 1 participant par défaut) | Toujours sur l'écran d'accueil |
+| **Nouvelle course** | Barre d'outils (en haut à gauche, même ligne que Relais/Individuel) | Réinitialisation complète : efface participants, groupes, passages et chrono ; repart sur une course vierge (1 groupe avec 1 élève par défaut en mode relais, ou 1 participant en mode individuel) | Toujours sur l'écran d'accueil |
 | **Dupliquer** | Sous le chronomètre (à la place de Réinitialiser) | Conserve participants et groupes ; efface uniquement les temps et passages ; permet de refaire une course avec la même configuration | Quand une course chargée a des passages ou a été lancée (pas une course « préparée » sans run) |
 | **Réinitialiser** | Sous le chronomètre | Conserve la configuration ; remet le chrono à zéro et efface les passages | Quand le chrono est en pause, sans course chargée |
 

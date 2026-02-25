@@ -500,6 +500,27 @@ describe('HomeView', () => {
     wrapper.unmount()
   })
 
+  it('mode relais : premier groupe a Élève 1 par défaut, nouveau groupe reçoit Élève N+1', async () => {
+    const { wrapper } = await mountHomeView()
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(wrapper.vm.mode).toBe('relay')
+    expect(wrapper.vm.participants).toHaveLength(1)
+    const g1 = wrapper.vm.participants[0]
+    expect(wrapper.vm.groupStudents[g1.id]).toHaveLength(1)
+    expect(wrapper.vm.groupStudents[g1.id][0].nom).toBe('Élève 1')
+
+    const addGroupBtn = wrapper.find('button[aria-label="Ajouter un groupe"]')
+    await addGroupBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.participants).toHaveLength(2)
+    const g2 = wrapper.vm.participants[1]
+    expect(wrapper.vm.groupStudents[g2.id]).toHaveLength(1)
+    expect(wrapper.vm.groupStudents[g2.id][0].nom).toBe('Élève 2')
+    wrapper.unmount()
+  })
+
   it('newFromCourseId mode individuel : participants sans passage en fin de liste', async () => {
     const sourceCourse = {
       id: 'source-mix-1',

@@ -14,7 +14,7 @@ import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import { saveCourse, loadCourse } from '../services/courseStore.js'
 import { getMaxTotalMsFromPassages, sortParticipantsByTotalTimeAsc } from '../utils/courseUtils.js'
-import { createRelayGroup, createParticipant } from '../models/participant.js'
+import { createRelayGroup, createParticipant, createRelayStudent } from '../models/participant.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -46,13 +46,24 @@ const hasAnyPassage = computed(() => {
   return Object.values(pbp).some((arr) => Array.isArray(arr) && arr.length > 0)
 })
 
-const hasUnsavedRelayConfig = computed(
-  () =>
+const hasUnsavedRelayConfig = computed(() => {
+  const totalStudents = Object.values(groupStudents.value ?? {}).reduce(
+    (sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0),
+    0
+  )
+  const isDefaultRelayState =
+    participants.value.length === 1 &&
+    totalStudents === 1 &&
+    !hasAnyPassage.value &&
+    status.value === 'idle'
+  if (isDefaultRelayState) return false
+  return (
     participants.value.length > 1 ||
-    Object.values(groupStudents.value).some((arr) => arr?.length > 0) ||
+    totalStudents > 0 ||
     hasAnyPassage.value ||
     status.value !== 'idle'
-)
+  )
+})
 
 const hasUnsavedIndividualConfig = computed(
   () =>
@@ -185,7 +196,7 @@ function ensureRelayHasDefaultGroup() {
   if (mode.value !== 'relay' || currentCourse.value || participants.value.length > 0) return
   const group = createRelayGroup(0)
   participants.value = [group]
-  groupStudents.value = { [group.id]: [] }
+  groupStudents.value = { [group.id]: [createRelayStudent(1, 0)] }
 }
 
 function ensureIndividualHasDefaultParticipant() {
@@ -240,6 +251,17 @@ function addParticipant(participant) {
     passagesByParticipant.value = next
   }
   participants.value.push(participant)
+  if (mode.value === 'relay') {
+    let totalStudentsCount = 0
+    for (const students of Object.values(groupStudents.value ?? {})) {
+      totalStudentsCount += Array.isArray(students) ? students.length : 0
+    }
+    const newStudent = createRelayStudent(totalStudentsCount + 1, 0)
+    groupStudents.value = {
+      ...groupStudents.value,
+      [participant.id]: [newStudent]
+    }
+  }
 }
 
 function updateParticipant(updated) {
@@ -345,7 +367,7 @@ watch(
     } else if (newMode === 'relay') {
       const group = createRelayGroup(0)
       participants.value = [group]
-      groupStudents.value = { [group.id]: [] }
+      groupStudents.value = { [group.id]: [createRelayStudent(1, 0)] }
       passagesByParticipant.value = {}
       reset()
     }
