@@ -194,6 +194,34 @@ describe('useChronometre', () => {
     wrapper.unmount()
   })
 
+  it("stop (bouton principal) enregistre un passage par participant en cours", async () => {
+    const participants = ref([
+      { id: 'p1', nom: 'Groupe 1' },
+      { id: 'p2', nom: 'Groupe 2' }
+    ])
+    const chrono = useChronometre(participants)
+    const wrapper = mount({
+      setup: () => () =>
+        h('div', [
+          h('span', { 'data-testid': 'passages' }, JSON.stringify(chrono.passagesByParticipant.value)),
+          h('button', { onClick: chrono.start }, 'Start'),
+          h('button', { onClick: chrono.stop }, 'Stop')
+        ])
+    })
+
+    await wrapper.findAll('button')[0].trigger('click')
+    await vi.advanceTimersByTimeAsync(5500)
+    await wrapper.findAll('button')[1].trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const passages = JSON.parse(wrapper.find('[data-testid="passages"]').text())
+    expect(passages.p1).toHaveLength(1)
+    expect(passages.p2).toHaveLength(1)
+    expect(passages.p1[0].totalMs).toBeGreaterThanOrEqual(5000)
+    expect(passages.p2[0].totalMs).toBeGreaterThanOrEqual(5000)
+    wrapper.unmount()
+  })
+
   it("stopParticipant enregistre un passage avec le temps du coureur", async () => {
     const participants = ref([{ id: 'p1', nom: 'Coureur 1' }])
     const chrono = useChronometre(participants)

@@ -79,6 +79,7 @@ export function useChronometre(participantsRef, options = {}) {
     const next = { ...states }
     for (const id of Object.keys(next)) {
       if (next[id].status === 'running') {
+        recordPassage(id)
         next[id] = {
           ...next[id],
           elapsedBeforePause: next[id].elapsedMs,

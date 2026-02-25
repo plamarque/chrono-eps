@@ -1,5 +1,15 @@
 # Issues — bugs, limitations, travail différé
 
+## Bugs
+
+### [Relais] Temps non enregistrés à l'arrêt du chronomètre
+
+**Problème :** En mode relais, après Démarrer puis Arrêter (bouton principal du chronomètre), les temps n'étaient pas enregistrés dans les passages.
+
+**État :** Résolu
+
+**Solution :** `stopAll()` appelle désormais `recordPassage(id)` pour chaque participant en cours avant de les mettre en pause (aligné sur `stopParticipant`).
+
 ## PWA
 
 ### [PWA] Icône 512 px non precachée
