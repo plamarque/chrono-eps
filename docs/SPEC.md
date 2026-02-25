@@ -11,7 +11,7 @@ Chrono EPS est une application web PWA destinée aux enseignants d'EPS pour chro
   - Chronomètre multi-coureurs pour une course
   - Enregistrement des passages de tours par coureur
   - Mode relais : groupes de coureurs ; l'ordre cycle sur les coureurs ; la course continue jusqu'à l'arrêt par le professeur
-  - Configuration : jusqu'à 8 groupes, nom et couleur du groupe (chasubles, 6 couleurs réutilisées cycliquement), déclaration des noms des coureurs dans l'ordre du premier tour
+  - Configuration : jusqu'à 8 groupes, nom et couleur du groupe (chasubles, 6 couleurs réutilisées cycliquement), déclaration des noms des coureurs dans l'ordre du premier tour ; **suppression de coureurs** : chaque coureur peut être supprimé individuellement ; le groupe conserve au moins un coureur ; suppression interdite si le groupe a des passages (configuration avant course)
   - Dialogue de confirmation avant de changer de mode (Relais/Individuel) lorsque la configuration ou le chrono en cours serait perdu
   - Bouton « Nouvelle course » toujours visible sur l'écran d'accueil, en haut à gauche sur la même ligne que le switcher Relais/Individuel ; dialogue de confirmation avant de perdre une configuration en cours (même logique que le changement de mode)
   - Bouton « Dupliquer » (sous le chronomètre) : conserve participants et groupes, efface uniquement les temps et passages ; visible quand une course chargée a des passages ou a été lancée

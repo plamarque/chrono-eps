@@ -11,7 +11,9 @@ const props = defineProps({
   group: { type: Object, default: null },
   runners: { type: Array, default: () => [] },
   /** Nombre total de coureurs dans tous les groupes (numérotation continue entre groupes). */
-  totalRunnersCount: { type: Number, default: 0 }
+  totalRunnersCount: { type: Number, default: 0 },
+  /** Le groupe a des passages enregistrés — suppression de coureurs interdite. */
+  hasPassages: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['update:visible', 'save', 'remove', 'hide'])
@@ -56,9 +58,9 @@ function addRunner() {
   runnersForm.value = [...runnersForm.value, createRelayRunner(nextNum, n)]
 }
 
-function removeLastRunner() {
+function removeRunner(index) {
   if (runnersForm.value.length <= 1) return
-  runnersForm.value = runnersForm.value.slice(0, -1)
+  runnersForm.value = runnersForm.value.filter((_, i) => i !== index).map((r, i) => ({ ...r, ordre: i }))
 }
 
 function save() {
@@ -140,6 +142,16 @@ function onHide() {
           class="relay-group-nom-input"
           @update:model-value="(v) => updateRunner(i, 'nom', v)"
         />
+        <Button
+          v-if="runnersForm.length > 1 && !hasPassages"
+          icon="pi pi-trash"
+          severity="secondary"
+          size="small"
+          text
+          :aria-label="`Supprimer ${runnersForm[i]?.nom || 'coureur ' + (i + 1)}`"
+          class="relay-group-remove-btn"
+          @click="removeRunner(i)"
+        />
       </div>
       <div class="relay-group-runner-actions">
         <Button
@@ -148,15 +160,6 @@ function onHide() {
           severity="secondary"
           size="small"
           @click="addRunner"
-        />
-        <Button
-          v-if="runnersForm.length > 1"
-          label="Supprimer le dernier"
-          icon="pi pi-minus"
-          severity="secondary"
-          size="small"
-          text
-          @click="removeLastRunner"
         />
       </div>
     </div>
@@ -240,6 +243,11 @@ function onHide() {
 .relay-group-nom-input {
   flex: 1;
   min-width: 8rem;
+  min-height: 44px;
+}
+
+.relay-group-remove-btn {
+  min-width: 44px;
   min-height: 44px;
 }
 

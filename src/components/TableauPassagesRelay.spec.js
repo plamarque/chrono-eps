@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import PrimeVue from 'primevue/config'
 import { COULEURS_PALETTE } from '../models/participant.js'
 import TableauPassagesRelay from './TableauPassagesRelay.vue'
+import RelayGroupModal from './RelayGroupModal.vue'
 
 function mountTableauPassagesRelay(props = {}) {
   return mount(TableauPassagesRelay, {
@@ -136,6 +138,83 @@ describe('TableauPassagesRelay', () => {
     expect(wrapper.emitted('add')).toHaveLength(1)
     const [group] = wrapper.emitted('add')[0]
     expect(group.nom).toBe('Groupe 8')
+    wrapper.unmount()
+  })
+
+  it('passe hasPassages au RelayGroupModal : boutons suppr. masqués quand le groupe a des passages', async () => {
+    const participants = [{ id: 'g1', nom: 'Groupe 1', color: '#ef4444' }]
+    const groupRunners = {
+      g1: [
+        { nom: 'Alice', ordre: 0 },
+        { nom: 'Bob', ordre: 1 }
+      ]
+    }
+    const passagesByParticipant = {
+      g1: [{ tourNum: 1, lapMs: 30000, totalMs: 30000, studentIndex: 0 }]
+    }
+    const wrapper = mount(TableauPassagesRelay, {
+      props: {
+        participants,
+        groupRunners,
+        passagesByParticipant,
+        status: 'idle',
+        readOnly: false
+      },
+      global: {
+        plugins: [PrimeVue],
+        stubs: {
+          Dialog: {
+            template: '<div v-if="visible"><slot></slot><slot name="footer"></slot></div>',
+            props: ['visible']
+          }
+        }
+      }
+    })
+    const body = wrapper.find('.tableau-relay-body-clickable')
+    await body.trigger('click')
+    await wrapper.vm.$nextTick()
+    const modal = wrapper.findComponent(RelayGroupModal)
+    expect(modal.exists()).toBe(true)
+    expect(modal.props('hasPassages')).toBe(true)
+    const deleteBtns = wrapper.findAll('.relay-group-remove-btn')
+    expect(deleteBtns).toHaveLength(0)
+    wrapper.unmount()
+  })
+
+  it('passe hasPassages au RelayGroupModal : boutons suppr. visibles quand le groupe n\'a pas de passages', async () => {
+    const participants = [{ id: 'g1', nom: 'Groupe 1', color: '#ef4444' }]
+    const groupRunners = {
+      g1: [
+        { nom: 'Alice', ordre: 0 },
+        { nom: 'Bob', ordre: 1 }
+      ]
+    }
+    const wrapper = mount(TableauPassagesRelay, {
+      props: {
+        participants,
+        groupRunners,
+        passagesByParticipant: {},
+        status: 'idle',
+        readOnly: false
+      },
+      global: {
+        plugins: [PrimeVue],
+        stubs: {
+          Dialog: {
+            template: '<div v-if="visible"><slot></slot><slot name="footer"></slot></div>',
+            props: ['visible']
+          }
+        }
+      }
+    })
+    const body = wrapper.find('.tableau-relay-body-clickable')
+    await body.trigger('click')
+    await wrapper.vm.$nextTick()
+    const modal = wrapper.findComponent(RelayGroupModal)
+    expect(modal.exists()).toBe(true)
+    expect(modal.props('hasPassages')).toBe(false)
+    const deleteBtns = wrapper.findAll('.relay-group-remove-btn')
+    expect(deleteBtns.length).toBeGreaterThanOrEqual(1)
     wrapper.unmount()
   })
 })

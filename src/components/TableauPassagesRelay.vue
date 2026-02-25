@@ -49,6 +49,11 @@ const totalRunnersCount = computed(() => {
   return n
 })
 
+/** Le groupe en cours d'édition a des passages — suppression de coureurs interdite. */
+const hasPassagesForEditedGroup = computed(
+  () => (props.passagesByParticipant[editedGroup.value?.id] ?? []).length > 0
+)
+
 function addGroup() {
   const used = new Set(props.participants.map((p) => p.color))
   let colorIndex = 0
@@ -395,6 +400,7 @@ const hasAnyPassage = computed(() =>
       :group="editedGroup"
       :runners="editedGroup ? (groupRunners[editedGroup.id] ?? []) : []"
       :total-runners-count="totalRunnersCount"
+      :has-passages="hasPassagesForEditedGroup"
       @save="saveGroupRunners"
       @remove="deleteGroup"
       @hide="closeGroupModal"

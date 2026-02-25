@@ -69,3 +69,11 @@
 **État :** Différé
 
 **Impact :** Actuellement build avec iOS 18.5 SDK (macos-15, Xcode 16). Livraison OK. À traiter avant la date limite en passant à un runner macOS/Xcode plus récent dans le workflow.
+
+## Évolutions potentielles
+
+### [Relais] Réinitialiser ou modifier manuellement le temps d'un joueur
+
+**Contexte :** La suppression d'un coureur dans un groupe relais est interdite dès que le groupe a des passages. Pour débloquer ce cas ou corriger des erreurs de saisie, il faudrait permettre de réinitialiser ou modifier manuellement le temps d'un joueur sur une course.
+
+**État :** À évaluer à l'usage (retours terrain)

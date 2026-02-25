@@ -148,6 +148,7 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 - [x] TableauPassages Relay : Couru/Prochain, tap par groupe
 - [x] Modal configuration groupe (liste coureurs, couleurs)
 - [x] HomeView : sélecteur mode, flux relay
+- [x] Suppression de n'importe quel coureur : bouton par ligne ; interdit si passages
 
 ---
 
