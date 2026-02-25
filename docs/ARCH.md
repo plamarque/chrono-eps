@@ -57,7 +57,7 @@ Application PWA **client-only** : pas de backend obligatoire pour la première v
 - **Build** : Vite.
 - **Front-end** : Vue 3 + PrimeVue.
 - **PWA** : vite-plugin-pwa (Workbox) ; manifeste et service worker générés automatiquement.
-- **Tests** : Vitest (exécution, assertions) + @vue/test-utils (composants Vue) + jsdom (environnement DOM).
+- **Tests** : Vitest (unitaires, composants) + @vue/test-utils + jsdom ; Playwright (E2E, flux utilisateur). Les tests E2E doivent être maintenus à jour lorsque le code ou les flux évoluent.
 - **Données** : IndexedDB via Dexie.js ; pas de base distante pour la v1.
 - **Déploiement** : GitHub Pages (phase 1) ; PWABuilder pour publication sur les stores (phase 2).
 
@@ -72,6 +72,7 @@ Application PWA **client-only** : pas de backend obligatoire pour la première v
 
 - `src/` : Code source de l'application (composants, logique, état).
 - `src/**/*.test.js`, `src/**/*.spec.js` : Tests unitaires et de composants.
+- `e2e/` : Tests E2E (Playwright) — parcours utilisateur critiques.
 - `public/` : Fichiers statiques (index.html, favicon, manifeste PWA).
 - `docs/` : Documentation (SPEC, DOMAIN, ARCH, WORKFLOW, ADR).
 - `dist/` ou `build/` : Sortie du build de production.

@@ -23,6 +23,10 @@ Ce document décrit quand mettre à jour quel document, et comment maintenir la 
 
 Pour Chrono EPS : mode **bootstrap** — documents prescriptifs.
 
+## Tests E2E
+
+Lorsque le comportement ou les flux utilisateur évoluent, les tests E2E (Playwright) dans `e2e/` doivent être maintenus ou adaptés pour rester verts. Les refactorings (renommage, restructuration, changement de libellés) nécessitent une mise à jour des tests si les sélecteurs ou les parcours changent.
+
 ## Conventions
 
 - Les documents normatifs ne doivent pas se contredire. En cas de conflit, harmoniser SPEC, DOMAIN et ARCH.

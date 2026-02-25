@@ -21,3 +21,4 @@ Ne pas contredire ces documents. Le code et les changements doivent s'y conforme
 1. Lire SPEC, DOMAIN et ARCH avant de modifier le comportement ou la structure.
 2. Utiliser PLAN pour « quoi faire ensuite » et ISSUES pour « ce qui est cassé ou différé ».
 3. Lors de la mise à jour des docs : modifier les documents normatifs quand le comportement ou la structure change ; garder les documents de tracking factuels.
+4. Maintenir les tests E2E (Playwright) à jour : adapter les tests dans `e2e/` lorsque les flux, libellés ou structure de l'interface changent (voir WORKFLOW.md).
