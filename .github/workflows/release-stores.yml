@@ -176,20 +176,13 @@ jobs:
         run: bundle install
         working-directory: ios
 
-      - name: Set iOS marketing version from tag
-        run: |
-          TAG="${{ needs.create-release.outputs.tag }}"
-          VERSION="${TAG#v}"
-          PBX="ios/Chrono EPS.xcodeproj/project.pbxproj"
-          sed -i.bak "s/MARKETING_VERSION = .*;/MARKETING_VERSION = $VERSION;/g" "$PBX"
-          rm -f "${PBX}.bak"
-
       - name: Build and upload to TestFlight
         working-directory: ios
         env:
           CI: "true"
           LANG: "en_US.UTF-8"
           LC_ALL: "en_US.UTF-8"
+          APP_VERSION: ${{ needs.create-release.outputs.tag }}
           APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
           APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
           APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}

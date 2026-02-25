@@ -343,20 +343,16 @@ Points techniques importants pour la maintenance du pipeline :
 
 ### Erreur iOS : « CFBundleShortVersionString must contain a higher version than previously approved »
 
-La version actuelle sur l'App Store est déjà approuvée. La prochaine version doit être strictement supérieure (ex. si la dernière est « 1 », utiliser « 1.0.1 » ou « 1.1 »).
+Apple considère « 1 » et « 1.0.0 » comme **équivalents**. Si la dernière version approuvée est « 1 », il faut donc **1.0.1** ou supérieur (1.1, 2.0, etc.).
 
-**Solution :** Incrémenter la version dans `package.json` pour que le prochain tag soit > 1, puis lancer la release :
+**Solution :** Utiliser `release-version.sh --patch` pour passer de 1.0.0 à 1.0.1 :
 
 ```bash
-# Exemple : passer à 1.0.1 pour dépasser la version "1" déjà approuvée
-npm version 1.0.1 --no-git-tag-version
-git add package.json package-lock.json
-git commit -m "chore: version 1.0.1"
-git tag v1.0.1
-git push origin main --tags
+# Si vous êtes en 1.0.0, un patch suffit
+./scripts/release-version.sh --patch
 ```
 
-Ou utiliser `release-version.sh --major` si vous êtes en 0.x (0.3.0 → 1.0.0). Si Apple considère 1.0.0 égal à 1, utilisez la méthode manuelle ci-dessus avec 1.0.1.
+La version iOS est désormais définie via Fastlane (`increment_version_number`) à partir du tag, ce qui est plus fiable que la modification manuelle du projet Xcode.
 
 ### Erreur Android : « release notes too long (max: 500) »
 

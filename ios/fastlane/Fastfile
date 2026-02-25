@@ -7,6 +7,16 @@ platform :ios do
   desc "Build and upload to TestFlight"
   lane :beta do
     setup_ci(force: true)  # Keychain CI — évite blocage Embed Pods Frameworks
+
+    # En CI : version depuis le tag (ex. v1.0.1 → 1.0.1). Apple exige version > dernière approuvée.
+    if ENV["APP_VERSION"] && !ENV["APP_VERSION"].empty?
+      app_version = ENV["APP_VERSION"].to_s.sub(/^v/, "")
+      increment_version_number(
+        xcodeproj: "Chrono EPS.xcodeproj",
+        version_number: app_version
+      )
+    end
+
     cocoapods(use_bundle_exec: true)
 
     # Récupère certificat et provisioning profile (Match)
