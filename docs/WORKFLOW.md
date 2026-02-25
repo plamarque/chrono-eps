@@ -25,7 +25,9 @@ Pour Chrono EPS : mode **bootstrap** — documents prescriptifs.
 
 ## Tests E2E
 
-Lorsque le comportement ou les flux utilisateur évoluent, les tests E2E (Playwright) dans `e2e/` doivent être maintenus ou adaptés pour rester verts. Les refactorings (renommage, restructuration, changement de libellés) nécessitent une mise à jour des tests si les sélecteurs ou les parcours changent.
+Les tests E2E (Playwright) dans `e2e/` s'exécutent en CI (workflows `deploy.yml` et `release-stores.yml`) et bloquent le déploiement sur GitHub Pages ainsi que la release vers les stores en cas d'échec.
+
+Lorsque le comportement ou les flux utilisateur évoluent, ces tests doivent être maintenus ou adaptés pour rester verts. Les refactorings (renommage, restructuration, changement de libellés) nécessitent une mise à jour des tests si les sélecteurs ou les parcours changent.
 
 ## Conventions
 

@@ -16,6 +16,8 @@
 | `npm run preview` | Prévisualiser le build (localement)                   |
 | `npm run test` | Lancer les tests unitaires (Vitest)                       |
 | `npm run test:watch` | Lancer les tests en mode watch                      |
+| `npm run test:e2e` | Lancer les tests E2E (Playwright) — build, preview, puis tests |
+| `npm run test:e2e:ui` | Lancer les tests E2E en mode UI interactif               |
 | `npm run release -- --patch` | Créer une release (voir section Release)   |
 | `./scripts/promote-to-stores.sh <tag>` | Promouvoir une version vers les stores (tag ou latest) |
 
@@ -75,7 +77,7 @@ Avant chaque déploiement ou release, valider manuellement les parcours critique
 | PWA | Installation possible depuis le navigateur ; icônes 192/512 ; manifeste valide |
 | Historique | Navigation Accueil / Historique ; liste des courses ; détail lecture seule |
 
-Les tests unitaires (Vitest) couvrent la logique ; cette checklist couvre les flux utilisateur complets. Tests E2E (Playwright) reportés au-delà du MVP (slice 6). Les tests du courseStore utilisent fake-indexeddb (vitest.setup.js) pour IndexedDB en environnement Node.
+Les tests unitaires (Vitest) couvrent la logique ; cette checklist couvre les flux utilisateur complets. Les tests E2E (Playwright) couvrent les parcours critiques : chrono, mode individuel, relais, historique, replay. Les tests du courseStore utilisent fake-indexeddb (vitest.setup.js) pour IndexedDB en environnement Node.
 
 ## Déploiement
 

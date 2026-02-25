@@ -10,7 +10,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "release": "./scripts/release-version.sh",
-    "android:bundle": "./scripts/build-android-bundle.sh"
+    "android:bundle": "./scripts/build-android-bundle.sh",
+    "test:e2e": "bash scripts/run-e2e.sh",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@primeuix/themes": "^2.0.3",
@@ -21,6 +23,7 @@
     "vue-router": "^5.0.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@vitejs/plugin-basic-ssl": "^2.1.4",
     "@vitejs/plugin-vue": "^6.0.2",
     "@vue/test-utils": "^2.4.6",

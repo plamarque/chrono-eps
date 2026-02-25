@@ -51,9 +51,29 @@ jobs:
           echo "${{ steps.changelog.outputs.changelog }}" >> notes.md
           gh release create "$TAG" --notes-file notes.md
 
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: npm run test:e2e
+
   build-android:
     runs-on: ubuntu-latest
-    needs: create-release
+    needs: [create-release, e2e]
     permissions:
       contents: write  # pour gh release upload
     steps:
@@ -131,7 +151,7 @@ jobs:
 
   build-ios:
     runs-on: macos-15  # Xcode plus récent pour Firebase/CocoaPods
-    needs: create-release
+    needs: [create-release, e2e]
     permissions:
       contents: write  # pour gh release upload
     steps:

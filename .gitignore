@@ -45,6 +45,10 @@ pepk.jar
 encryption_public_key.pem
 encrypted_key.zip
 
+# Playwright E2E
+playwright-report/
+test-results/
+
 # iOS / Xcode
 ios/Pods/
 ios/build/

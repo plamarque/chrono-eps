@@ -128,7 +128,7 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 - [x] Test installation PWA (navigateur)
 - [x] Déploiement GitHub Pages
 - [x] Polish UI (principes ARCH : moderne, épuré, fonctionnel)
-- [ ] Évaluer tests E2E (Playwright) — optionnel si MVP stable et régressions fréquentes
+- [x] Tests E2E (Playwright) — e2e/home.spec.js, relay.spec.js, historique.spec.js, replay.spec.js
 
 ---
 
