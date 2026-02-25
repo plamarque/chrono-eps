@@ -137,6 +137,10 @@ open ios/Chrono\ EPS.xcworkspace
 
 ### 5.3 Générer les screenshots
 
+**Génération automatisée (recommandée) :** `npm run screenshots` produit tous les écrans (iOS + Android) dans les résolutions requises. Voir [public/screenshots/README.md](../public/screenshots/README.md).
+
+**Génération manuelle** (simulateur Xcode) :
+
 #### 5.3.1 Screenshots iPhone
 
 1. Dans la barre d'outils Xcode, cliquer sur le sélecteur de destination (ex. « My Mac (Mac Catalyst) »).
@@ -155,10 +159,11 @@ open ios/Chrono\ EPS.xcworkspace
 1. Arrêter le simulateur : **Cmd+.**.
 2. Choisir **iPad Pro 13-inch (M5)** ou **iPad Air 13-inch (M3)**.
 3. Lancer : **Cmd+R**.
-4. Capturer les mêmes écrans avec **Cmd+S**.
-5. Déplacer vers `public/screenshots/ios/ipad/`.
+4. Mettre le simulateur en **paysage** (Cmd+flèche ou Device → Rotate).
+5. Capturer les mêmes écrans avec **Cmd+S**.
+6. Déplacer vers `public/screenshots/ios/ipad/`.
 
-**Tailles App Store** : iPad 13" = 2048×2732 px (portrait) ou 2732×2048 px (paysage).
+**Tailles App Store** : iPad 13" = 2732×2048 px (paysage uniquement pour Chrono EPS).
 
 ### 5.4 Créer l'archive (build)
 
@@ -225,7 +230,7 @@ Apple peut refuser les apps qui ressemblent à de simples « sites web dans une 
 
 | Élément | Description |
 |---------|-------------|
-| Captures d'écran | Plusieurs tailles (téléphone, tablette) — cf. specs de chaque store |
+| Captures d'écran | Plusieurs tailles (téléphone, tablette) — cf. [Annexe B](#annexe-b--spécifications-des-screenshots-référence) |
 | Icône 512×512 | Déjà présente dans le projet (`public/pwa-512x512.png`) |
 | Image de présentation (1024×500) | Générer via `public/store-feature-graphic.html` : ouvrir dans un navigateur, cliquer « Télécharger l'image PNG » |
 | Description courte | Ex. : « Chronomètre multi-coureurs pour les enseignants d'EPS » |
@@ -319,6 +324,7 @@ Points techniques importants pour la maintenance du pipeline :
 
 **iOS (Fastlane) :**
 - **Authentification** : `upload_to_testflight` et `deliver` utilisent le paramètre `api_key` (pas `app_store_connect_api_key`).
+- **CFBundleShortVersionString** : La version marketing est synchronisée avec le tag de release (ex. v0.3.1 → 0.3.1). Chaque nouvel upload doit avoir une version supérieure à la dernière approuvée sur l'App Store.
 - **Build number unique** : TestFlight exige un CFBundleVersion strictement croissant. En CI, `GITHUB_RUN_NUMBER` est utilisé comme build number.
 - **Runner** : `macos-15` (Xcode 16) pour compatibilité Firebase/CocoaPods.
 - **SDK iOS** : À partir d'avril 2026, Apple exigera un SDK plus récent — voir [ISSUES.md](ISSUES.md).
@@ -328,13 +334,69 @@ Points techniques importants pour la maintenance du pipeline :
 
 **Play Console :**
 - Le compte de service (Google Cloud) doit être ajouté dans Play Console avec les droits nécessaires à l'API. Sinon : « The caller does not have permission ».
+- **Release notes** : Les notes de mise à jour sont limitées à 500 caractères par langue. Le workflow tronque automatiquement le changelog (commits entre tags) à cette limite.
 
 **TestFlight :**
 - Les testeurs reçoivent une notification (email/push) quand un build est disponible. La mise à jour se fait manuellement dans l'app TestFlight (pas d'auto-update).
 
-## 10. Liens et références
+## 10. Dépannage
+
+### Erreur iOS : « CFBundleShortVersionString must contain a higher version than previously approved »
+
+La version actuelle sur l'App Store est déjà approuvée. La prochaine version doit être strictement supérieure (ex. si la dernière est « 1 », utiliser « 1.0.1 » ou « 1.1 »).
+
+**Solution :** Incrémenter la version dans `package.json` pour que le prochain tag soit > 1, puis lancer la release :
+
+```bash
+# Exemple : passer à 1.0.1 pour dépasser la version "1" déjà approuvée
+npm version 1.0.1 --no-git-tag-version
+git add package.json package-lock.json
+git commit -m "chore: version 1.0.1"
+git tag v1.0.1
+git push origin main --tags
+```
+
+Ou utiliser `release-version.sh --major` si vous êtes en 0.x (0.3.0 → 1.0.0). Si Apple considère 1.0.0 égal à 1, utilisez la méthode manuelle ci-dessus avec 1.0.1.
+
+### Erreur Android : « release notes too long (max: 500) »
+
+Les notes de mise à jour sont limitées à 500 caractères. Le workflow tronque désormais automatiquement le changelog. Si l'erreur persiste, vérifier que le workflow utilise la dernière version du fichier `release-stores.yml`.
+
+## 11. Liens et références
 
 - [PWABuilder](https://pwabuilder.com/)
+- [PWABuilder docs — Android](https://docs.pwabuilder.com/#/builder/android)
+- [PWABuilder docs — App Store](https://docs.pwabuilder.com/#/builder/app-store)
+- [web.dev — PWAs in app stores](https://web.dev/articles/pwas-in-app-stores)
+- [Google Play Console](https://play.google.com/console)
+- [App Store Connect](https://appstoreconnect.apple.com/)
+
+---
+
+## Annexe B — Spécifications des screenshots (référence)
+
+Source : Play Console (Fiche de l'application principale → Graphics) et [App Store Screenshot Specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/).
+
+### Google Play Store (Android)
+
+Format : PNG ou JPEG, max 8 Mo par image. Ratio 16:9 ou 9:16.
+
+| Cible | Côté min | Côté max |
+|-------|----------|----------|
+| **Téléphones** | 320 px | 3840 px |
+| **Tablettes 7"** | 320 px | 3840 px |
+| **Tablettes 10"** | 1080 px | 7680 px |
+
+**Où modifier :** Play Console → Développer l'audience → Présence en magasin → Fiche de l'application principale → section Graphics (Phone screenshots, Tablet 7-inch screenshots, Tablet 10-inch screenshots).
+
+### Apple App Store (iOS)
+
+| Cible | Dimensions | Orientation |
+|-------|------------|-------------|
+| **iPhone 6.5"** | 1284 × 2778 px | Portrait |
+| **iPad 13"** | 2732 × 2048 px | Paysage (Chrono EPS) |
+
+---
 - [PWABuilder docs — Android](https://docs.pwabuilder.com/#/builder/android)
 - [PWABuilder docs — App Store](https://docs.pwabuilder.com/#/builder/app-store)
 - [web.dev — PWAs in app stores](https://web.dev/articles/pwas-in-app-stores)
@@ -406,7 +468,7 @@ Première version : chronomètre multi-coureurs, passages de tours par tap, mode
 - [ ] Marketing URL (optionnel)
 - [ ] Copyright
 - [ ] Screenshots iPhone (1284×2778)
-- [ ] Screenshots iPad (2048×2732)
+- [ ] Screenshots iPad (2732×2048 paysage)
 - [ ] Build uploadé
 - [ ] App Review contact + Notes
 - [ ] Politique de confidentialité (section App Privacy ou équivalent)

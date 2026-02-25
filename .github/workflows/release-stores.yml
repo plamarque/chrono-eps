@@ -128,9 +128,16 @@ jobs:
             CHANGELOG=$(git log "$TAG" --pretty=format:"- %s (%h)" -30)
           fi
           [ -z "$CHANGELOG" ] && CHANGELOG="- Aucun commit depuis le dernier tag"
+          # Play Store limite les release notes à 500 caractères par langue
+          MAX_LEN=500
+          if [ ${#CHANGELOG} -gt $MAX_LEN ]; then
+            CHANGELOG_TRUNCATED="${CHANGELOG:0:$((MAX_LEN-3))}..."
+          else
+            CHANGELOG_TRUNCATED="$CHANGELOG"
+          fi
           mkdir -p dist/play-release-notes
-          echo "$CHANGELOG" > dist/play-release-notes/whatsnew-en-US
-          echo "$CHANGELOG" > dist/play-release-notes/whatsnew-fr-FR
+          echo "$CHANGELOG_TRUNCATED" > dist/play-release-notes/whatsnew-en-US
+          echo "$CHANGELOG_TRUNCATED" > dist/play-release-notes/whatsnew-fr-FR
 
       - name: Upload to Play Store (internal testing)
         uses: r0adkll/upload-google-play@v1
@@ -167,6 +174,14 @@ jobs:
       - name: Install Fastlane
         run: bundle install
         working-directory: ios
+
+      - name: Set iOS marketing version from tag
+        run: |
+          TAG="${{ needs.create-release.outputs.tag }}"
+          VERSION="${TAG#v}"
+          PBX="ios/Chrono EPS.xcodeproj/project.pbxproj"
+          sed -i.bak "s/MARKETING_VERSION = .*;/MARKETING_VERSION = $VERSION;/g" "$PBX"
+          rm -f "${PBX}.bak"
 
       - name: Build and upload to TestFlight
         working-directory: ios
