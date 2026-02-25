@@ -12,7 +12,8 @@
     "release": "./scripts/release-version.sh",
     "android:bundle": "./scripts/build-android-bundle.sh",
     "test:e2e": "bash scripts/run-e2e.sh",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "screenshots": "node scripts/generate-screenshots.js"
   },
   "dependencies": {
     "@primeuix/themes": "^2.0.3",

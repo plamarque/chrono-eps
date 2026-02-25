@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
@@ -41,6 +41,14 @@ async function fetchCourse() {
     router.replace('/historique')
   } finally {
     loading.value = false
+    // Paramètre ?t= (ms) : seek à cet instant au chargement (utile pour screenshots, évite rAF throttled en headless)
+    const t = route.query.t
+    if (t != null && course.value) {
+      const ms = Number(t)
+      if (!isNaN(ms) && ms >= 0) {
+        nextTick(() => seek(ms))
+      }
+    }
   }
 }
 

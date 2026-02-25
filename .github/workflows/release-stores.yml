@@ -136,8 +136,9 @@ jobs:
             CHANGELOG_TRUNCATED="$CHANGELOG"
           fi
           mkdir -p dist/play-release-notes
-          echo "$CHANGELOG_TRUNCATED" > dist/play-release-notes/whatsnew-en-US
-          echo "$CHANGELOG_TRUNCATED" > dist/play-release-notes/whatsnew-fr-FR
+          # printf évite la newline finale (Play Store compte 500 chars max, echo ajoute \n = 501)
+          printf '%s' "$CHANGELOG_TRUNCATED" > dist/play-release-notes/whatsnew-en-US
+          printf '%s' "$CHANGELOG_TRUNCATED" > dist/play-release-notes/whatsnew-fr-FR
 
       - name: Upload to Play Store (internal testing)
         uses: r0adkll/upload-google-play@v1
