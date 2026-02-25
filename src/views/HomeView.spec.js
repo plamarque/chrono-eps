@@ -115,7 +115,7 @@ describe('HomeView', () => {
       chronoStartMs: null,
       statusAtSave: 'idle',
       mode: 'relay',
-      groupStudents: { g1: [{ id: 's1', nom: 'Alice', ordre: 0 }] }
+      groupRunners: { g1: [{ id: 's1', nom: 'Alice', ordre: 0 }] }
     }
     mockLoadCourse.mockResolvedValue(preparedCourse)
 
@@ -152,7 +152,7 @@ describe('HomeView', () => {
       chronoStartMs: null,
       statusAtSave: 'idle',
       mode: 'relay',
-      groupStudents: { g1: [{ id: 's1', nom: 'Alice', ordre: 0 }] }
+      groupRunners: { g1: [{ id: 's1', nom: 'Alice', ordre: 0 }] }
     }
     mockLoadCourse.mockResolvedValue(preparedCourse)
 
@@ -168,13 +168,13 @@ describe('HomeView', () => {
     wrapper.unmount()
   })
 
-  it('Dupliquer (chronomètre) : conserve la config des élèves et efface uniquement les temps', async () => {
+  it('Dupliquer (chronomètre) : conserve la config des coureurs et efface uniquement les temps', async () => {
     const savedCourse = {
       id: 'saved-indiv-1',
       nom: 'Course enregistrée',
       participants: [
-        { id: '1', nom: 'Elève 1', color: '#ef4444' },
-        { id: '2', nom: 'Elève 2', color: '#3b82f6' }
+        { id: '1', nom: 'Coureur 1', color: '#ef4444' },
+        { id: '2', nom: 'Coureur 2', color: '#3b82f6' }
       ],
       passagesByParticipant: {
         '1': [{ tourNum: 1, lapMs: 45000, totalMs: 45000 }],
@@ -206,12 +206,12 @@ describe('HomeView', () => {
 
     expect(wrapper.find('.home-course-title').exists()).toBe(false)
     expect(wrapper.vm.participants).toHaveLength(2)
-    expect(wrapper.vm.participants.map((p) => p.nom)).toEqual(['Elève 1', 'Elève 2'])
+    expect(wrapper.vm.participants.map((p) => p.nom)).toEqual(['Coureur 1', 'Coureur 2'])
     expect(Object.keys(wrapper.vm.passagesByParticipant)).toHaveLength(0)
     wrapper.unmount()
   })
 
-  it('newFromCourseId charge en mode template : groupes/élèves conservés, pas de nom ni passages', async () => {
+  it('newFromCourseId charge en mode template : groupes/coureurs conservés, pas de nom ni passages', async () => {
     const sourceCourse = {
       id: 'source-1',
       nom: 'Course du 10 février',
@@ -220,7 +220,7 @@ describe('HomeView', () => {
       chronoStartMs: 1000,
       statusAtSave: 'paused',
       mode: 'relay',
-      groupStudents: { g1: [{ id: 's1', nom: 'Alice', ordre: 0 }, { id: 's2', nom: 'Bob', ordre: 1 }] }
+      groupRunners: { g1: [{ id: 's1', nom: 'Alice', ordre: 0 }, { id: 's2', nom: 'Bob', ordre: 1 }] }
     }
     mockLoadCourse.mockResolvedValue(sourceCourse)
 
@@ -243,9 +243,9 @@ describe('HomeView', () => {
       id: 'source-indiv-1',
       nom: 'Course individuelle',
       participants: [
-        { id: '1', nom: 'Elève 1', color: '#ef4444' },
-        { id: '2', nom: 'Elève 2', color: '#3b82f6' },
-        { id: '3', nom: 'Elève 3', color: '#22c55e' }
+        { id: '1', nom: 'Coureur 1', color: '#ef4444' },
+        { id: '2', nom: 'Coureur 2', color: '#3b82f6' },
+        { id: '3', nom: 'Coureur 3', color: '#22c55e' }
       ],
       passagesByParticipant: {
         '1': [{ tourNum: 1, lapMs: 45000, totalMs: 45000 }],
@@ -267,11 +267,11 @@ describe('HomeView', () => {
 
     expect(mockLoadCourse).toHaveBeenCalledWith('source-indiv-1')
     expect(wrapper.find('.home-course-title').exists()).toBe(false)
-    expect(wrapper.text()).toContain('Elève 1')
-    expect(wrapper.text()).toContain('Elève 2')
-    expect(wrapper.text()).toContain('Elève 3')
+    expect(wrapper.text()).toContain('Coureur 1')
+    expect(wrapper.text()).toContain('Coureur 2')
+    expect(wrapper.text()).toContain('Coureur 3')
     expect(wrapper.vm.participants).toHaveLength(3)
-    expect(wrapper.vm.participants.map((p) => p.nom)).toEqual(['Elève 1', 'Elève 2', 'Elève 3'])
+    expect(wrapper.vm.participants.map((p) => p.nom)).toEqual(['Coureur 1', 'Coureur 2', 'Coureur 3'])
     expect(Object.keys(wrapper.vm.passagesByParticipant)).toHaveLength(0)
     expect(wrapper.vm.currentCourse).toBeNull()
     wrapper.unmount()
@@ -282,9 +282,9 @@ describe('HomeView', () => {
       id: 'source-tri-1',
       nom: 'Course à trier',
       participants: [
-        { id: '1', nom: 'Elève 1', color: '#ef4444' },
-        { id: '2', nom: 'Elève 2', color: '#3b82f6' },
-        { id: '3', nom: 'Elève 3', color: '#22c55e' }
+        { id: '1', nom: 'Coureur 1', color: '#ef4444' },
+        { id: '2', nom: 'Coureur 2', color: '#3b82f6' },
+        { id: '3', nom: 'Coureur 3', color: '#22c55e' }
       ],
       passagesByParticipant: {
         '1': [{ tourNum: 1, lapMs: 90000, totalMs: 90000 }],
@@ -305,9 +305,9 @@ describe('HomeView', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.participants.map((p) => p.nom)).toEqual([
-      'Elève 2',
-      'Elève 1',
-      'Elève 3'
+      'Coureur 2',
+      'Coureur 1',
+      'Coureur 3'
     ])
     expect(Object.keys(wrapper.vm.passagesByParticipant)).toHaveLength(0)
     wrapper.unmount()
@@ -500,15 +500,15 @@ describe('HomeView', () => {
     wrapper.unmount()
   })
 
-  it('mode relais : premier groupe a Élève 1 par défaut, nouveau groupe reçoit Élève N+1', async () => {
+  it('mode relais : premier groupe a Coureur 1 par défaut, nouveau groupe reçoit Coureur N+1', async () => {
     const { wrapper } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
     expect(wrapper.vm.mode).toBe('relay')
     expect(wrapper.vm.participants).toHaveLength(1)
     const g1 = wrapper.vm.participants[0]
-    expect(wrapper.vm.groupStudents[g1.id]).toHaveLength(1)
-    expect(wrapper.vm.groupStudents[g1.id][0].nom).toBe('Élève 1')
+    expect(wrapper.vm.groupRunners[g1.id]).toHaveLength(1)
+    expect(wrapper.vm.groupRunners[g1.id][0].nom).toBe('Coureur 1')
 
     const addGroupBtn = wrapper.find('button[aria-label="Ajouter un groupe"]')
     await addGroupBtn.trigger('click')
@@ -516,8 +516,8 @@ describe('HomeView', () => {
 
     expect(wrapper.vm.participants).toHaveLength(2)
     const g2 = wrapper.vm.participants[1]
-    expect(wrapper.vm.groupStudents[g2.id]).toHaveLength(1)
-    expect(wrapper.vm.groupStudents[g2.id][0].nom).toBe('Élève 2')
+    expect(wrapper.vm.groupRunners[g2.id]).toHaveLength(1)
+    expect(wrapper.vm.groupRunners[g2.id][0].nom).toBe('Coureur 2')
     wrapper.unmount()
   })
 

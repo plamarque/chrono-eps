@@ -140,14 +140,14 @@ describe('useChronometre', () => {
 
   it('en mode relais, recordPassage attribue studentIndex cyclique (0, 1, 2, 0, 1, ...)', async () => {
     const participants = ref([{ id: 'g1', nom: 'Groupe A' }])
-    const groupStudents = ref({
+    const groupRunners = ref({
       g1: [
         { id: 's1', nom: 'Alice', ordre: 0 },
         { id: 's2', nom: 'Bob', ordre: 1 },
         { id: 's3', nom: 'Claire', ordre: 2 }
       ]
     })
-    const chrono = useChronometre(participants, { mode: 'relay', groupStudents })
+    const chrono = useChronometre(participants, { mode: 'relay', groupRunners })
     const wrapper = mount({
       setup: () => () =>
         h('div', [
@@ -194,8 +194,8 @@ describe('useChronometre', () => {
     wrapper.unmount()
   })
 
-  it("stopParticipant enregistre un passage avec le temps de l'élève", async () => {
-    const participants = ref([{ id: 'p1', nom: 'Élève 1' }])
+  it("stopParticipant enregistre un passage avec le temps du coureur", async () => {
+    const participants = ref([{ id: 'p1', nom: 'Coureur 1' }])
     const chrono = useChronometre(participants)
     const wrapper = mount({
       setup: () => () =>

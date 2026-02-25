@@ -14,7 +14,7 @@ Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 11 
 | 4     | Passages et calculs      | Tap = passage, temps tour/course, affichage  | Fait     |
 | 5     | Persistance + sauvegarde | IndexedDB, sauvegarde course nommée          | Fait     |
 | 6     | Historique + déploiement | Vue historique, PWA final, GitHub Pages     | Fait     |
-| 7     | Mode relais              | Groupes, config élèves, Couru/Prochain, course continue jusqu'à arrêt | Fait     |
+| 7     | Mode relais              | Groupes, config coureurs, Couru/Prochain, course continue jusqu'à arrêt | Fait     |
 | 8     | Enregistrement auto      | Sauvegarde à chaque changement, nom auto, renommage depuis historique | À faire  |
 | 9     | Performances (P1, P2, …) | Liste temps de passage par tour, mode individuel et relais | Fait     |
 | 10    | Dupliquer                | Bouton Dupliquer à côté du chrono, création course à partir d'une existante | Réouverte (masqué) |
@@ -71,7 +71,7 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ### Tâches
 
-- [x] Modèle Participant/Élève (nom) en état local
+- [x] Modèle Participant/Coureur (nom) en état local
 - [x] Liste des participants (affichage)
 - [x] Formulaire/modal ajout participant
 - [x] Suppression participant
@@ -81,7 +81,7 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ## Slice 4 — Enregistrement des passages et calculs
 
-**Objectif** : Enregistrement des passages au tap sur un élève et calcul des temps.
+**Objectif** : Enregistrement des passages au tap sur un coureur et calcul des temps.
 
 **Critères de sortie** : Tap sur participant → passage enregistré ; temps de tour et temps de course visibles.
 
@@ -89,7 +89,7 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 - [x] Associer participants à une course en cours
 - [x] Tap sur participant = enregistrement passage (timestamp)
-- [x] Liste des passages par élève (tours empilés)
+- [x] Liste des passages par coureur (tours empilés)
 - [x] Affichage par passage : numéro tour, temps tour, temps total (format mm:ss.ms)
 - [x] Calcul temps tour = écart entre passages consécutifs ; temps total = depuis démarrage chrono
 - [x] Affichage des passages en temps réel
@@ -105,7 +105,7 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ### Tâches
 
-- [x] Schéma IndexedDB (Course, Élève, Passage)
+- [x] Schéma IndexedDB (Course, Coureur, Passage)
 - [x] Librairie (Dexie.js ou idb) pour accès IndexedDB
 - [x] Sauvegarde course avec nom (modale/formulaire)
 - [x] Persistance des courses, participants, passages
@@ -134,19 +134,19 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ## Slice 7 — Mode relais
 
-**Objectif** : Course relais où chaque participant est un groupe ; élèves courent à tour de rôle en cycle ; configuration des élèves et couleurs avant la course ; affichage « Couru » / « Prochain » ; la course continue jusqu'à l'arrêt par le professeur.
+**Objectif** : Course relais où chaque participant est un groupe ; coureurs courent à tour de rôle en cycle ; configuration des coureurs et couleurs avant la course ; affichage « Couru » / « Prochain » ; la course continue jusqu'à l'arrêt par le professeur.
 
-**Critères de sortie** : Sélecteur mode Individuel/Relais ; modal config groupe (élèves ordonnés, couleurs) ; tableau relay avec Couru/Prochain ; jusqu'à 8 groupes (couleurs réutilisées cycliquement) ; sauvegarde et chargement des courses relais.
+**Critères de sortie** : Sélecteur mode Individuel/Relais ; modal config groupe (coureurs ordonnés, couleurs) ; tableau relay avec Couru/Prochain ; jusqu'à 8 groupes (couleurs réutilisées cycliquement) ; sauvegarde et chargement des courses relais.
 
 ### Tâches
 
 - [x] Documentation (DOMAIN, SPEC, ARCH)
-- [x] Schéma DB v2 : mode, table relay_students
+- [x] Schéma DB v2/v3 : mode, table relay_runners
 - [x] courseStore : save/load/delete relay
-- [x] Modèle : createRelayGroup, createRelayStudent
+- [x] Modèle : createRelayGroup, createRelayRunner
 - [x] useChronometre : support relay (recordPassage groupe, état courant/prochain)
 - [x] TableauPassages Relay : Couru/Prochain, tap par groupe
-- [x] Modal configuration groupe (liste élèves, couleurs)
+- [x] Modal configuration groupe (liste coureurs, couleurs)
 - [x] HomeView : sélecteur mode, flux relay
 
 ---
@@ -175,7 +175,7 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 ### Tâches
 
 - [x] Mode individuel (TableauPassages.vue) : liste P1, P2, P3… dans section tableau-passages-resume
-- [x] Mode relais (TableauPassagesRelay.vue) : liste P1, P2, P3… dans section tableau-passages-resume (regroupée par élève, total groupe + Total cumulé par élève)
+- [x] Mode relais (TableauPassagesRelay.vue) : liste P1, P2, P3… dans section tableau-passages-resume (regroupée par coureur, total groupe + Total cumulé par coureur)
 - [x] Compléter ou remplacer affichage actuel (nb tours, dernier total) par liste explicite
 
 ---

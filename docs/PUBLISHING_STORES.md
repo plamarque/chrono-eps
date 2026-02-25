@@ -228,7 +228,7 @@ Apple peut refuser les apps qui ressemblent à de simples « sites web dans une 
 | Captures d'écran | Plusieurs tailles (téléphone, tablette) — cf. specs de chaque store |
 | Icône 512×512 | Déjà présente dans le projet (`public/pwa-512x512.png`) |
 | Image de présentation (1024×500) | Générer via `public/store-feature-graphic.html` : ouvrir dans un navigateur, cliquer « Télécharger l'image PNG » |
-| Description courte | Ex. : « Chronomètre multi-élèves pour les enseignants d'EPS » |
+| Description courte | Ex. : « Chronomètre multi-coureurs pour les enseignants d'EPS » |
 | Description longue | Détail des fonctionnalités (chrono, passages, historique, hors ligne) |
 | Politique de confidentialité | URL : `https://plamarque.github.io/chrono-eps/privacy.html` — Chrono EPS stocke les données localement ; l'absence de collecte serveur y est détaillée |
 | Catégorie | Ex. : Éducation, Productivité |
@@ -349,16 +349,16 @@ Tout le texte à copier-coller dans le formulaire App Store Connect (iOS App Ver
 
 ### Promotional Text (max 170 caractères)
 
-Chronomètre multi-élèves pour l'EPS : passages de tours par tap, mode relais, historique et replay. Optimisé tablette, hors ligne.
+Chronomètre multi-coureurs pour l'EPS : passages de tours par tap, mode relais, historique et replay. Optimisé tablette, hors ligne.
 
 ### Description
 
-Chronomètre EPS est une application conçue pour les enseignants d'éducation physique. Chronométrez facilement les courses d'une classe entière, enregistrez les passages de tours, identifiez les élèves et conservez les performances sans feuille papier.
+Chronomètre EPS est une application conçue pour les enseignants d'éducation physique. Chronométrez facilement les courses d'une classe entière, enregistrez les passages de tours, identifiez les coureurs et conservez les performances sans feuille papier.
 
 Fonctionnalités :
-• Chronomètre multi-élèves avec arrêt individuel par coureur
+• Chronomètre multi-coureurs avec arrêt individuel par coureur
 • Enregistrement des passages de tours par simple tap
-• Mode relais : groupes d'élèves, affichage Couru / Prochain
+• Mode relais : groupes de coureurs, affichage Couru / Prochain
 • Identification et nommage des participants
 • Historique des courses sauvegardées
 • Replay visuel des courses sur piste virtuelle
@@ -367,7 +367,7 @@ Fonctionnalités :
 
 ### Keywords (max 100 caractères, virgules, sans espaces)
 
-EPS,chronomètre,course,piste,relais,élève,enseignant,éducation physique
+EPS,chronomètre,course,piste,relais,coureur,enseignant,éducation physique
 
 ### URLs
 
@@ -395,7 +395,7 @@ EPS,chronomètre,course,piste,relais,élève,enseignant,éducation physique
 
 Pour une première version 1.0, optionnel :
 
-Première version : chronomètre multi-élèves, passages de tours par tap, mode relais, historique et replay. Interface optimisée iPad et iPhone.
+Première version : chronomètre multi-coureurs, passages de tours par tap, mode relais, historique et replay. Interface optimisée iPad et iPhone.
 
 ### Checklist
 

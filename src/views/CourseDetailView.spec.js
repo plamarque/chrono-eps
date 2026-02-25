@@ -45,7 +45,7 @@ describe('CourseDetailView', () => {
       passagesByParticipant: {},
       statusAtSave: 'idle',
       mode: 'relay',
-      groupStudents: { g1: [{ id: 's1', nom: 'Alice', ordre: 0 }] }
+      groupRunners: { g1: [{ id: 's1', nom: 'Alice', ordre: 0 }] }
     }
     mockLoadCourse.mockResolvedValue(preparedCourse)
 

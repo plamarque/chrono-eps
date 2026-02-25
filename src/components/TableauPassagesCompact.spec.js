@@ -26,8 +26,8 @@ function mountTableauPassagesCompact(props = {}) {
 describe('TableauPassagesCompact', () => {
   it('affiche la grille de cartes avec les noms des participants', () => {
     const participants = [
-      { id: '1', nom: 'Elève 1', color: '#ef4444' },
-      { id: '2', nom: 'Elève 2', color: '#3b82f6' }
+      { id: '1', nom: 'Coureur 1', color: '#ef4444' },
+      { id: '2', nom: 'Coureur 2', color: '#3b82f6' }
     ]
     const participantStates = {
       '1': { status: 'running' },
@@ -41,8 +41,8 @@ describe('TableauPassagesCompact', () => {
     expect(wrapper.find('.tableau-passages-compact-grid').exists()).toBe(true)
     const cards = wrapper.findAll('.tableau-passages-compact-card')
     expect(cards.length).toBe(2)
-    expect(cards[0].text()).toContain('Elève 1')
-    expect(cards[1].text()).toContain('Elève 2')
+    expect(cards[0].text()).toContain('Coureur 1')
+    expect(cards[1].text()).toContain('Coureur 2')
   })
 
   it('affiche le nom du participant sur la carte', () => {
@@ -58,7 +58,7 @@ describe('TableauPassagesCompact', () => {
   })
 
   it('émet record au clic sur le bouton passage', async () => {
-    const participants = [{ id: '1', nom: 'Elève 1', color: '#ef4444' }]
+    const participants = [{ id: '1', nom: 'Coureur 1', color: '#ef4444' }]
     const participantStates = { '1': { elapsedMs: 1000, status: 'running' } }
     const wrapper = mountTableauPassagesCompact({
       participants,
@@ -73,7 +73,7 @@ describe('TableauPassagesCompact', () => {
   })
 
   it('positionne Stop à gauche et Tour à droite sur une carte en cours', () => {
-    const participants = [{ id: '1', nom: 'Elève 1', color: '#ef4444' }]
+    const participants = [{ id: '1', nom: 'Coureur 1', color: '#ef4444' }]
     const participantStates = { '1': { elapsedMs: 1000, status: 'running' } }
     const wrapper = mountTableauPassagesCompact({
       participants,
@@ -90,8 +90,8 @@ describe('TableauPassagesCompact', () => {
 
   it('émet start-participant au clic sur Play d\'un coureur stoppé (reprise individuelle)', async () => {
     const participants = [
-      { id: '1', nom: 'Elève 1', color: '#ef4444' },
-      { id: '2', nom: 'Elève 2', color: '#3b82f6' }
+      { id: '1', nom: 'Coureur 1', color: '#ef4444' },
+      { id: '2', nom: 'Coureur 2', color: '#3b82f6' }
     ]
     const participantStates = {
       '1': { status: 'running' },
@@ -115,7 +115,7 @@ describe('TableauPassagesCompact', () => {
   })
 
   it('émet stop-participant au clic sur Stop d\'un coureur en course', async () => {
-    const participants = [{ id: '1', nom: 'Elève 1', color: '#ef4444' }]
+    const participants = [{ id: '1', nom: 'Coureur 1', color: '#ef4444' }]
     const participantStates = { '1': { status: 'running', elapsedMs: 30000 } }
     const wrapper = mountTableauPassagesCompact({
       participants,
@@ -131,8 +131,8 @@ describe('TableauPassagesCompact', () => {
 
   it('carte running a fond bleu, carte paused a fond gris', () => {
     const participants = [
-      { id: '1', nom: 'Elève 1', color: '#ef4444' },
-      { id: '2', nom: 'Elève 2', color: '#3b82f6' }
+      { id: '1', nom: 'Coureur 1', color: '#ef4444' },
+      { id: '2', nom: 'Coureur 2', color: '#3b82f6' }
     ]
     const participantStates = {
       '1': { status: 'running' },
@@ -156,8 +156,8 @@ describe('TableauPassagesCompact', () => {
 
   it('affiche les cartes des coureurs stoppés avec fond gris et bouton Play quand chrono en cours', () => {
     const participants = [
-      { id: '1', nom: 'Elève 1', color: '#ef4444' },
-      { id: '2', nom: 'Elève 2', color: '#3b82f6' }
+      { id: '1', nom: 'Coureur 1', color: '#ef4444' },
+      { id: '2', nom: 'Coureur 2', color: '#3b82f6' }
     ]
     const participantStates = {
       '1': { status: 'running' },
@@ -175,8 +175,8 @@ describe('TableauPassagesCompact', () => {
     })
     const cards = wrapper.findAll('.tableau-passages-compact-card')
     expect(cards.length).toBe(2)
-    expect(cards[0].text()).toContain('Elève 1')
-    expect(cards[1].text()).toContain('Elève 2')
+    expect(cards[0].text()).toContain('Coureur 1')
+    expect(cards[1].text()).toContain('Coureur 2')
     const cardPaused = cards[1]
     expect(cardPaused.classes()).toContain('tableau-passages-compact-card-paused')
     const playBtn = cardPaused.find('button[aria-label*="Démarrer"]')
@@ -186,8 +186,8 @@ describe('TableauPassagesCompact', () => {
 
   it('affiche toutes les cartes quand chrono global arrêté (status paused/idle) même si tous paused', () => {
     const participants = [
-      { id: '1', nom: 'Elève 1', color: '#ef4444' },
-      { id: '2', nom: 'Elève 2', color: '#3b82f6' }
+      { id: '1', nom: 'Coureur 1', color: '#ef4444' },
+      { id: '2', nom: 'Coureur 2', color: '#3b82f6' }
     ]
     const participantStates = {
       '1': { status: 'paused' },
@@ -205,8 +205,8 @@ describe('TableauPassagesCompact', () => {
 
   it('affiche toutes les cartes quand hideFinished est false', () => {
     const participants = [
-      { id: '1', nom: 'Elève 1', color: '#ef4444' },
-      { id: '2', nom: 'Elève 2', color: '#3b82f6' }
+      { id: '1', nom: 'Coureur 1', color: '#ef4444' },
+      { id: '2', nom: 'Coureur 2', color: '#3b82f6' }
     ]
     const participantStates = {
       '1': { status: 'running' },
@@ -224,8 +224,8 @@ describe('TableauPassagesCompact', () => {
 
   it('readOnly affiche la grille et les temps sans cartes tappables', () => {
     const participants = [
-      { id: '1', nom: 'Elève 1' },
-      { id: '2', nom: 'Elève 2' }
+      { id: '1', nom: 'Coureur 1' },
+      { id: '2', nom: 'Coureur 2' }
     ]
     const passagesByParticipant = {
       '1': [{ tourNum: 1, lapMs: 45000, totalMs: 45000 }],
@@ -239,16 +239,16 @@ describe('TableauPassagesCompact', () => {
     expect(wrapper.find('.tableau-passages-compact-card-tappable').exists()).toBe(false)
     expect(wrapper.find('.tableau-passages-compact-resume').exists()).toBe(true)
     expect(wrapper.text()).toContain('Temps')
-    expect(wrapper.text()).toContain('Elève 1')
-    expect(wrapper.text()).toContain('Elève 2')
+    expect(wrapper.text()).toContain('Coureur 1')
+    expect(wrapper.text()).toContain('Coureur 2')
     expect(wrapper.text()).toContain('00:45.00')
     expect(wrapper.text()).toContain('00:50.00')
   })
 
   it('readOnly affiche tous les participants dans la grille (hideFinished ignoré)', () => {
     const participants = [
-      { id: '1', nom: 'Elève 1' },
-      { id: '2', nom: 'Elève 2' }
+      { id: '1', nom: 'Coureur 1' },
+      { id: '2', nom: 'Coureur 2' }
     ]
     const wrapper = mountTableauPassagesCompact({
       participants,
@@ -262,8 +262,8 @@ describe('TableauPassagesCompact', () => {
 
   it('affiche la section Temps avec P1, P2 pour chaque participant', () => {
     const participants = [
-      { id: '1', nom: 'Elève 1' },
-      { id: '2', nom: 'Elève 2' }
+      { id: '1', nom: 'Coureur 1' },
+      { id: '2', nom: 'Coureur 2' }
     ]
     const passagesByParticipant = {
       '1': [
@@ -295,17 +295,17 @@ describe('TableauPassagesCompact', () => {
     const addBtn = wrapper.findAll('button').find((b) => b.text() === 'Ajouter')
     await addBtn?.trigger('click')
     expect(wrapper.emitted('add')).toBeTruthy()
-    expect(wrapper.emitted('add')[0][0].nom).toMatch(/^Elève \d+$/)
+    expect(wrapper.emitted('add')[0][0].nom).toMatch(/^Coureur \d+$/)
   })
 
   it('masque les boutons stop/start et passage en readOnly', () => {
-    const participants = [{ id: '1', nom: 'Elève 1' }]
+    const participants = [{ id: '1', nom: 'Coureur 1' }]
     const wrapper = mountTableauPassagesCompact({ participants, readOnly: true })
     expect(wrapper.find('.tableau-passages-compact-card-actions').exists()).toBe(false)
   })
 
   it('affiche le temps en cours (P1 : temps) quand un participant court', () => {
-    const participants = [{ id: '1', nom: 'Elève 1', color: '#ef4444' }]
+    const participants = [{ id: '1', nom: 'Coureur 1', color: '#ef4444' }]
     const participantStates = { '1': { elapsedMs: 69400, status: 'running' } }
     const wrapper = mountTableauPassagesCompact({
       participants,
@@ -318,7 +318,7 @@ describe('TableauPassagesCompact', () => {
   })
 
   it('affiche P2 : temps quand le participant est au 2e tour', () => {
-    const participants = [{ id: '1', nom: 'Elève 1' }]
+    const participants = [{ id: '1', nom: 'Coureur 1' }]
     const participantStates = { '1': { elapsedMs: 95000, status: 'running' } }
     const passagesByParticipant = {
       '1': [{ tourNum: 1, lapMs: 45000, totalMs: 45000 }]
@@ -336,8 +336,8 @@ describe('TableauPassagesCompact', () => {
 
   it('affiche le temps total dans la carte quand le chrono est arrêté (passages enregistrés)', () => {
     const participants = [
-      { id: '1', nom: 'Elève 1' },
-      { id: '2', nom: 'Elève 2' }
+      { id: '1', nom: 'Coureur 1' },
+      { id: '2', nom: 'Coureur 2' }
     ]
     const participantStates = {
       '1': { status: 'paused' },
@@ -359,7 +359,7 @@ describe('TableauPassagesCompact', () => {
   })
 
   it('affiche le temps total dans la carte quand participant paused sans passage', () => {
-    const participants = [{ id: '1', nom: 'Elève 1' }]
+    const participants = [{ id: '1', nom: 'Coureur 1' }]
     const participantStates = { '1': { elapsedMs: 38000, status: 'paused' } }
     const wrapper = mountTableauPassagesCompact({
       participants,

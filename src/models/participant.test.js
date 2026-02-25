@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest'
 import {
   createParticipant,
   createRelayGroup,
-  createRelayStudent,
+  createRelayRunner,
   getColorName,
-  safeRelayStudentNom,
+  safeRelayRunnerNom,
   COULEURS_PALETTE
 } from './participant.js'
 
@@ -17,10 +17,10 @@ describe('createParticipant', () => {
     expect(p.nom).toBe('Alice')
   })
 
-  it('génère Elève 1, Elève 2, Elève 3 à partir d\'un numéro', () => {
-    expect(createParticipant(1).nom).toBe('Elève 1')
-    expect(createParticipant(2).nom).toBe('Elève 2')
-    expect(createParticipant(3).nom).toBe('Elève 3')
+  it('génère Coureur 1, Coureur 2, Coureur 3 à partir d\'un numéro', () => {
+    expect(createParticipant(1).nom).toBe('Coureur 1')
+    expect(createParticipant(2).nom).toBe('Coureur 2')
+    expect(createParticipant(3).nom).toBe('Coureur 3')
   })
 
   it('génère un id unique à chaque appel', () => {
@@ -97,9 +97,9 @@ describe('createRelayGroup', () => {
   })
 })
 
-describe('createRelayStudent', () => {
+describe('createRelayRunner', () => {
   it('génère un objet avec id, nom et ordre', () => {
-    const s = createRelayStudent('Alice', 0)
+    const s = createRelayRunner('Alice', 0)
     expect(s).toHaveProperty('id')
     expect(s).toHaveProperty('nom')
     expect(s).toHaveProperty('ordre')
@@ -107,42 +107,42 @@ describe('createRelayStudent', () => {
     expect(s.ordre).toBe(0)
   })
 
-  it('génère Élève 1, Élève 2 à partir d\'un numéro', () => {
-    expect(createRelayStudent(1).nom).toBe('Élève 1')
-    expect(createRelayStudent(2).nom).toBe('Élève 2')
+  it('génère Coureur 1, Coureur 2 à partir d\'un numéro', () => {
+    expect(createRelayRunner(1).nom).toBe('Coureur 1')
+    expect(createRelayRunner(2).nom).toBe('Coureur 2')
   })
 
   it('genère un id unique à chaque appel', () => {
-    const s1 = createRelayStudent('Alice', 0)
-    const s2 = createRelayStudent('Bob', 1)
+    const s1 = createRelayRunner('Alice', 0)
+    const s2 = createRelayRunner('Bob', 1)
     expect(s1.id).not.toBe(s2.id)
   })
 
   it('utilise ordre 0 par défaut', () => {
-    const s = createRelayStudent('Claire')
+    const s = createRelayRunner('Claire')
     expect(s.ordre).toBe(0)
   })
 
-  it('ne produit jamais "Élève NaN" pour un numéro invalide', () => {
-    expect(createRelayStudent(NaN).nom).toBe('Élève 1')
-    expect(createRelayStudent(undefined).nom).toBe('Élève')
+  it('ne produit jamais "Coureur NaN" pour un numéro invalide', () => {
+    expect(createRelayRunner(NaN).nom).toBe('Coureur 1')
+    expect(createRelayRunner(undefined).nom).toBe('Coureur')
   })
 })
 
-describe('safeRelayStudentNom', () => {
+describe('safeRelayRunnerNom', () => {
   it('retourne le nom si valide', () => {
-    expect(safeRelayStudentNom('Alice', 0)).toBe('Alice')
-    expect(safeRelayStudentNom('Élève 3', 2)).toBe('Élève 3')
+    expect(safeRelayRunnerNom('Alice', 0)).toBe('Alice')
+    expect(safeRelayRunnerNom('Coureur 3', 2)).toBe('Coureur 3')
   })
 
   it('remplace un nom contenant NaN par un fallback', () => {
-    expect(safeRelayStudentNom('Élève NaN', 0)).toBe('Élève 1')
-    expect(safeRelayStudentNom('Élève NaN', 2)).toBe('Élève 3')
+    expect(safeRelayRunnerNom('Coureur NaN', 0)).toBe('Coureur 1')
+    expect(safeRelayRunnerNom('Coureur NaN', 2)).toBe('Coureur 3')
   })
 
   it('utilise le fallback pour une chaîne vide', () => {
-    expect(safeRelayStudentNom('', 0)).toBe('Élève 1')
-    expect(safeRelayStudentNom('', 4)).toBe('Élève 5')
+    expect(safeRelayRunnerNom('', 0)).toBe('Coureur 1')
+    expect(safeRelayRunnerNom('', 4)).toBe('Coureur 5')
   })
 })
 

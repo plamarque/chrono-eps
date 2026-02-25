@@ -14,8 +14,8 @@ export function getColorName(hex) {
 }
 
 /**
- * Crée un participant (élève).
- * DOMAIN : Élève identifié par nom ou identifiant.
+ * Crée un participant (coureur).
+ * DOMAIN : Coureur identifié par nom ou identifiant.
  * @param {string|number} nomOrIndex - Nom du participant, ou numéro pour auto-génération (P1, P2, ...)
  * @param {string} [color] - Couleur hex (optionnelle)
  * @returns {{ id: string, nom: string, color: string }}
@@ -23,7 +23,7 @@ export function getColorName(hex) {
 export function createParticipant(nomOrIndex, color) {
   let nom
   if (typeof nomOrIndex === 'number') {
-    nom = `Elève ${nomOrIndex}`
+    nom = `Coureur ${nomOrIndex}`
   } else {
     const trimmed = typeof nomOrIndex === 'string' ? nomOrIndex.trim() : ''
     if (!trimmed) {
@@ -42,7 +42,7 @@ export function createParticipant(nomOrIndex, color) {
 
 /**
  * Crée un groupe relais.
- * DOMAIN : Groupe (relais) = ensemble ordonné d'élèves.
+ * DOMAIN : Groupe (relais) = ensemble ordonné de coureurs.
  * @param {string|number} nomOrIndex - Nom du groupe, ou index (0-based) pour auto-génération (Groupe 1, Groupe 2, ...)
  * @param {string} [color] - Couleur hex du groupe (optionnelle)
  * @returns {{ id: string, nom: string, color: string }}
@@ -65,20 +65,20 @@ export function createRelayGroup(nomOrIndex, color) {
 }
 
 /**
- * Crée un élève dans un groupe relais.
- * La couleur est une propriété du groupe, pas de l'élève.
- * @param {string|number} nomOrIndex - Nom de l'élève ou numéro pour auto-génération
+ * Crée un coureur dans un groupe relais.
+ * La couleur est une propriété du groupe, pas du coureur.
+ * @param {string|number} nomOrIndex - Nom du coureur ou numéro pour auto-génération
  * @param {number} ordre - Position dans l'ordre de course (0-based)
  * @returns {{ id: string, nom: string, ordre: number }}
  */
-export function createRelayStudent(nomOrIndex, ordre = 0) {
+export function createRelayRunner(nomOrIndex, ordre = 0) {
   let nom
   if (typeof nomOrIndex === 'number') {
     const n = Number.isFinite(nomOrIndex) ? Math.max(1, Math.floor(nomOrIndex)) : 1
-    nom = `Élève ${n}`
+    nom = `Coureur ${n}`
   } else {
     const trimmed = typeof nomOrIndex === 'string' ? nomOrIndex.trim() : ''
-    nom = trimmed || 'Élève'
+    nom = trimmed || 'Coureur'
   }
   return {
     id: crypto.randomUUID(),
@@ -88,13 +88,13 @@ export function createRelayStudent(nomOrIndex, ordre = 0) {
 }
 
 /**
- * Nom d'affichage sûr pour un élève relais (évite "Élève NaN" sur données existantes).
+ * Nom d'affichage sûr pour un coureur relais (évite "Coureur NaN" sur données existantes).
  * @param {string} nom - Nom stocké
- * @param {number} fallbackIndex - Index 0-based pour le fallback (ex. 0 → "Élève 1")
+ * @param {number} fallbackIndex - Index 0-based pour le fallback (ex. 0 → "Coureur 1")
  */
-export function safeRelayStudentNom(nom, fallbackIndex = 0) {
+export function safeRelayRunnerNom(nom, fallbackIndex = 0) {
   const trimmed = (nom ?? '').trim()
   if (trimmed && !trimmed.includes('NaN')) return trimmed
   const n = Number.isFinite(fallbackIndex) ? Math.max(1, fallbackIndex + 1) : 1
-  return `Élève ${n}`
+  return `Coureur ${n}`
 }

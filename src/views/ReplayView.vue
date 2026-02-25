@@ -50,7 +50,7 @@ function goBack() {
 
 const participants = computed(() => course.value?.participants ?? [])
 const mode = computed(() => course.value?.mode ?? 'individual')
-const groupStudents = computed(() => course.value?.groupStudents ?? {})
+const groupRunners = computed(() => course.value?.groupRunners ?? {})
 
 const trackSize = { width: 360, height: 270 }
 const trackPadding = { top: 35, left: 20 }
@@ -90,11 +90,11 @@ function getParticipantLabel(participantId) {
 function getRunnerLabel(participantId) {
   if (mode.value !== 'relay') return null
   const passages = course.value?.passagesByParticipant?.[participantId] ?? []
-  const students = groupStudents.value[participantId] ?? []
-  const nbStudents = students.length || 1
-  const idx = getCurrentRunnerIndexAtTime(passages, currentMs.value, nbStudents)
-  const student = students[idx]
-  return student?.nom ?? ''
+  const runners = groupRunners.value[participantId] ?? []
+  const nbRunners = runners.length || 1
+  const idx = getCurrentRunnerIndexAtTime(passages, currentMs.value, nbRunners)
+  const runner = runners[idx]
+  return runner?.nom ?? ''
 }
 
 /** Regroupe les participants dont les marqueurs sont proches (même zone sur la piste). */

@@ -14,7 +14,7 @@ import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import { saveCourse, loadCourse } from '../services/courseStore.js'
 import { getMaxTotalMsFromPassages, sortParticipantsByTotalTimeAsc } from '../utils/courseUtils.js'
-import { createRelayGroup, createParticipant, createRelayStudent } from '../models/participant.js'
+import { createRelayGroup, createParticipant, createRelayRunner } from '../models/participant.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -22,10 +22,10 @@ const toast = useToast()
 const confirm = useConfirm()
 const participants = ref([])
 const mode = ref('relay')
-const groupStudents = ref({})
+const groupRunners = ref({})
 const chronoOptions = computed(() => ({
   mode: mode.value,
-  groupStudents: groupStudents.value
+  groupRunners: groupRunners.value
 }))
 const {
   elapsedMs,
@@ -47,19 +47,19 @@ const hasAnyPassage = computed(() => {
 })
 
 const hasUnsavedRelayConfig = computed(() => {
-  const totalStudents = Object.values(groupStudents.value ?? {}).reduce(
+  const totalRunners = Object.values(groupRunners.value ?? {}).reduce(
     (sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0),
     0
   )
   const isDefaultRelayState =
     participants.value.length === 1 &&
-    totalStudents === 1 &&
+    totalRunners === 1 &&
     !hasAnyPassage.value &&
     status.value === 'idle'
   if (isDefaultRelayState) return false
   return (
     participants.value.length > 1 ||
-    totalStudents > 0 ||
+    totalRunners > 0 ||
     hasAnyPassage.value ||
     status.value !== 'idle'
   )
@@ -112,7 +112,7 @@ async function doSave() {
       statusAtSave: status.value,
       mode: mode.value,
       nbPassagesRelay: null,
-      groupStudents: mode.value === 'relay' ? groupStudents.value : {}
+      groupRunners: mode.value === 'relay' ? groupRunners.value : {}
     })
     closeSaveModal()
     currentCourse.value = { id: courseId, nom }
@@ -133,7 +133,7 @@ async function doLoadCourse(courseId) {
     }
     mode.value = course.mode || 'individual'
     participants.value = [...course.participants]
-    groupStudents.value = { ...(course.groupStudents || {}) }
+    groupRunners.value = { ...(course.groupRunners || {}) }
     reset()
     passagesByParticipant.value = { ...course.passagesByParticipant }
     currentCourse.value = { id: course.id, nom: course.nom, statusAtSave: course.statusAtSave || 'idle' }
@@ -173,9 +173,9 @@ async function doLoadCourseAsTemplate(courseId) {
     } else {
       participants.value = [...course.participants]
     }
-    const gs = course.groupStudents || {}
-    groupStudents.value = Object.fromEntries(
-      Object.entries(gs).map(([gid, students]) => [gid, Array.isArray(students) ? [...students] : []])
+    const gr = course.groupRunners || {}
+    groupRunners.value = Object.fromEntries(
+      Object.entries(gr).map(([gid, runners]) => [gid, Array.isArray(runners) ? [...runners] : []])
     )
     passagesByParticipant.value = {}
     currentCourse.value = null
@@ -184,7 +184,7 @@ async function doLoadCourseAsTemplate(courseId) {
     toast.add({
       severity: 'success',
       summary: 'Nouvelle course prête',
-      detail: `À partir de « ${course.nom} » — groupes et élèves conservés.`,
+      detail: `À partir de « ${course.nom} » — groupes et coureurs conservés.`,
       life: 3000
     })
   } catch (err) {
@@ -196,7 +196,7 @@ function ensureRelayHasDefaultGroup() {
   if (mode.value !== 'relay' || currentCourse.value || participants.value.length > 0) return
   const group = createRelayGroup(0)
   participants.value = [group]
-  groupStudents.value = { [group.id]: [createRelayStudent(1, 0)] }
+  groupRunners.value = { [group.id]: [createRelayRunner(1, 0)] }
 }
 
 function ensureIndividualHasDefaultParticipant() {
@@ -209,7 +209,7 @@ function startNewCourse() {
   currentCourse.value = null
   suggestedSaveNom.value = ''
   participants.value = []
-  groupStudents.value = {}
+  groupRunners.value = {}
   reset()
   passagesByParticipant.value = {}
   if (mode.value === 'relay') {
@@ -252,14 +252,14 @@ function addParticipant(participant) {
   }
   participants.value.push(participant)
   if (mode.value === 'relay') {
-    let totalStudentsCount = 0
-    for (const students of Object.values(groupStudents.value ?? {})) {
-      totalStudentsCount += Array.isArray(students) ? students.length : 0
+    let totalRunnersCount = 0
+    for (const runners of Object.values(groupRunners.value ?? {})) {
+      totalRunnersCount += Array.isArray(runners) ? runners.length : 0
     }
-    const newStudent = createRelayStudent(totalStudentsCount + 1, 0)
-    groupStudents.value = {
-      ...groupStudents.value,
-      [participant.id]: [newStudent]
+    const newRunner = createRelayRunner(totalRunnersCount + 1, 0)
+    groupRunners.value = {
+      ...groupRunners.value,
+      [participant.id]: [newRunner]
     }
   }
 }
@@ -276,18 +276,18 @@ function removeParticipant(participant) {
   const next = { ...passagesByParticipant.value }
   delete next[participant.id]
   passagesByParticipant.value = next
-  const nextGs = { ...groupStudents.value }
-  delete nextGs[participant.id]
-  groupStudents.value = nextGs
+  const nextGr = { ...groupRunners.value }
+  delete nextGr[participant.id]
+  groupRunners.value = nextGr
   if (mode.value === 'relay' && !currentCourse.value && participants.value.length === 0) {
     ensureRelayHasDefaultGroup()
   }
 }
 
-function updateGroupStudents({ groupId, students }) {
-  groupStudents.value = {
-    ...groupStudents.value,
-    [groupId]: students ?? []
+function updateGroupRunners({ groupId, runners }) {
+  groupRunners.value = {
+    ...groupRunners.value,
+    [groupId]: runners ?? []
   }
 }
 
@@ -302,7 +302,7 @@ function onModeChange(newMode) {
   }
   const message =
     mode.value === 'relay'
-      ? 'Vous allez perdre les groupes et élèves configurés. Continuer ?'
+      ? 'Vous allez perdre les groupes et coureurs configurés. Continuer ?'
       : 'Vous allez perdre les participants configurés. Continuer ?'
   confirm.require({
     header: 'Changer de mode ?',
@@ -325,7 +325,7 @@ function onNewCourseClick() {
   }
   const message =
     mode.value === 'relay'
-      ? 'Vous allez perdre les groupes et élèves configurés. Continuer ?'
+      ? 'Vous allez perdre les groupes et coureurs configurés. Continuer ?'
       : 'Vous allez perdre les participants configurés. Continuer ?'
   confirm.require({
     header: 'Nouvelle course ?',
@@ -361,13 +361,13 @@ watch(
 
     if (newMode === 'individual') {
       participants.value = [createParticipant(1)]
-      groupStudents.value = {}
+      groupRunners.value = {}
       passagesByParticipant.value = {}
       reset()
     } else if (newMode === 'relay') {
       const group = createRelayGroup(0)
       participants.value = [group]
-      groupStudents.value = { [group.id]: [createRelayStudent(1, 0)] }
+      groupRunners.value = { [group.id]: [createRelayRunner(1, 0)] }
       passagesByParticipant.value = {}
       reset()
     }
@@ -478,7 +478,7 @@ watch(
             :participants="participants"
             :participant-states="participantStates"
             :passages-by-participant="passagesByParticipant"
-            :group-students="groupStudents"
+            :group-runners="groupRunners"
             :status="status"
             :read-only="!!currentCourse && !isPreparedCourse"
             @add="addParticipant"
@@ -487,7 +487,7 @@ watch(
             @record="recordPassage"
             @start-participant="startParticipant"
             @stop-participant="stopParticipant"
-            @update-group-students="updateGroupStudents"
+            @update-group-runners="updateGroupRunners"
           />
         </section>
       </template>

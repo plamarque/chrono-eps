@@ -10,7 +10,7 @@ Chrono EPS doit conserver les performances et l'historique des courses. Le conte
 
 ## Décision
 
-- **Stockage local** : Les données (élèves, classes, courses, passages, performances) sont persistées localement dans le navigateur.
+- **Stockage local** : Les données (coureurs, classes, courses, passages, performances) sont persistées localement dans le navigateur.
 - **IndexedDB** : Utilisation d'IndexedDB (éventuellement via une librairie type idb, Dexie.js ou équivalent) pour le stockage structuré. [ASSUMPTION] Alternative : localStorage pour un MVP minimal si IndexedDB est différé.
 
 ## Conséquences

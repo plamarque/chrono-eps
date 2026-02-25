@@ -10,18 +10,18 @@ Ce document décrit la structure cible, les composants et les choix technologiqu
 flowchart LR
     subgraph UI [Interface Enseignant]
         Chrono[Chronomètre]
-        Liste[Liste Élèves]
+        Liste[Liste Coureurs]
         Passage[Saisie Passages]
     end
     
     subgraph Data [Données]
         Course[Course]
-        Eleve[Élève]
+        Coureur[Coureur]
         Perf[Performance]
     end
     
     Chrono --> Passage
-    Liste --> Eleve
+    Liste --> Coureur
     Passage --> Course
     Passage --> Perf
 ```
@@ -44,11 +44,11 @@ Application PWA **client-only** : pas de backend obligatoire pour la première v
 | **UI Chronomètre** | Affichage temps ; boutons Démarrer/Arrêter ; Réinitialiser (chrono en pause, garde la config) ou Dupliquer (course chargée avec passages, garde config et efface temps) ; en vue détail : Replay, Dupliquer. Voir SPEC « Actions Nouvelle course et Dupliquer ». | src/components/Chronometre.vue |
 | **Vue Replay** | Replay visuel d'une course : piste virtuelle ovale, marqueurs par participant, contrôles play/pause/slider | src/views/ReplayView.vue |
 | **useReplay** | Logique replay : interpolation position, coureur actuel (relais), playback | src/composables/useReplay.js |
-| **Liste Élèves** | Gestion et sélection des élèves pour une course | src/ |
-| **Saisie Passages** | Enregistrement des passages (tap sur élève, enregistrement timestamp) | src/ |
+| **Liste Coureurs** | Gestion et sélection des coureurs pour une course | src/ |
+| **Saisie Passages** | Enregistrement des passages (tap sur coureur, enregistrement timestamp) | src/ |
 | **Tableau relais** | Affichage « Couru » / « Prochain » par groupe, tap par groupe | src/components/ |
 | **Vue compacte (individuel)** | Grille de cartes par coureur ; Stop/Start individuel ; carte stoppée = fond gris, temps affichés, bouton Play pour reprendre | src/components/TableauPassagesCompact.vue |
-| **Stockage local** | Persistance des données (élèves, courses, passages, performances) ; liste, chargement, suppression | IndexedDB (Dexie.js) |
+| **Stockage local** | Persistance des données (coureurs, courses, passages, performances) ; liste, chargement, suppression | IndexedDB (Dexie.js) |
 | **Couche PWA** | Service worker, manifeste ; installation, cache, offline | public/, sw.js ou équivalent |
 | **UI responsive** | Layout adapté tablette et smartphone | PrimeVue |
 

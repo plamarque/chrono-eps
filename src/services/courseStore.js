@@ -2,6 +2,12 @@ import { db } from '../db/chronoDb.js'
 
 const SOLO_ID = '__solo__'
 
+/** Normalise les noms "Élève X" / "Elève X" en "Coureur X" pour l'affichage (rétrocompatibilité). */
+function normalizeRunnerDisplayName(nom) {
+  if (typeof nom !== 'string') return nom
+  return nom.replace(/^Élève (\d+)$/, 'Coureur $1').replace(/^Elève (\d+)$/, 'Coureur $1')
+}
+
 /**
  * Sauvegarde une course avec nom, participants et passages.
  * @param {Object} payload
@@ -11,8 +17,8 @@ const SOLO_ID = '__solo__'
  * @param {number|null} payload.chronoStartMs - Epoch ms du démarrage chrono (null si solo sans chrono démarré)
  * @param {string} payload.statusAtSave - 'idle' | 'running' | 'paused'
  * @param {'individual'|'relay'} [payload.mode] - Mode de la course (défaut 'individual')
- * @param {2|4} [payload.nbPassagesRelay] - Nombre de passages par élève dans chaque groupe (quand mode=relay)
- * @param {Object} [payload.groupStudents] - { [groupId]: [{ id, nom, ordre }] } (quand mode=relay ; couleur = propriété du groupe)
+ * @param {2|4} [payload.nbPassagesRelay] - Nombre de passages par coureur dans chaque groupe (quand mode=relay)
+ * @param {Object} [payload.groupRunners] - { [groupId]: [{ id, nom, ordre }] } (quand mode=relay ; couleur = propriété du groupe)
  * @returns {Promise<string>} ID de la course
  */
 export async function saveCourse({
@@ -23,7 +29,7 @@ export async function saveCourse({
   statusAtSave,
   mode = 'individual',
   nbPassagesRelay,
-  groupStudents = {}
+  groupRunners = {}
 }) {
   const courseId = crypto.randomUUID()
   const createdAt = new Date().toISOString()
@@ -64,25 +70,25 @@ export async function saveCourse({
     }
   }
 
-  // relay_students : élèves par groupe (mode relay)
-  const relayStudentsToSave = []
+  // relay_runners : coureurs par groupe (mode relay)
+  const relayRunnersToSave = []
   if (mode === 'relay') {
-    for (const [groupId, students] of Object.entries(groupStudents)) {
-      if (!Array.isArray(students)) continue
-      for (const s of students) {
-        relayStudentsToSave.push({
+    for (const [groupId, runners] of Object.entries(groupRunners)) {
+      if (!Array.isArray(runners)) continue
+      for (const r of runners) {
+        relayRunnersToSave.push({
           id: crypto.randomUUID(),
           courseId,
           groupParticipantId: groupId,
-          ordre: s.ordre ?? 0,
-          nom: s.nom ?? ''
+          ordre: r.ordre ?? 0,
+          nom: r.nom ?? ''
         })
       }
     }
   }
 
   const tables = mode === 'relay'
-    ? [db.courses, db.course_participants, db.passages, db.relay_students]
+    ? [db.courses, db.course_participants, db.passages, db.relay_runners]
     : [db.courses, db.course_participants, db.passages]
 
   await db.transaction('rw', ...tables, async () => {
@@ -102,8 +108,8 @@ export async function saveCourse({
       await db.passages.add(p)
     }
     if (mode === 'relay') {
-      for (const s of relayStudentsToSave) {
-        await db.relay_students.add(s)
+      for (const r of relayRunnersToSave) {
+        await db.relay_runners.add(r)
       }
     }
   })
@@ -114,14 +120,14 @@ export async function saveCourse({
 /**
  * Charge une course par ID.
  * @param {string} courseId
- * @returns {Promise<{id:string,nom:string,createdAt:string,participants:Array,passagesByParticipant:Object,mode:string,nbPassagesRelay:number|null,groupStudents:Object,statusAtSave:string}>}
+ * @returns {Promise<{id:string,nom:string,createdAt:string,participants:Array,passagesByParticipant:Object,mode:string,nbPassagesRelay:number|null,groupRunners:Object,statusAtSave:string}>}
  */
 export async function loadCourse(courseId) {
-  const [course, participantsRows, passages, relayStudents] = await Promise.all([
+  const [course, participantsRows, passages, relayRunners] = await Promise.all([
     db.courses.get(courseId),
     db.course_participants.where('courseId').equals(courseId).sortBy('order'),
     db.passages.where('courseId').equals(courseId).toArray(),
-    db.relay_students.where('courseId').equals(courseId).toArray()
+    db.relay_runners.where('courseId').equals(courseId).toArray()
   ])
 
   if (!course) return null
@@ -160,21 +166,25 @@ export async function loadCourse(courseId) {
     ? []
     : participantsRows
         .filter((p) => p.participantId !== SOLO_ID)
-        .map(({ participantId, nom, color }) => ({ id: participantId, nom, color: color ?? '#94a3b8' }))
+        .map(({ participantId, nom, color }) => ({
+          id: participantId,
+          nom: normalizeRunnerDisplayName(nom),
+          color: color ?? '#94a3b8'
+        }))
 
-  // Reconstruire groupStudents (mode relay)
-  const groupStudents = {}
-  if (mode === 'relay' && Array.isArray(relayStudents)) {
-    for (const s of relayStudents) {
-      if (!groupStudents[s.groupParticipantId]) groupStudents[s.groupParticipantId] = []
-      groupStudents[s.groupParticipantId].push({
-        id: s.id,
-        nom: s.nom,
-        ordre: s.ordre ?? 0
+  // Reconstruire groupRunners (mode relay)
+  const groupRunners = {}
+  if (mode === 'relay' && Array.isArray(relayRunners)) {
+    for (const r of relayRunners) {
+      if (!groupRunners[r.groupParticipantId]) groupRunners[r.groupParticipantId] = []
+      groupRunners[r.groupParticipantId].push({
+        id: r.id,
+        nom: normalizeRunnerDisplayName(r.nom),
+        ordre: r.ordre ?? 0
       })
     }
-    for (const gid of Object.keys(groupStudents)) {
-      groupStudents[gid].sort((a, b) => a.ordre - b.ordre)
+    for (const gid of Object.keys(groupRunners)) {
+      groupRunners[gid].sort((a, b) => a.ordre - b.ordre)
     }
   }
 
@@ -187,7 +197,7 @@ export async function loadCourse(courseId) {
     chronoStartMs,
     mode,
     nbPassagesRelay: mode === 'relay' ? (course.nbPassagesRelay ?? 2) : null,
-    groupStudents,
+    groupRunners,
     statusAtSave: course.statusAtSave || 'idle'
   }
 }
@@ -205,10 +215,10 @@ export async function listCourses() {
  * @param {string} courseId
  */
 export async function deleteCourse(courseId) {
-  await db.transaction('rw', db.courses, db.course_participants, db.passages, db.relay_students, async () => {
+  await db.transaction('rw', db.courses, db.course_participants, db.passages, db.relay_runners, async () => {
     await db.course_participants.where('courseId').equals(courseId).delete()
     await db.passages.where('courseId').equals(courseId).delete()
-    await db.relay_students.where('courseId').equals(courseId).delete()
+    await db.relay_runners.where('courseId').equals(courseId).delete()
     await db.courses.delete(courseId)
   })
 }

@@ -41,14 +41,14 @@ export function getPositionAtTime(passages, currentMs) {
 
 /**
  * Pour le mode relais : détermine l'index du coureur actuel à l'instant currentMs.
- * Après un passage par studentIndex S, le prochain coureur est (S+1) % nbStudents.
+ * Après un passage par studentIndex S, le prochain coureur est (S+1) % nbRunners.
  * @param {Array<{tourNum:number,totalMs:number,studentIndex?:number}>} passages
  * @param {number} currentMs
- * @param {number} nbStudents - Nombre d'élèves dans le groupe
- * @returns {number} Index du coureur actuel (0 à nbStudents-1), ou 0 si pas encore parti
+ * @param {number} nbRunners - Nombre de coureurs dans le groupe
+ * @returns {number} Index du coureur actuel (0 à nbRunners-1), ou 0 si pas encore parti
  */
-export function getCurrentRunnerIndexAtTime(passages, currentMs, nbStudents = 1) {
-  if (!Array.isArray(passages) || passages.length === 0 || nbStudents < 1) {
+export function getCurrentRunnerIndexAtTime(passages, currentMs, nbRunners = 1) {
+  if (!Array.isArray(passages) || passages.length === 0 || nbRunners < 1) {
     return 0
   }
   const firstTotal = passages[0].totalMs ?? 0
@@ -60,7 +60,7 @@ export function getCurrentRunnerIndexAtTime(passages, currentMs, nbStudents = 1)
     const T = p.totalMs ?? 0
     if (currentMs >= T) {
       const lastIndex = p.studentIndex ?? 0
-      return (lastIndex + 1) % nbStudents
+      return (lastIndex + 1) % nbRunners
     }
   }
   return 0
@@ -68,7 +68,7 @@ export function getCurrentRunnerIndexAtTime(passages, currentMs, nbStudents = 1)
 
 /**
  * Composable pour le replay : playback avec play/pause, slider, et calcul des positions.
- * @param {Object} course - Course chargée (participants, passagesByParticipant, groupStudents, mode)
+ * @param {Object} course - Course chargée (participants, passagesByParticipant, groupRunners, mode)
  * @param {Object} options - { speedMultiplier?: number } (1 = temps réel)
  */
 export function useReplay(course, options = {}) {

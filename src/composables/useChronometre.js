@@ -4,7 +4,7 @@ const SOLO_ID = '__solo__'
 
 /**
  * @param {import('vue').Ref<Array<{id:string}>>} participantsRef
- * @param {{ mode?: 'individual'|'relay', nbPassagesParEleve?: number, groupStudents?: import('vue').Ref<Object> }|import('vue').Ref} [options]
+ * @param {{ mode?: 'individual'|'relay', nbPassagesPerRunner?: number, groupRunners?: import('vue').Ref<Object> }|import('vue').Ref} [options]
  */
 export function useChronometre(participantsRef, options = {}) {
   const opts = () => unref(options) || {}
@@ -132,7 +132,7 @@ export function useChronometre(participantsRef, options = {}) {
   function stopParticipant(id) {
     const s = participantStates.value[id]
     if (!s || s.status !== 'running') return
-    // Capture le temps de l'élève avant de passer en paused
+    // Capture le temps du coureur avant de passer en paused
     recordPassage(id)
     participantStates.value = {
       ...participantStates.value,
@@ -152,7 +152,7 @@ export function useChronometre(participantsRef, options = {}) {
   function recordPassage(participantId) {
     const s = participantStates.value[participantId]
     if (!s || s.status !== 'running') return
-    const { mode = 'individual', groupStudents } = opts()
+    const { mode = 'individual', groupRunners } = opts()
     const passages = passagesByParticipant.value[participantId] ?? []
     const passageIndex = passages.length
     const totalMs = s.elapsedMs ?? 0
@@ -160,9 +160,9 @@ export function useChronometre(participantsRef, options = {}) {
     const lapMs = totalMs - lastTotal
     const entry = { tourNum: passageIndex + 1, lapMs, totalMs }
     if (mode === 'relay') {
-      const students = (unref(groupStudents) ?? {})[participantId] ?? []
-      const nbStudents = students.length || 1
-      entry.studentIndex = passageIndex % nbStudents
+      const runners = (unref(groupRunners) ?? {})[participantId] ?? []
+      const nbRunners = runners.length || 1
+      entry.studentIndex = passageIndex % nbRunners
     }
     passagesByParticipant.value = {
       ...passagesByParticipant.value,

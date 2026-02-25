@@ -3,37 +3,37 @@ import { ref, watch } from 'vue'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
-import { createRelayStudent, safeRelayStudentNom } from '../models/participant.js'
+import { createRelayRunner, safeRelayRunnerNom } from '../models/participant.js'
 import { COULEURS_PALETTE } from '../models/participant.js'
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
   group: { type: Object, default: null },
-  students: { type: Array, default: () => [] },
-  /** Nombre total d'élèves dans tous les groupes (numérotation continue entre groupes). */
-  totalStudentsCount: { type: Number, default: 0 }
+  runners: { type: Array, default: () => [] },
+  /** Nombre total de coureurs dans tous les groupes (numérotation continue entre groupes). */
+  totalRunnersCount: { type: Number, default: 0 }
 })
 
 const emit = defineEmits(['update:visible', 'save', 'remove', 'hide'])
 
 const groupNom = ref('')
 const groupColor = ref(COULEURS_PALETTE[0])
-const studentsForm = ref([])
+const runnersForm = ref([])
 
 watch(
-  () => [props.visible, props.group, props.students],
+  () => [props.visible, props.group, props.runners],
   () => {
     if (props.visible && props.group) {
       groupNom.value = props.group.nom ?? ''
       groupColor.value = props.group.color ?? COULEURS_PALETTE[0]
-      let sorted = [...(props.students ?? [])].sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
+      let sorted = [...(props.runners ?? [])].sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
       if (sorted.length === 0) {
-        const total = Number(props.totalStudentsCount) || 0
-        sorted = [createRelayStudent(total + 1, 0)]
+        const total = Number(props.totalRunnersCount) || 0
+        sorted = [createRelayRunner(total + 1, 0)]
       }
-      studentsForm.value = sorted.map((s, i) => ({
-        id: s.id ?? crypto.randomUUID(),
-        nom: safeRelayStudentNom(s.nom ?? '', i),
+      runnersForm.value = sorted.map((r, i) => ({
+        id: r.id ?? crypto.randomUUID(),
+        nom: safeRelayRunnerNom(r.nom ?? '', i),
         ordre: i
       }))
     }
@@ -41,37 +41,37 @@ watch(
   { immediate: true }
 )
 
-function updateStudent(index, field, value) {
-  if (!studentsForm.value[index]) return
-  studentsForm.value = studentsForm.value.map((s, i) =>
-    i === index ? { ...s, [field]: value } : s
+function updateRunner(index, field, value) {
+  if (!runnersForm.value[index]) return
+  runnersForm.value = runnersForm.value.map((r, i) =>
+    i === index ? { ...r, [field]: value } : r
   )
 }
 
-function addStudent() {
-  const n = studentsForm.value.length
-  const total = Number(props.totalStudentsCount) || 0
-  const currentGroupSavedCount = props.students?.length ?? 0
+function addRunner() {
+  const n = runnersForm.value.length
+  const total = Number(props.totalRunnersCount) || 0
+  const currentGroupSavedCount = props.runners?.length ?? 0
   const nextNum = total - currentGroupSavedCount + n + 1
-  studentsForm.value = [...studentsForm.value, createRelayStudent(nextNum, n)]
+  runnersForm.value = [...runnersForm.value, createRelayRunner(nextNum, n)]
 }
 
-function removeLastStudent() {
-  if (studentsForm.value.length <= 1) return
-  studentsForm.value = studentsForm.value.slice(0, -1)
+function removeLastRunner() {
+  if (runnersForm.value.length <= 1) return
+  runnersForm.value = runnersForm.value.slice(0, -1)
 }
 
 function save() {
   if (!props.group) return
-  const total = Number(props.totalStudentsCount) || 0
-  const currentGroupSavedCount = props.students?.length ?? 0
-  const students = studentsForm.value.map((s, i) => {
+  const total = Number(props.totalRunnersCount) || 0
+  const currentGroupSavedCount = props.runners?.length ?? 0
+  const runners = runnersForm.value.map((r, i) => {
     const defaultNum = total - currentGroupSavedCount + i + 1
     const safeDefaultNum = Number.isFinite(defaultNum) ? Math.max(1, defaultNum) : i + 1
     return {
-      ...s,
-      nom: (s.nom ?? '').trim() || `Élève ${safeDefaultNum}`,
-      ordre: s.ordre ?? i
+      ...r,
+      nom: (r.nom ?? '').trim() || `Coureur ${safeDefaultNum}`,
+      ordre: r.ordre ?? i
     }
   })
   const groupUpdate = {
@@ -79,7 +79,7 @@ function save() {
     nom: (groupNom.value ?? '').trim() || props.group.nom,
     color: groupColor.value
   }
-  emit('save', { group: groupUpdate, students })
+  emit('save', { group: groupUpdate, runners })
 }
 
 function remove() {
@@ -129,34 +129,34 @@ function onHide() {
         </div>
       </div>
       <div
-        v-for="(student, i) in studentsForm"
-        :key="student.id"
-        class="relay-group-student-row"
+        v-for="(runner, i) in runnersForm"
+        :key="runner.id"
+        class="relay-group-runner-row"
       >
         <span class="relay-group-ordre">{{ i + 1 }}.</span>
         <InputText
-          :model-value="studentsForm[i]?.nom"
-          :placeholder="`Élève ${i + 1}`"
+          :model-value="runnersForm[i]?.nom"
+          :placeholder="`Coureur ${i + 1}`"
           class="relay-group-nom-input"
-          @update:model-value="(v) => updateStudent(i, 'nom', v)"
+          @update:model-value="(v) => updateRunner(i, 'nom', v)"
         />
       </div>
-      <div class="relay-group-student-actions">
+      <div class="relay-group-runner-actions">
         <Button
-          label="Ajouter un élève"
+          label="Ajouter un coureur"
           icon="pi pi-plus"
           severity="secondary"
           size="small"
-          @click="addStudent"
+          @click="addRunner"
         />
         <Button
-          v-if="studentsForm.length > 1"
+          v-if="runnersForm.length > 1"
           label="Supprimer le dernier"
           icon="pi pi-minus"
           severity="secondary"
           size="small"
           text
-          @click="removeLastStudent"
+          @click="removeLastRunner"
         />
       </div>
     </div>
@@ -225,7 +225,7 @@ function onHide() {
   box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1a1a1a;
 }
 
-.relay-group-student-row {
+.relay-group-runner-row {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -243,7 +243,7 @@ function onHide() {
   min-height: 44px;
 }
 
-.relay-group-student-actions {
+.relay-group-runner-actions {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;

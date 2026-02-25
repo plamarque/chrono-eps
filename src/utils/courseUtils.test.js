@@ -4,9 +4,9 @@ import { getMaxTotalMsFromPassages, sortParticipantsByTotalTimeAsc } from './cou
 describe('sortParticipantsByTotalTimeAsc', () => {
   it('trie par temps total croissant (plus rapide en premier)', () => {
     const participants = [
-      { id: '1', nom: 'Elève 1' },
-      { id: '2', nom: 'Elève 2' },
-      { id: '3', nom: 'Elève 3' }
+      { id: '1', nom: 'Coureur 1' },
+      { id: '2', nom: 'Coureur 2' },
+      { id: '3', nom: 'Coureur 3' }
     ]
     const passagesByParticipant = {
       '1': [{ tourNum: 1, totalMs: 90000 }],
@@ -14,7 +14,7 @@ describe('sortParticipantsByTotalTimeAsc', () => {
       '3': [{ tourNum: 1, totalMs: 120000 }]
     }
     const result = sortParticipantsByTotalTimeAsc(participants, passagesByParticipant)
-    expect(result.map((p) => p.nom)).toEqual(['Elève 2', 'Elève 1', 'Elève 3'])
+    expect(result.map((p) => p.nom)).toEqual(['Coureur 2', 'Coureur 1', 'Coureur 3'])
   })
 
   it('place les participants sans passage en fin de liste', () => {

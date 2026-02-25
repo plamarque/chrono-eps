@@ -79,7 +79,7 @@ const hasAnyPassage = computed(() =>
 function nextParticipantIndex() {
   let max = 0
   for (const p of props.participants) {
-    const m = p.nom?.match(/^Elève (\d+)$/)
+    const m = p.nom?.match(/^(?:Coureur|Élève|Elève) (\d+)$/)
     if (m) max = Math.max(max, parseInt(m[1], 10))
   }
   return max + 1

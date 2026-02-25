@@ -155,7 +155,7 @@ watch(() => route.params.id, fetchCourse)
             :participants="course.participants"
             :participant-states="emptyParticipantStates"
             :passages-by-participant="course.passagesByParticipant"
-            :group-students="course.groupStudents || {}"
+            :group-runners="course.groupRunners || {}"
             status="idle"
             :read-only="true"
           />

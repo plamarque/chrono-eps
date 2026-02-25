@@ -36,7 +36,7 @@ describe('TableauPassages', () => {
     await addBtn.trigger('click')
     expect(wrapper.emitted('add')).toBeTruthy()
     expect(wrapper.emitted('add')[0][0]).toHaveProperty('id')
-    expect(wrapper.emitted('add')[0][0].nom).toMatch(/^Elève \d+$/)
+    expect(wrapper.emitted('add')[0][0].nom).toMatch(/^Coureur \d+$/)
     wrapper.unmount()
   })
 

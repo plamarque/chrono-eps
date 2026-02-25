@@ -28,7 +28,7 @@ export default defineConfig({
       manifest: {
         name: 'Chrono EPS',
         short_name: 'Chrono EPS',
-        description: 'Chronomètre multi-élèves pour les enseignants d\'EPS',
+        description: 'Chronomètre multi-coureurs pour les enseignants d\'EPS',
         theme_color: '#2563eb',
         background_color: '#ffffff',
         display: 'standalone',

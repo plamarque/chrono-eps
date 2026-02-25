@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
-import { createRelayGroup, COULEURS_PALETTE, safeRelayStudentNom } from '../models/participant.js'
+import { createRelayGroup, COULEURS_PALETTE, safeRelayRunnerNom } from '../models/participant.js'
 import { formatTime } from '../utils/formatTime.js'
 import RelayGroupModal from './RelayGroupModal.vue'
 
@@ -21,7 +21,7 @@ const props = defineProps({
     type: Object,
     default: () => ({})
   },
-  groupStudents: {
+  groupRunners: {
     type: Object,
     default: () => ({})
   },
@@ -35,16 +35,16 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['add', 'update', 'remove', 'record', 'start-participant', 'stop-participant', 'update-group-students'])
+const emit = defineEmits(['add', 'update', 'remove', 'record', 'start-participant', 'stop-participant', 'update-group-runners'])
 
 const showGroupModal = ref(false)
 const editedGroup = ref(null)
 
-/** Nombre total d'élèves dans tous les groupes (pour numérotation continue). */
-const totalStudentsCount = computed(() => {
+/** Nombre total de coureurs dans tous les groupes (pour numérotation continue). */
+const totalRunnersCount = computed(() => {
   let n = 0
-  for (const students of Object.values(props.groupStudents ?? {})) {
-    n += Array.isArray(students) ? students.length : 0
+  for (const runners of Object.values(props.groupRunners ?? {})) {
+    n += Array.isArray(runners) ? runners.length : 0
   }
   return n
 })
@@ -75,10 +75,10 @@ function closeGroupModal() {
   editedGroup.value = null
 }
 
-function saveGroupStudents({ group, students }) {
+function saveGroupRunners({ group, runners }) {
   if (!editedGroup.value) return
   emit('update', group)
-  emit('update-group-students', { groupId: editedGroup.value.id, students })
+  emit('update-group-runners', { groupId: editedGroup.value.id, runners })
   closeGroupModal()
 }
 
@@ -88,82 +88,82 @@ function deleteGroup() {
   closeGroupModal()
 }
 
-/** Liste chronologique des passages : nom de l'élève + temps pour chaque passage. */
+/** Liste chronologique des passages : nom du coureur + temps pour chaque passage. */
 function getPassagesList(groupId) {
-  const students = (props.groupStudents[groupId] ?? []).slice().sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
+  const runners = (props.groupRunners[groupId] ?? []).slice().sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
   const passages = (props.passagesByParticipant[groupId] ?? []).slice().sort((a, b) => a.tourNum - b.tourNum)
   return passages.map((p) => {
     const idx = Number.isFinite(p.studentIndex) ? p.studentIndex : 0
-    const student = students[idx]
-    const nom = student ? safeRelayStudentNom(student.nom, idx) : safeRelayStudentNom('', idx)
+    const runner = runners[idx]
+    const nom = runner ? safeRelayRunnerNom(runner.nom, idx) : safeRelayRunnerNom('', idx)
     return { nom, lapMs: p.lapMs }
   })
 }
 
 /**
- * Performances regroupées par élève pour la section Temps.
- * Retourne : { groupTotalMs, students: [{ nom, passages: [{ pNum, lapMs }], totalLapMs }] }
+ * Performances regroupées par coureur pour la section Temps.
+ * Retourne : { groupTotalMs, runners: [{ nom, passages: [{ pNum, lapMs }], totalLapMs }] }
  */
-function getPerformancesByStudent(groupId) {
-  const students = (props.groupStudents[groupId] ?? []).slice().sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
+function getPerformancesByRunner(groupId) {
+  const runners = (props.groupRunners[groupId] ?? []).slice().sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
   const passages = (props.passagesByParticipant[groupId] ?? []).slice().sort((a, b) => a.tourNum - b.tourNum)
   const groupTotalMs = passages.length > 0 ? passages[passages.length - 1].totalMs : null
 
-  const byStudent = {}
-  for (let i = 0; i < students.length; i++) {
-    const student = students[i]
-    byStudent[i] = { nom: safeRelayStudentNom(student?.nom, i), passages: [] }
+  const byRunner = {}
+  for (let i = 0; i < runners.length; i++) {
+    const runner = runners[i]
+    byRunner[i] = { nom: safeRelayRunnerNom(runner?.nom, i), passages: [] }
   }
-  if (students.length === 0) {
-    byStudent[0] = { nom: safeRelayStudentNom('', 0), passages: [] }
+  if (runners.length === 0) {
+    byRunner[0] = { nom: safeRelayRunnerNom('', 0), passages: [] }
   }
 
   passages.forEach((p) => {
     const idx = Number.isFinite(p.studentIndex) ? p.studentIndex : 0
-    if (!byStudent[idx]) {
-      byStudent[idx] = { nom: safeRelayStudentNom('', idx), passages: [] }
+    if (!byRunner[idx]) {
+      byRunner[idx] = { nom: safeRelayRunnerNom('', idx), passages: [] }
     }
-    byStudent[idx].passages.push({
-      pNum: byStudent[idx].passages.length + 1,
+    byRunner[idx].passages.push({
+      pNum: byRunner[idx].passages.length + 1,
       lapMs: p.lapMs
     })
   })
 
-  const result = Object.keys(byStudent)
+  const result = Object.keys(byRunner)
     .map((k) => parseInt(k, 10))
     .sort((a, b) => a - b)
-    .map((idx) => byStudent[idx])
-    .filter((s) => s.passages.length > 0)
-    .map((s) => ({
-      ...s,
-      totalLapMs: s.passages.reduce((sum, p) => sum + (p.lapMs ?? 0), 0)
+    .map((idx) => byRunner[idx])
+    .filter((r) => r.passages.length > 0)
+    .map((r) => ({
+      ...r,
+      totalLapMs: r.passages.reduce((sum, p) => sum + (p.lapMs ?? 0), 0)
     }))
 
-  return { groupTotalMs, students: result }
+  return { groupTotalMs, runners: result }
 }
 
 function getCurrentAndNext(groupId) {
-  const students = (props.groupStudents[groupId] ?? []).slice().sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
+  const runners = (props.groupRunners[groupId] ?? []).slice().sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
   const passages = props.passagesByParticipant[groupId] ?? []
   const currentIndex = passages.length
-  const nbStudents = students.length
+  const nbRunners = runners.length
   const isRunning = props.participantStates[groupId]?.status === 'running'
   const isComplete = false // La course continue tant que le professeur n'arrête pas
 
-  // Ordre : Tour 1 (élève 0), Tour 2 (élève 1), ..., Tour n (élève n-1), Tour n+1 (élève 0), ...
-  const withSafeNom = (s, idx) =>
-    s ? { ...s, nom: safeRelayStudentNom(s.nom, idx) } : null
-  const currentStudent = nbStudents > 0 ? withSafeNom(students[currentIndex % nbStudents], currentIndex % nbStudents) : null
-  const nextStudent = nbStudents > 0 ? withSafeNom(students[(currentIndex + 1) % nbStudents], (currentIndex + 1) % nbStudents) : null
-  const lastStudent =
-    passages.length > 0 && nbStudents > 0
-      ? withSafeNom(students[(passages.length - 1) % nbStudents], (passages.length - 1) % nbStudents)
+  // Ordre : Tour 1 (coureur 0), Tour 2 (coureur 1), ..., Tour n (coureur n-1), Tour n+1 (coureur 0), ...
+  const withSafeNom = (r, idx) =>
+    r ? { ...r, nom: safeRelayRunnerNom(r.nom, idx) } : null
+  const currentRunner = nbRunners > 0 ? withSafeNom(runners[currentIndex % nbRunners], currentIndex % nbRunners) : null
+  const nextRunner = nbRunners > 0 ? withSafeNom(runners[(currentIndex + 1) % nbRunners], (currentIndex + 1) % nbRunners) : null
+  const lastRunner =
+    passages.length > 0 && nbRunners > 0
+      ? withSafeNom(runners[(passages.length - 1) % nbRunners], (passages.length - 1) % nbRunners)
       : null
 
   return {
-    currentStudent,
-    nextStudent,
-    lastStudent,
+    currentRunner,
+    nextRunner,
+    lastRunner,
     isRunning,
     isComplete,
     currentIndex
@@ -171,17 +171,17 @@ function getCurrentAndNext(groupId) {
 }
 
 /**
- * Prochain à courir : en affichage statut (hors zone tap), c'est currentStudent.
- * À l'init (personne écourru), c'est l'élève 1, pas l'élève 2.
+ * Prochain à courir : en affichage statut (hors zone tap), c'est currentRunner.
+ * À l'init (personne écourru), c'est le coureur 1, pas le coureur 2.
  */
 function getNextToRun(groupId) {
-  return getCurrentAndNext(groupId).currentStudent
+  return getCurrentAndNext(groupId).currentRunner
 }
 
 function canTap(groupId) {
   if (props.readOnly) return false
-  const { isRunning, isComplete, currentStudent } = getCurrentAndNext(groupId)
-  return isRunning && !isComplete && currentStudent != null
+  const { isRunning, isComplete, currentRunner } = getCurrentAndNext(groupId)
+  return isRunning && !isComplete && currentRunner != null
 }
 
 function getLiveElapsed(groupId) {
@@ -212,8 +212,8 @@ const performancesByGroup = computed(() =>
     const passages = props.passagesByParticipant[p.id] ?? []
     const nbTours = passages.length
     const dernierTotalMs = nbTours > 0 ? passages[nbTours - 1].totalMs : null
-    const perfByStudent = getPerformancesByStudent(p.id)
-    return { participant: p, nbTours, dernierTotalMs, perfByStudent }
+    const perfByRunner = getPerformancesByRunner(p.id)
+    return { participant: p, nbTours, dernierTotalMs, perfByRunner }
   })
 )
 
@@ -259,13 +259,13 @@ const hasAnyPassage = computed(() =>
 
         <div
           class="tableau-relay-body"
-          :class="{ 'tableau-relay-body-clickable': !readOnly && (groupStudents[group.id] ?? []).length > 0 }"
-          @click="!readOnly && (groupStudents[group.id] ?? []).length > 0 && openGroupModal(group)"
+          :class="{ 'tableau-relay-body-clickable': !readOnly && (groupRunners[group.id] ?? []).length > 0 }"
+          @click="!readOnly && (groupRunners[group.id] ?? []).length > 0 && openGroupModal(group)"
         >
-          <template v-if="(groupStudents[group.id] ?? []).length > 0">
+          <template v-if="(groupRunners[group.id] ?? []).length > 0">
             <div v-if="canTap(group.id)" class="tableau-relay-tap-zone">
               <div class="tableau-relay-tap-row">
-                <span class="tableau-relay-en-cours">En cours : {{ getCurrentAndNext(group.id).currentStudent?.nom ?? '—' }}</span>
+                <span class="tableau-relay-en-cours">En cours : {{ getCurrentAndNext(group.id).currentRunner?.nom ?? '—' }}</span>
                 <div class="tableau-relay-time">
                   {{ formatTime(getLiveElapsed(group.id).lapMs) }}
                 </div>
@@ -278,7 +278,7 @@ const hasAnyPassage = computed(() =>
                   <i class="pi pi-flag"></i>
                 </button>
                 <span class="tableau-relay-prochain-inline">
-                  Prochain : {{ getCurrentAndNext(group.id).nextStudent?.nom ?? '—' }}
+                  Prochain : {{ getCurrentAndNext(group.id).nextRunner?.nom ?? '—' }}
                 </span>
               </div>
             </div>
@@ -290,8 +290,8 @@ const hasAnyPassage = computed(() =>
                 <span class="tableau-relay-name">
                   {{
                     getCurrentAndNext(group.id).isRunning
-                      ? (getCurrentAndNext(group.id).currentStudent?.nom ?? '—')
-                      : (getCurrentAndNext(group.id).lastStudent?.nom ?? '—')
+                      ? (getCurrentAndNext(group.id).currentRunner?.nom ?? '—')
+                      : (getCurrentAndNext(group.id).lastRunner?.nom ?? '—')
                   }}
                 </span>
               </div>
@@ -326,7 +326,7 @@ const hasAnyPassage = computed(() =>
             @keydown.enter="!readOnly && openGroupModal(group)"
             @keydown.space.prevent="!readOnly && openGroupModal(group)"
           >
-            <span v-if="!readOnly">Cliquez pour configurer les élèves</span>
+            <span v-if="!readOnly">Cliquez pour configurer les coureurs</span>
             <span v-else>—</span>
           </div>
         </div>
@@ -362,28 +362,28 @@ const hasAnyPassage = computed(() =>
           <div class="tableau-passages-resume-header">
             <span class="tableau-passages-resume-nom">{{ perf.participant.nom }}</span>
             <span
-              v-if="perf.perfByStudent.groupTotalMs !== null"
+              v-if="perf.perfByRunner.groupTotalMs !== null"
               class="tableau-passages-resume-stats"
             >
-              Total : {{ formatTime(perf.perfByStudent.groupTotalMs) }}
+              Total : {{ formatTime(perf.perfByRunner.groupTotalMs) }}
             </span>
           </div>
           <div
-            v-for="(student, si) in perf.perfByStudent.students"
-            :key="`${perf.participant.id}-${si}-${student.nom}`"
-            class="tableau-passages-resume-student-row"
+            v-for="(runner, ri) in perf.perfByRunner.runners"
+            :key="`${perf.participant.id}-${ri}-${runner.nom}`"
+            class="tableau-passages-resume-runner-row"
           >
-            <span class="tableau-passages-resume-student-nom">{{ student.nom }}</span>
-            <span class="tableau-passages-resume-student-passages">
+            <span class="tableau-passages-resume-runner-nom">{{ runner.nom }}</span>
+            <span class="tableau-passages-resume-runner-passages">
               <template
-                v-for="(p, i) in student.passages"
+                v-for="(p, i) in runner.passages"
                 :key="p.pNum"
               >
                 <span v-if="i > 0" class="tableau-passages-resume-sep" aria-hidden="true"> · </span>
                 <span class="tableau-passages-resume-passage-item">P{{ p.pNum }}: {{ formatTime(p.lapMs) }}</span>
               </template>
               <span class="tableau-passages-resume-sep tableau-passages-resume-sep-total" aria-hidden="true"> · </span>
-              <span class="tableau-passages-resume-student-total">Total : {{ formatTime(student.totalLapMs) }}</span>
+              <span class="tableau-passages-resume-runner-total">Total : {{ formatTime(runner.totalLapMs) }}</span>
             </span>
           </div>
         </div>
@@ -393,9 +393,9 @@ const hasAnyPassage = computed(() =>
     <RelayGroupModal
       v-model:visible="showGroupModal"
       :group="editedGroup"
-      :students="editedGroup ? (groupStudents[editedGroup.id] ?? []) : []"
-      :total-students-count="totalStudentsCount"
-      @save="saveGroupStudents"
+      :runners="editedGroup ? (groupRunners[editedGroup.id] ?? []) : []"
+      :total-runners-count="totalRunnersCount"
+      @save="saveGroupRunners"
       @remove="deleteGroup"
       @hide="closeGroupModal"
     />
@@ -666,7 +666,7 @@ const hasAnyPassage = computed(() =>
   color: #6b7280;
 }
 
-.tableau-passages-resume-student-row {
+.tableau-passages-resume-runner-row {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -676,13 +676,13 @@ const hasAnyPassage = computed(() =>
   border-left: 2px solid #e5e7eb;
 }
 
-.tableau-passages-resume-student-nom {
+.tableau-passages-resume-runner-nom {
   font-weight: 600;
   color: #1a1a1a;
   min-width: 4rem;
 }
 
-.tableau-passages-resume-student-passages {
+.tableau-passages-resume-runner-passages {
   font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
   color: #6b7280;
 }
@@ -701,7 +701,7 @@ const hasAnyPassage = computed(() =>
   white-space: nowrap;
 }
 
-.tableau-passages-resume-student-total {
+.tableau-passages-resume-runner-total {
   font-weight: 600;
   color: #1a1a1a;
 }

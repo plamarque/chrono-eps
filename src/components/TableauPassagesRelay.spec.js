@@ -9,7 +9,7 @@ function mountTableauPassagesRelay(props = {}) {
       participants: props.participants ?? [],
       participantStates: props.participantStates ?? {},
       passagesByParticipant: props.passagesByParticipant ?? {},
-      groupStudents: props.groupStudents ?? {},
+      groupRunners: props.groupRunners ?? {},
       status: props.status ?? 'idle',
       readOnly: props.readOnly ?? false
     },
@@ -25,9 +25,9 @@ function mountTableauPassagesRelay(props = {}) {
 }
 
 describe('TableauPassagesRelay', () => {
-  it('affiche la section Temps avec temps groupe et lignes par élève', () => {
+  it('affiche la section Temps avec temps groupe et lignes par coureur', () => {
     const participants = [{ id: 'g1', nom: 'Groupe 1', color: '#ef4444' }]
-    const groupStudents = {
+    const groupRunners = {
       g1: [
         { nom: 'Alice', ordre: 0 },
         { nom: 'Bob', ordre: 1 },
@@ -44,7 +44,7 @@ describe('TableauPassagesRelay', () => {
     }
     const wrapper = mountTableauPassagesRelay({
       participants,
-      groupStudents,
+      groupRunners,
       passagesByParticipant
     })
     expect(wrapper.find('.tableau-passages-resume').exists()).toBe(true)
@@ -63,9 +63,9 @@ describe('TableauPassagesRelay', () => {
     wrapper.unmount()
   })
 
-  it('affiche le Total cumulé par élève (somme de ses laps)', () => {
+  it('affiche le Total cumulé par coureur (somme de ses laps)', () => {
     const participants = [{ id: 'g1', nom: 'Groupe 1', color: '#3b82f6' }]
-    const groupStudents = {
+    const groupRunners = {
       g1: [{ nom: 'Alice', ordre: 0 }, { nom: 'Bob', ordre: 1 }]
     }
     const passagesByParticipant = {
@@ -77,7 +77,7 @@ describe('TableauPassagesRelay', () => {
     }
     const wrapper = mountTableauPassagesRelay({
       participants,
-      groupStudents,
+      groupRunners,
       passagesByParticipant
     })
     expect(wrapper.text()).toContain('Alice')
@@ -98,8 +98,8 @@ describe('TableauPassagesRelay', () => {
       nom: `Groupe ${i + 1}`,
       color: COULEURS_PALETTE[i % COULEURS_PALETTE.length]
     }))
-    const groupStudents = Object.fromEntries(participants.map((p) => [p.id, []]))
-    const wrapper = mountTableauPassagesRelay({ participants, groupStudents })
+    const groupRunners = Object.fromEntries(participants.map((p) => [p.id, []]))
+    const wrapper = mountTableauPassagesRelay({ participants, groupRunners })
     expect(wrapper.find('button[aria-label="Ajouter un groupe"]').exists()).toBe(false)
     wrapper.unmount()
   })
@@ -110,8 +110,8 @@ describe('TableauPassagesRelay', () => {
       nom: `Groupe ${i + 1}`,
       color: COULEURS_PALETTE[i]
     }))
-    const groupStudents = Object.fromEntries(participants.map((p) => [p.id, []]))
-    const wrapper = mountTableauPassagesRelay({ participants, groupStudents })
+    const groupRunners = Object.fromEntries(participants.map((p) => [p.id, []]))
+    const wrapper = mountTableauPassagesRelay({ participants, groupRunners })
     const addBtn = wrapper.find('button[aria-label="Ajouter un groupe"]')
     expect(addBtn.exists()).toBe(true)
     await addBtn.trigger('click')
@@ -128,8 +128,8 @@ describe('TableauPassagesRelay', () => {
       nom: `Groupe ${i + 1}`,
       color: COULEURS_PALETTE[i % COULEURS_PALETTE.length]
     }))
-    const groupStudents = Object.fromEntries(participants.map((p) => [p.id, []]))
-    const wrapper = mountTableauPassagesRelay({ participants, groupStudents })
+    const groupRunners = Object.fromEntries(participants.map((p) => [p.id, []]))
+    const wrapper = mountTableauPassagesRelay({ participants, groupRunners })
     const addBtn = wrapper.find('button[aria-label="Ajouter un groupe"]')
     expect(addBtn.exists()).toBe(true)
     await addBtn.trigger('click')
