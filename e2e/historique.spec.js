@@ -60,4 +60,39 @@ test.describe('Historique', () => {
 
     await expect(page.locator('.historique-item').filter({ hasText: 'À supprimer' })).not.toBeVisible()
   })
+
+  test.describe('Export depuis le détail', () => {
+    test.beforeEach(async ({ page }) => {
+      await page.addInitScript(() => {
+        Object.defineProperty(navigator, 'canShare', {
+          value: (data) => !(data?.files?.length),
+          configurable: true
+        })
+      })
+    })
+
+    test('Exporter depuis la vue détail déclenche le téléchargement', async ({ page }) => {
+      await page.goto('/')
+      await page.getByRole('button', { name: 'Individuel' }).click()
+      const chrono = page.getByRole('region', { name: 'Chronomètre' })
+      await chrono.getByRole('button', { name: 'Démarrer' }).click()
+      await page.waitForTimeout(200)
+      await page.getByRole('button', { name: 'Marquer passage' }).first().click()
+      await chrono.getByRole('button', { name: 'Arrêter' }).click()
+      await chrono.getByRole('button', { name: 'Enregistrer' }).click()
+      await page.getByLabel('Nom de la course').fill('Course export detail E2E')
+      await page.getByRole('button', { name: 'Enregistrer', exact: true }).last().click()
+      await expect(page.getByText('Sauvegardé')).toBeVisible()
+
+      await page.getByRole('link', { name: 'Historique' }).click()
+      await page.locator('.historique-item').filter({ hasText: 'Course export detail E2E' }).click()
+      await expect(page.getByRole('button', { name: 'Exporter' })).toBeVisible()
+
+      const downloadPromise = page.waitForEvent('download')
+      await page.getByRole('button', { name: 'Exporter' }).click()
+      const download = await downloadPromise
+      expect(download.suggestedFilename()).toMatch(/\.xlsx$/)
+      expect(download.suggestedFilename()).toContain('Course_export_detail_E2E')
+    })
+  })
 })

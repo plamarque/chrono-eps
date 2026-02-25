@@ -87,3 +87,37 @@ test.describe('Accueil - Nouvelle course', () => {
     await expect(page.getByText('Changer de mode ?').or(page.getByText('Nouvelle course ?'))).toBeVisible()
   })
 })
+
+test.describe('Accueil - Export', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'canShare', {
+        value: (data) => !(data?.files?.length),
+        configurable: true
+      })
+    })
+  })
+
+  test('Exporter après sauvegarde déclenche le téléchargement', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Individuel' }).click()
+    await page.getByRole('button', { name: 'Ajouter un participant' }).click()
+    await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
+    await page.waitForTimeout(300)
+    await page.getByRole('button', { name: 'Marquer passage' }).first().click()
+    await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
+    await page.getByRole('button', { name: 'Enregistrer' }).click()
+    await page.getByLabel('Nom de la course').fill('Course export E2E')
+    await page.getByRole('button', { name: 'Enregistrer', exact: true }).last().click()
+    await expect(page.getByText('Sauvegardé')).toBeVisible()
+
+    const exportBtn = page.getByRole('button', { name: 'Exporter' })
+    await expect(exportBtn).toBeVisible()
+
+    const downloadPromise = page.waitForEvent('download')
+    await exportBtn.click()
+    const download = await downloadPromise
+    expect(download.suggestedFilename()).toMatch(/\.xlsx$/)
+    expect(download.suggestedFilename()).toContain('Course_export_E2E')
+  })
+})

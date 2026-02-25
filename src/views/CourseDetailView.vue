@@ -7,6 +7,11 @@ import Chronometre from '../components/Chronometre.vue'
 import TableauPassagesCompact from '../components/TableauPassagesCompact.vue'
 import TableauPassagesRelay from '../components/TableauPassagesRelay.vue'
 import { loadCourse } from '../services/courseStore.js'
+import {
+  exportCourseAsExcelBlob,
+  shareOrDownload,
+  buildExportFilename
+} from '../services/exportCourseExcel.js'
 import { getMaxTotalMsFromPassages } from '../utils/courseUtils.js'
 import { formatCourseDate } from '../utils/formatDate.js'
 import { useToast } from 'primevue/usetoast'
@@ -30,7 +35,41 @@ const isPreparedCourse = computed(() => {
   return Object.values(pbp).every((arr) => !arr?.length)
 })
 
+const hasPassages = computed(() => {
+  const pbp = course.value?.passagesByParticipant ?? {}
+  return Object.values(pbp).some((arr) => Array.isArray(arr) && arr.length > 0)
+})
+
 const emptyParticipantStates = {}
+
+const exporting = ref(false)
+
+async function exportToExcel() {
+  const c = course.value
+  if (!c || !hasPassages.value) return
+  exporting.value = true
+  try {
+    const blob = await exportCourseAsExcelBlob(c)
+    const filename = buildExportFilename(c.nom, c.createdAt)
+    await shareOrDownload(blob, filename)
+    toast.add({
+      severity: 'success',
+      summary: 'Export réussi',
+      detail: 'Les données ont été partagées ou téléchargées.',
+      life: 3000
+    })
+  } catch (err) {
+    if (err?.cancelled) return
+    toast.add({
+      severity: 'error',
+      summary: 'Erreur d\'export',
+      detail: err?.message ?? 'Impossible d\'exporter.',
+      life: 5000
+    })
+  } finally {
+    exporting.value = false
+  }
+}
 
 async function fetchCourse() {
   loading.value = true
@@ -120,14 +159,25 @@ watch(() => route.params.id, fetchCourse)
                 class="chronometre-btn"
                 @click="startNewFromThis"
               />
-              <Button
-                v-else
-                label="Replay"
-                icon="pi pi-play"
-                severity="secondary"
-                class="chronometre-btn"
-                @click="goToReplay"
-              />
+              <template v-else>
+                <Button
+                  label="Replay"
+                  icon="pi pi-play"
+                  severity="secondary"
+                  class="chronometre-btn"
+                  @click="goToReplay"
+                />
+                <Button
+                  v-if="hasPassages"
+                  label="Exporter"
+                  icon="pi pi-file-excel"
+                  severity="secondary"
+                  class="chronometre-btn"
+                  :loading="exporting"
+                  :disabled="exporting"
+                  @click="exportToExcel"
+                />
+              </template>
             </template>
           </Chronometre>
         </section>

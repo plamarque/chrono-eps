@@ -13,6 +13,11 @@ import { useChronometre } from '../composables/useChronometre.js'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import { saveCourse, loadCourse } from '../services/courseStore.js'
+import {
+  exportCourseAsExcelBlob,
+  shareOrDownload,
+  buildExportFilename
+} from '../services/exportCourseExcel.js'
 import { getMaxTotalMsFromPassages, sortParticipantsByTotalTimeAsc } from '../utils/courseUtils.js'
 import { createRelayGroup, createParticipant, createRelayRunner } from '../models/participant.js'
 
@@ -90,6 +95,7 @@ const displayedElapsedMs = computed(() =>
 const showSaveModal = ref(false)
 const saveNom = ref('')
 const suggestedSaveNom = ref('')
+const exporting = ref(false)
 
 function openSaveModal() {
   saveNom.value = suggestedSaveNom.value || ''
@@ -98,6 +104,38 @@ function openSaveModal() {
 
 function closeSaveModal() {
   showSaveModal.value = false
+}
+
+async function exportToExcel() {
+  const c = currentCourse.value
+  if (!c?.id || !hasAnyPassage.value) return
+  exporting.value = true
+  try {
+    const course = await loadCourse(c.id)
+    if (!course) {
+      toast.add({ severity: 'warn', summary: 'Course introuvable', life: 3000 })
+      return
+    }
+    const blob = await exportCourseAsExcelBlob(course)
+    const filename = buildExportFilename(course.nom, course.createdAt)
+    await shareOrDownload(blob, filename)
+    toast.add({
+      severity: 'success',
+      summary: 'Export réussi',
+      detail: 'Les données ont été partagées ou téléchargées.',
+      life: 3000
+    })
+  } catch (err) {
+    if (err?.cancelled) return
+    toast.add({
+      severity: 'error',
+      summary: 'Erreur d\'export',
+      detail: err?.message ?? 'Impossible d\'exporter.',
+      life: 5000
+    })
+  } finally {
+    exporting.value = false
+  }
 }
 
 async function doSave() {
@@ -431,6 +469,16 @@ watch(
             @record-tour="() => recordPassage('__solo__')"
           >
             <template #extra-controls>
+              <Button
+                v-if="currentCourse && hasAnyPassage"
+                label="Exporter"
+                icon="pi pi-file-excel"
+                severity="secondary"
+                class="chronometre-btn"
+                :loading="exporting"
+                :disabled="exporting"
+                @click="exportToExcel"
+              />
               <Button
                 label="Enregistrer"
                 icon="pi pi-save"
