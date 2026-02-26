@@ -255,6 +255,8 @@ function onHide() {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  /* Aligné à gauche avec le champ Coureur (après ordre + gap) */
+  margin-left: 2.25rem;
 }
 
 .participant-btn {
