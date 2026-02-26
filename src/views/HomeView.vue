@@ -97,8 +97,14 @@ const saveNom = ref('')
 const suggestedSaveNom = ref('')
 const exporting = ref(false)
 
+function getDefaultCourseName() {
+  const today = new Date()
+  const dateStr = today.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })
+  return `Course du ${dateStr}`
+}
+
 function openSaveModal() {
-  saveNom.value = suggestedSaveNom.value || ''
+  saveNom.value = suggestedSaveNom.value || getDefaultCourseName()
   showSaveModal.value = true
 }
 
