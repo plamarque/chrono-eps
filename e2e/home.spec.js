@@ -21,6 +21,22 @@ test.describe('Accueil - Chronomètre', () => {
   })
 })
 
+test.describe('Accueil - Modale Enregistrer', () => {
+  test('Champ nom prérempli avec Course du [date] [heure] pour une nouvelle course', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Individuel' }).click()
+    await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
+    await page.waitForTimeout(200)
+    await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
+    await page.getByRole('button', { name: 'Enregistrer' }).click()
+
+    const nomInput = page.getByLabel('Nom de la course')
+    await expect(nomInput).toBeVisible()
+    const value = await nomInput.inputValue()
+    expect(value).toMatch(/^Course du \d{1,2} [a-zéèêëàâäùûüôöîïç]+ \d{2}:\d{2}$/)
+  })
+})
+
 test.describe('Accueil - Mode individuel', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')

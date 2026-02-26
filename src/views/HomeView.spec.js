@@ -143,6 +143,23 @@ describe('HomeView', () => {
     wrapper.unmount()
   })
 
+  it('modal Enregistrer prérempli avec Course du [date] [heure] pour une nouvelle course', async () => {
+    vi.setSystemTime(new Date('2025-02-26T14:45:00')) // 26 février 2025, 14:45
+
+    const { wrapper } = await mountHomeView()
+    await vi.advanceTimersByTimeAsync(0)
+
+    const enregistrer = wrapper.findAll('button').find((b) => b.text().includes('Enregistrer'))
+    await enregistrer.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const input = wrapper.find('[data-testid="course-nom-input"]')
+    expect(input.element.value).toBe('Course du 26 février 14:45')
+
+    vi.useRealTimers()
+    wrapper.unmount()
+  })
+
   it('course préparée : bouton Démarrer visible pour lancer la course', async () => {
     const preparedCourse = {
       id: 'prepared-1',

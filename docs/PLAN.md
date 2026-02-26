@@ -108,6 +108,7 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 - [x] Schéma IndexedDB (Course, Coureur, Passage)
 - [x] Librairie (Dexie.js ou idb) pour accès IndexedDB
 - [x] Sauvegarde course avec nom (modale/formulaire)
+- [x] Préremplissage du nom dans la modale Enregistrer : « Course du [date] [heure] » pour les nouvelles courses
 - [x] Persistance des courses, participants, passages
 - [x] Chargement des données au démarrage app
 

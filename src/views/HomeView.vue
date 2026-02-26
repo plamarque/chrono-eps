@@ -100,7 +100,12 @@ const exporting = ref(false)
 function getDefaultCourseName() {
   const today = new Date()
   const dateStr = today.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })
-  return `Course du ${dateStr}`
+  const timeStr = today.toLocaleTimeString('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  })
+  return `Course du ${dateStr} ${timeStr}`
 }
 
 function openSaveModal() {

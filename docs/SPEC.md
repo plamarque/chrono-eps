@@ -54,6 +54,7 @@ Dialogue de confirmation : « Nouvelle course » et le switcher Relais/Individue
 - **Entrée** : L'enseignant saisit ou sélectionne les coureurs, lance le chrono, enregistre les passages par touches/taps.
 - **Sortie** : Données stockées localement (performances, historique) ; affichage en temps réel du chrono et des passages.
 - **Flux** : Création/sélection d'une course → ajout des coureurs (ou équipes en relais) → [optionnel] démarrage du chrono et enregistrement des passages → enregistrement nommé → consultation (lecture seule) ou, pour une course préparée (sans temps ni passage), lancement depuis l'historique.
+- **Modale Enregistrer** : Le champ « Nom de la course » est prérempli avec « Course du [date] [heure] » (ex. « Course du 26 février 14:45 ») pour les nouvelles courses ; pour une course chargée, le nom existant est proposé.
 
 ## Limites
 
