@@ -13,7 +13,8 @@
     "android:bundle": "./scripts/build-android-bundle.sh",
     "test:e2e": "bash scripts/run-e2e.sh",
     "test:e2e:ui": "playwright test --ui",
-    "screenshots": "node scripts/generate-screenshots.js"
+    "screenshots": "node scripts/generate-screenshots.js",
+    "icons": "node scripts/generate-icons.js"
   },
   "dependencies": {
     "@primeuix/themes": "^2.0.3",
@@ -31,6 +32,7 @@
     "@vue/test-utils": "^2.4.6",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^28.0.0",
+    "sharp": "^0.34.5",
     "vite": "^7.3.1",
     "vite-plugin-pwa": "^1.2.0",
     "vitest": "^4.0.18"

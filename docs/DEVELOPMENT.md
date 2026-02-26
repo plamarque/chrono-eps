@@ -20,6 +20,8 @@
 | `npm run test:e2e:ui` | Lancer les tests E2E en mode UI interactif               |
 | `npm run release -- --patch` | Créer une release (voir section Release)   |
 | `./scripts/promote-to-stores.sh <tag>` | Promouvoir une version vers les stores (tag ou latest) |
+| `npm run screenshots` | Générer les screenshots pour les stores (voir public/screenshots/README.md) |
+| `npm run icons` | Régénérer les icônes PWA et iOS (dégradé, alignement Android) |
 
 ## Release
 

@@ -231,7 +231,7 @@ Apple peut refuser les apps qui ressemblent à de simples « sites web dans une 
 | Élément | Description |
 |---------|-------------|
 | Captures d'écran | Plusieurs tailles (téléphone, tablette) — cf. [Annexe B](#annexe-b--spécifications-des-screenshots-référence) |
-| Icône 512×512 | Déjà présente dans le projet (`public/pwa-512x512.png`) |
+| Icône 512×512 | `public/pwa-512x512.png` — régénérer avec `npm run icons` (dégradé bleu→violet, alignement iOS/Android) |
 | Image de présentation (1024×500) | Générer via `public/store-feature-graphic.html` : ouvrir dans un navigateur, cliquer « Télécharger l'image PNG » |
 | Description courte | Ex. : « Chronomètre multi-coureurs pour les enseignants d'EPS » |
 | Description longue | Détail des fonctionnalités (chrono, passages, historique, hors ligne) |
