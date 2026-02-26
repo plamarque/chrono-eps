@@ -14,6 +14,7 @@ import {
 } from '../services/exportCourseExcel.js'
 import { getMaxTotalMsFromPassages } from '../utils/courseUtils.js'
 import { formatCourseDate } from '../utils/formatDate.js'
+import { getModeIcon } from '../utils/courseUtils.js'
 import { useToast } from 'primevue/usetoast'
 
 const route = useRoute()
@@ -134,7 +135,10 @@ watch(() => route.params.id, fetchCourse)
             class="course-detail-back"
             @click="goBack"
           />
-          <span class="course-detail-nom">{{ course.nom }}</span>
+          <span class="course-detail-nom">
+            <i :class="getModeIcon(course.mode)" aria-hidden="true" class="course-detail-icon"></i>
+            {{ course.nom }}
+          </span>
         </div>
       </template>
       <template #subtitle>
@@ -254,8 +258,16 @@ watch(() => route.params.id, fetchCourse)
 }
 
 .course-detail-nom {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 1.1rem;
   font-weight: 600;
+}
+
+.course-detail-icon {
+  font-size: 1rem;
+  opacity: 0.85;
 }
 
 .course-detail-date {

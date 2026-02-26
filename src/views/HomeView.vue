@@ -18,13 +18,21 @@ import {
   shareOrDownload,
   buildExportFilename
 } from '../services/exportCourseExcel.js'
-import { getMaxTotalMsFromPassages, sortParticipantsByTotalTimeAsc } from '../utils/courseUtils.js'
+import {
+  getMaxTotalMsFromPassages,
+  sortParticipantsByTotalTimeAsc,
+  getModeIcon
+} from '../utils/courseUtils.js'
 import { createRelayGroup, createParticipant, createRelayRunner } from '../models/participant.js'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 const confirm = useConfirm()
+const modeOptions = [
+  { label: 'Relais', value: 'relay', icon: 'pi pi-users' },
+  { label: 'Individuel', value: 'individual', icon: 'pi pi-user' }
+]
 const participants = ref([])
 const mode = ref('relay')
 const groupRunners = ref({})
@@ -443,7 +451,10 @@ watch(
   <div class="home">
     <Card class="home-card">
       <template v-if="currentCourse" #title>
-        <span class="home-course-title">{{ currentCourse.nom }}</span>
+        <span class="home-course-title">
+          <i :class="getModeIcon(currentCourse.mode)" aria-hidden="true" class="home-course-icon"></i>
+          {{ currentCourse.nom }}
+        </span>
       </template>
       <template #content>
         <section class="home-section home-toolbar" aria-label="Actions et mode de course">
@@ -456,16 +467,20 @@ watch(
           />
           <SelectButton
             :model-value="mode"
-            :options="[
-              { label: 'Relais', value: 'relay' },
-              { label: 'Individuel', value: 'individual' }
-            ]"
+            :options="modeOptions"
             option-label="label"
             option-value="value"
             :allow-empty="false"
             class="home-mode-buttons"
             @update:model-value="onModeChange"
-          />
+          >
+            <template #option="slotProps">
+              <span class="home-mode-option">
+                <i :class="slotProps.option.icon" aria-hidden="true"></i>
+                <span>{{ slotProps.option.label }}</span>
+              </span>
+            </template>
+          </SelectButton>
         </section>
         <section class="home-section home-section-chrono" aria-labelledby="chrono-heading">
           <h2 id="chrono-heading" class="sr-only">Chronomètre</h2>
@@ -596,8 +611,22 @@ watch(
 }
 
 .home-course-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 1.1rem;
   font-weight: 600;
+}
+
+.home-course-icon {
+  font-size: 1rem;
+  opacity: 0.85;
+}
+
+.home-mode-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .home-section {

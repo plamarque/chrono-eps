@@ -5,6 +5,7 @@ import Card from 'primevue/card'
 import Button from 'primevue/button'
 import { listCourses, deleteCourse } from '../services/courseStore.js'
 import { formatCourseDate } from '../utils/formatDate.js'
+import { getModeIcon } from '../utils/courseUtils.js'
 import { useToast } from 'primevue/usetoast'
 
 const router = useRouter()
@@ -60,7 +61,10 @@ onMounted(loadCourses)
             @keydown.enter="goToDetail(c.id)"
             @keydown.space.prevent="goToDetail(c.id)"
           >
-            <span class="historique-nom">{{ c.nom }}</span>
+            <span class="historique-nom">
+              <i :class="getModeIcon(c.mode)" aria-hidden="true" class="historique-icon"></i>
+              {{ c.nom }}
+            </span>
             <span class="historique-meta">
               <span class="historique-date">{{ formatCourseDate(c.createdAt) }}</span>
               <Button
@@ -136,8 +140,16 @@ onMounted(loadCourses)
 }
 
 .historique-nom {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-weight: 500;
   color: var(--p-text-color, #1a1a1a);
+}
+
+.historique-icon {
+  font-size: 0.95rem;
+  opacity: 0.85;
 }
 
 .historique-meta {

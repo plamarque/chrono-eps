@@ -7,6 +7,7 @@ import Slider from 'primevue/slider'
 import { loadCourse } from '../services/courseStore.js'
 import { formatTime } from '../utils/formatTime.js'
 import { formatCourseDate } from '../utils/formatDate.js'
+import { getModeIcon } from '../utils/courseUtils.js'
 import { useToast } from 'primevue/usetoast'
 import { useReplay, getPositionAtTime, getCurrentRunnerIndexAtTime } from '../composables/useReplay.js'
 
@@ -188,7 +189,10 @@ watch(() => route.params.id, fetchCourse)
             class="replay-back"
             @click="goBack"
           />
-          <span class="replay-nom">{{ course.nom }} — Replay</span>
+          <span class="replay-nom">
+            <i :class="getModeIcon(course.mode)" aria-hidden="true" class="replay-icon"></i>
+            {{ course.nom }} — Replay
+          </span>
         </div>
       </template>
       <template #subtitle>
@@ -334,8 +338,16 @@ watch(() => route.params.id, fetchCourse)
 }
 
 .replay-nom {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 1.1rem;
   font-weight: 600;
+}
+
+.replay-icon {
+  font-size: 1rem;
+  opacity: 0.85;
 }
 
 .replay-date {

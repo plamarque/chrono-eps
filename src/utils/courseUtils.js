@@ -1,4 +1,13 @@
 /**
+ * Retourne la classe PrimeIcons pour le type de course (relais / individuel).
+ * @param {'relay'|'individual'} [mode] - Mode de la course
+ * @returns {string} Classe CSS PrimeIcons (ex. 'pi pi-users', 'pi pi-user')
+ */
+export function getModeIcon(mode) {
+  return mode === 'relay' ? 'pi pi-users' : 'pi pi-user'
+}
+
+/**
  * Retourne le temps total (totalMs) du dernier passage d'un participant.
  * @param {string} participantId
  * @param {Object} passagesByParticipant - { [participantId]: [{ tourNum, totalMs }] }

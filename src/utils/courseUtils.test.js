@@ -1,5 +1,25 @@
 import { describe, it, expect } from 'vitest'
-import { getMaxTotalMsFromPassages, sortParticipantsByTotalTimeAsc } from './courseUtils.js'
+import {
+  getMaxTotalMsFromPassages,
+  sortParticipantsByTotalTimeAsc,
+  getModeIcon
+} from './courseUtils.js'
+
+describe('getModeIcon', () => {
+  it('retourne pi-users pour relay', () => {
+    expect(getModeIcon('relay')).toBe('pi pi-users')
+  })
+
+  it('retourne pi-user pour individual', () => {
+    expect(getModeIcon('individual')).toBe('pi pi-user')
+  })
+
+  it('retourne pi-user par défaut pour mode invalide ou absent', () => {
+    expect(getModeIcon(undefined)).toBe('pi pi-user')
+    expect(getModeIcon(null)).toBe('pi pi-user')
+    expect(getModeIcon('')).toBe('pi pi-user')
+  })
+})
 
 describe('sortParticipantsByTotalTimeAsc', () => {
   it('trie par temps total croissant (plus rapide en premier)', () => {
