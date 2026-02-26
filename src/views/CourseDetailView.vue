@@ -126,23 +126,23 @@ watch(() => route.params.id, fetchCourse)
     <Card v-else-if="course" class="course-detail-card">
       <template #title>
         <div class="course-detail-header">
-          <Button
-            icon="pi pi-arrow-left"
-            severity="secondary"
-            text
-            rounded
-            aria-label="Retour"
-            class="course-detail-back"
-            @click="goBack"
-          />
-          <span class="course-detail-nom">
-            <i :class="getModeIcon(course.mode)" aria-hidden="true" class="course-detail-icon"></i>
-            {{ course.nom }}
-          </span>
+          <div class="course-detail-header-left">
+            <Button
+              icon="pi pi-arrow-left"
+              severity="secondary"
+              text
+              rounded
+              aria-label="Retour"
+              class="course-detail-back"
+              @click="goBack"
+            />
+            <span class="course-detail-nom">
+              <i :class="getModeIcon(course.mode)" aria-hidden="true" class="course-detail-icon"></i>
+              {{ course.nom }}
+            </span>
+          </div>
+          <span class="course-detail-date">{{ formatCourseDate(course.createdAt) }}</span>
         </div>
-      </template>
-      <template #subtitle>
-        <span class="course-detail-date">{{ formatCourseDate(course.createdAt) }}</span>
       </template>
       <template #content>
         <section class="course-detail-section" aria-labelledby="course-detail-chrono-heading">
@@ -249,7 +249,15 @@ watch(() => route.params.id, fetchCourse)
 .course-detail-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
+}
+
+.course-detail-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
 }
 
 .course-detail-back {
@@ -273,6 +281,7 @@ watch(() => route.params.id, fetchCourse)
 .course-detail-date {
   font-size: 0.9rem;
   color: var(--p-text-muted-color, #6b7280);
+  flex-shrink: 0;
 }
 
 .course-detail-section {
