@@ -53,6 +53,26 @@ describe('exportCourseExcel', () => {
       const course = { participants: [], passagesByParticipant: {} }
       expect(buildExportDataIndividual(course)).toEqual([])
     })
+
+    it('gère le mode solo (participants vides, passages sous __solo__)', () => {
+      const course = {
+        participants: [],
+        passagesByParticipant: {
+          __solo__: [
+            { tourNum: 1, lapMs: 15000, totalMs: 15000 },
+            { tourNum: 2, lapMs: 18000, totalMs: 33000 }
+          ]
+        }
+      }
+      const rows = buildExportDataIndividual(course)
+      expect(rows[0]).toEqual(['Coureur', 'Tour 1', 'Tour 2', 'Total'])
+      expect(rows[1][0]).toBe('Course')
+      expect(rows[1][1]).toBe('00:15.00')
+      expect(rows[1][2]).toBe('00:18.00')
+      expect(rows[1][3]).toBe('00:33.00')
+      expect(rows[2][0]).toBe('Total course')
+      expect(rows[2][3]).toBe('00:33.00')
+    })
   })
 
   describe('buildExportDataRelay', () => {

@@ -27,14 +27,24 @@ export function buildExportFilename(courseNom, createdAt) {
 
 /**
  * Construit les données d'export pour le mode individuel.
+ * Gère le mode solo (participants vides, passages sous __solo__).
  * @param {Object} course
  * @returns {Array<Array<string|number>>} Lignes pour la feuille Excel
  */
 export function buildExportDataIndividual(course) {
   const { participants, passagesByParticipant } = course
-  if (!participants?.length) return []
+  const pbp = passagesByParticipant ?? {}
 
-  const allPassages = Object.values(passagesByParticipant ?? {}).flat()
+  // Mode solo : participants vides mais passages sous __solo__
+  const soloPassages = pbp.__solo__
+  const isSolo = !participants?.length && soloPassages?.length > 0
+  const participantsToExport = isSolo
+    ? [{ id: '__solo__', nom: 'Course' }]
+    : participants ?? []
+
+  if (!participantsToExport.length) return []
+
+  const allPassages = Object.values(pbp).flat()
   const maxTourNum = allPassages.length > 0
     ? Math.max(...allPassages.map((p) => p.tourNum ?? 0))
     : 0
@@ -43,8 +53,8 @@ export function buildExportDataIndividual(course) {
   const header = ['Coureur', ...Array.from({ length: maxTourNum }, (_, i) => `Tour ${i + 1}`), 'Total']
   const rows = [header]
 
-  for (const p of participants) {
-    const passages = (passagesByParticipant[p.id] ?? [])
+  for (const p of participantsToExport) {
+    const passages = (pbp[p.id] ?? [])
       .slice()
       .sort((a, b) => (a.tourNum ?? 0) - (b.tourNum ?? 0))
     const tourMap = Object.fromEntries(passages.map((pass) => [pass.tourNum, pass.lapMs]))

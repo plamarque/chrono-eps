@@ -3,7 +3,12 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
-import { listCourses, deleteCourse } from '../services/courseStore.js'
+import { listCourses, loadCourse, deleteCourse } from '../services/courseStore.js'
+import {
+  exportCourseAsExcelBlob,
+  shareOrDownload,
+  buildExportFilename
+} from '../services/exportCourseExcel.js'
 import { formatCourseDate } from '../utils/formatDate.js'
 import { getModeIcon } from '../utils/courseUtils.js'
 import { useToast } from 'primevue/usetoast'
@@ -11,6 +16,7 @@ import { useToast } from 'primevue/usetoast'
 const router = useRouter()
 const toast = useToast()
 const coursesList = ref([])
+const exportingId = ref(null)
 
 async function loadCourses() {
   try {
@@ -34,6 +40,43 @@ async function doDeleteCourse(courseId, event) {
 
 function goToDetail(courseId) {
   router.push({ name: 'course-detail', params: { id: courseId } })
+}
+
+async function doExportCourse(courseId, event) {
+  event?.stopPropagation()
+  exportingId.value = courseId
+  try {
+    const course = await loadCourse(courseId)
+    if (!course) {
+      toast.add({ severity: 'warn', summary: 'Course introuvable', life: 3000 })
+      return
+    }
+    const pbp = course.passagesByParticipant ?? {}
+    const hasPassages = Object.values(pbp).some((arr) => Array.isArray(arr) && arr.length > 0)
+    if (!hasPassages) {
+      toast.add({ severity: 'warn', summary: 'Aucun passage', detail: 'Cette course n\'a pas de temps enregistré.', life: 3000 })
+      return
+    }
+    const blob = await exportCourseAsExcelBlob(course)
+    const filename = buildExportFilename(course.nom, course.createdAt)
+    await shareOrDownload(blob, filename)
+    toast.add({
+      severity: 'success',
+      summary: 'Export réussi',
+      detail: 'Les données ont été partagées ou téléchargées.',
+      life: 3000
+    })
+  } catch (err) {
+    if (err?.cancelled) return
+    toast.add({
+      severity: 'error',
+      summary: 'Erreur d\'export',
+      detail: err?.message ?? 'Impossible d\'exporter.',
+      life: 5000
+    })
+  } finally {
+    exportingId.value = null
+  }
 }
 
 onMounted(loadCourses)
@@ -67,6 +110,18 @@ onMounted(loadCourses)
             </span>
             <span class="historique-meta">
               <span class="historique-date">{{ formatCourseDate(c.createdAt) }}</span>
+              <Button
+                icon="pi pi-file-excel"
+                severity="secondary"
+                text
+                rounded
+                size="small"
+                aria-label="Exporter"
+                class="historique-export"
+                :loading="exportingId === c.id"
+                :disabled="!!exportingId"
+                @click.stop="doExportCourse(c.id, $event)"
+              />
               <Button
                 icon="pi pi-trash"
                 severity="danger"
@@ -133,6 +188,7 @@ onMounted(loadCourses)
   background: var(--p-surface-100, #f3f4f6);
 }
 
+.historique-export,
 .historique-delete {
   flex-shrink: 0;
   min-height: 44px;
