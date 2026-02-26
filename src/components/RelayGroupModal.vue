@@ -166,7 +166,7 @@ function onHide() {
 
     <template #footer>
       <Button
-        label="Supprimer le groupe"
+        label="Supprimer"
         severity="danger"
         icon="pi pi-trash"
         class="participant-btn"

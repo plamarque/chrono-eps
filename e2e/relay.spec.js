@@ -14,7 +14,7 @@ test.describe('Mode relais', () => {
   })
 
   test('Ajouter un groupe affiche Groupe 2', async ({ page }) => {
-    await participants(page).getByRole('button', { name: 'Ajouter un groupe' }).click()
+    await participants(page).getByRole('button', { name: 'Ajouter' }).click()
     await expect(page.getByText('Groupe 2')).toBeVisible()
   })
 

@@ -510,7 +510,7 @@ describe('HomeView', () => {
     expect(wrapper.vm.groupRunners[g1.id]).toHaveLength(1)
     expect(wrapper.vm.groupRunners[g1.id][0].nom).toBe('Coureur 1')
 
-    const addGroupBtn = wrapper.find('button[aria-label="Ajouter un groupe"]')
+    const addGroupBtn = wrapper.find('button[aria-label="Ajouter"]')
     await addGroupBtn.trigger('click')
     await wrapper.vm.$nextTick()
 

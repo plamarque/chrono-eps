@@ -341,11 +341,11 @@ const hasAnyPassage = computed(() =>
         class="tableau-relay-add-cell"
       >
         <Button
-          label="Ajouter un groupe"
+          label="Ajouter"
           icon="pi pi-plus"
           severity="primary"
           class="participant-btn"
-          aria-label="Ajouter un groupe"
+          aria-label="Ajouter"
           @click="addGroup"
         />
       </div>

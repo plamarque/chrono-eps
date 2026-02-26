@@ -16,7 +16,7 @@ export const SCENARIOS = [
       await page.goto('/')
       // 5 groupes (1 par défaut + 4 ajoutés)
       for (let i = 0; i < 4; i++) {
-        await participants(page).getByRole('button', { name: 'Ajouter un groupe' }).click()
+        await participants(page).getByRole('button', { name: 'Ajouter' }).click()
         await delay(100)
       }
       await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
@@ -95,7 +95,7 @@ export const SCENARIOS = [
         await page.goto('/')
         if (relay) {
           for (let i = 0; i < 4; i++) {
-            await participants(page).getByRole('button', { name: 'Ajouter un groupe' }).click()
+            await participants(page).getByRole('button', { name: 'Ajouter' }).click()
             await delay(80)
           }
           await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
@@ -136,7 +136,7 @@ export const SCENARIOS = [
     setup: async (page) => {
       await page.goto('/')
       for (let i = 0; i < 4; i++) {
-        await participants(page).getByRole('button', { name: 'Ajouter un groupe' }).click()
+        await participants(page).getByRole('button', { name: 'Ajouter' }).click()
         await delay(100)
       }
       await page.locator('.tableau-relay-body-clickable').first().click()
@@ -150,7 +150,7 @@ export const SCENARIOS = [
     setup: async (page) => {
       await page.goto('/')
       for (let i = 0; i < 4; i++) {
-        await participants(page).getByRole('button', { name: 'Ajouter un groupe' }).click()
+        await participants(page).getByRole('button', { name: 'Ajouter' }).click()
         await delay(100)
       }
       await chrono(page).getByRole('button', { name: 'Démarrer' }).click()

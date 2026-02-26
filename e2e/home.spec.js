@@ -68,7 +68,7 @@ test.describe('Accueil - Changement de mode', () => {
   test('Relais vers Individuel avec config : annuler garde le mode relais', async ({ page }) => {
     await page.goto('/')
     const participants = page.getByRole('region', { name: 'Participants' })
-    await participants.getByRole('button', { name: 'Ajouter un groupe' }).click()
+    await participants.getByRole('button', { name: 'Ajouter' }).click()
     await expect(page.getByText('Groupe 2')).toBeVisible()
     await page.getByRole('button', { name: 'Individuel' }).click()
     await expect(page.getByText('Changer de mode ?')).toBeVisible()
