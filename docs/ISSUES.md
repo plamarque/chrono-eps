@@ -74,11 +74,11 @@
 
 ### [iOS] Mise à jour SDK requise avant avril 2026
 
-**Problème :** App Store Connect avertit (ITMS-90725) : à partir du 28 avril 2026, les apps doivent être compilées avec un SDK plus récent (iOS 26 / Xcode 26 selon le message, probablement une erreur de libellé).
+**Problème :** App Store Connect avertit (ITMS-90725) : à partir du 28 avril 2026, les apps doivent être compilées avec le **SDK iOS 26** (Xcode 26).
 
-**État :** Différé
+**État :** Fait — workflows `build-ios` et `promote-ios` utilisent le runner `macos-26` (Xcode 26 / iOS 26 SDK).
 
-**Impact :** Actuellement build avec iOS 18.5 SDK (macos-15, Xcode 16). Livraison OK. À traiter avant la date limite en passant à un runner macOS/Xcode plus récent dans le workflow.
+**Impact (avant correctif) :** Build avec iOS 18.x SDK sur `macos-15` ; avertissement puis blocage possible après la date limite.
 
 ## Évolutions potentielles
 

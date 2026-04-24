@@ -158,7 +158,8 @@ jobs:
           gh release upload "$TAG" dist/chrono-eps-android.aab --clobber
 
   build-ios:
-    runs-on: macos-15  # Xcode plus récent pour Firebase/CocoaPods
+    # ITMS-90725 : à partir du 28/04/2026, build requis avec iOS 26 SDK / Xcode 26 (ex. macos-26)
+    runs-on: macos-26
     needs: [create-release, e2e]
     permissions:
       contents: write  # pour gh release upload

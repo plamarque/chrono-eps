@@ -13,10 +13,12 @@ Ce guide décrit comment publier Chrono EPS (PWA) sur l'Apple App Store et le Go
 
 **Comptes développeur requis :**
 
-| Store | Compte | Frais |
-|-------|--------|-------|
-| **Google Play** | [Google Play Console](https://play.google.com/console) | Frais unique (~25 USD) |
-| **Apple** | [Apple Developer Program](https://developer.apple.com/programs/) | Abonnement annuel (99 USD) |
+
+| Store           | Compte                                                           | Frais                      |
+| --------------- | ---------------------------------------------------------------- | -------------------------- |
+| **Google Play** | [Google Play Console](https://play.google.com/console)           | Frais unique (~25 USD)     |
+| **Apple**       | [Apple Developer Program](https://developer.apple.com/programs/) | Abonnement annuel (99 USD) |
+
 
 ## 2. Validation avant packaging
 
@@ -84,20 +86,17 @@ Le fichier doit être accessible à : `https://plamarque.github.io/.well-known/a
 **Étapes :**
 
 1. **Récupérer le fingerprint SHA-256** dans Play Console :
-   - *Paramètres* → *Intégrité de l'application* (ou *App signing*)
-   - Copier le **SHA-256 du certificat de signature de l'application** (clé gérée par Google, pas la clé de téléversement)
-
+  - *Paramètres* → *Intégrité de l'application* (ou *App signing*)
+  - Copier le **SHA-256 du certificat de signature de l'application** (clé gérée par Google, pas la clé de téléversement)
 2. **Remplacer dans** `public/.well-known/assetlinks.json` :
-   ```json
+  ```json
    "sha256_cert_fingerprints": ["XX:XX:XX:XX:..."]
-   ```
-
+  ```
 3. **Héberger à la racine du domaine** — le site chrono-eps est en `plamarque.github.io/chrono-eps/`, donc `/.well-known/` doit être servi par `plamarque.github.io` :
-   - Créer un dépôt **plamarque/plamarque.github.io** (s'il n'existe pas)
-   - Y ajouter le dossier `.well-known/` avec `assetlinks.json`
-   - Le fichier sera servi à `https://plamarque.github.io/.well-known/assetlinks.json`
-
-4. **Vérifier** : https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://plamarque.github.io&relation=delegate_permission/common.handle_all_urls
+  - Créer un dépôt **plamarque/plamarque.github.io** (s'il n'existe pas)
+  - Y ajouter le dossier `.well-known/` avec `assetlinks.json`
+  - Le fichier sera servi à `https://plamarque.github.io/.well-known/assetlinks.json`
+4. **Vérifier** : [https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://plamarque.github.io&relation=delegate_permission/common.handle_all_urls](https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://plamarque.github.io&relation=delegate_permission/common.handle_all_urls)
 
 ### 4.2 Clé de signature
 
@@ -171,10 +170,10 @@ open ios/Chrono\ EPS.xcworkspace
 2. Menu **Product → Archive**.
 3. Si une fenêtre demande un mot de passe : saisir le **mot de passe de session macOS** (pour accéder au Keychain / certificat de développement). Optionnel : cocher « Toujours autoriser ».
 4. Si erreur de signature :
-   - Cliquer sur le projet **Chrono EPS** dans la sidebar
-   - Target **Chrono EPS** → onglet **Signing & Capabilities**
-   - Cocher **Automatically manage signing**
-   - Sélectionner votre **Team** (compte Apple Developer)
+  - Cliquer sur le projet **Chrono EPS** dans la sidebar
+  - Target **Chrono EPS** → onglet **Signing & Capabilities**
+  - Cocher **Automatically manage signing**
+  - Sélectionner votre **Team** (compte Apple Developer)
 5. Attendre la fin de la compilation.
 6. L'**Organizer** s'ouvre automatiquement.
 
@@ -196,8 +195,8 @@ open ios/Chrono\ EPS.xcworkspace
 2. Sélectionner l'app **Chronomètre EPS** → Version iOS 1.0 (ou la version en cours).
 3. Remplir le formulaire avec le contenu de l'[Annexe A — Contenu App Store Connect](#annexe-a-contenu-app-store-connect).
 4. Téléverser les screenshots depuis `public/screenshots/ios/` :
-   - iPhone : onglet Phone → 6.5" Display
-   - iPad : onglet iPad → 13" Display
+  - iPhone : onglet Phone → 6.5" Display
+  - iPad : onglet iPad → 13" Display
 5. Sélectionner le build uploadé dans la section « Build ».
 6. Renseigner les informations de contact pour App Review.
 7. Soumettre pour révision.
@@ -228,43 +227,49 @@ Apple peut refuser les apps qui ressemblent à de simples « sites web dans une 
 
 ## 6. Pièces à préparer pour les deux stores
 
-| Élément | Description |
-|---------|-------------|
-| Captures d'écran | Plusieurs tailles (téléphone, tablette) — cf. [Annexe B](#annexe-b--spécifications-des-screenshots-référence) |
-| Icône 512×512 | `public/pwa-512x512.png` — régénérer avec `npm run icons` (dégradé bleu→violet, alignement iOS/Android) |
-| Image de présentation (1024×500) | Générer via `public/store-feature-graphic.html` : ouvrir dans un navigateur, cliquer « Télécharger l'image PNG » |
-| Description courte | Ex. : « Chronomètre multi-coureurs pour les enseignants d'EPS » |
-| Description longue | Détail des fonctionnalités (chrono, passages, historique, hors ligne) |
-| Politique de confidentialité | URL : `https://plamarque.github.io/chrono-eps/privacy.html` — Chrono EPS stocke les données localement ; l'absence de collecte serveur y est détaillée |
-| Catégorie | Ex. : Éducation, Productivité |
+
+| Élément                          | Description                                                                                                                                            |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Captures d'écran                 | Plusieurs tailles (téléphone, tablette) — cf. [Annexe B](#annexe-b--spécifications-des-screenshots-référence)                                          |
+| Icône 512×512                    | `public/pwa-512x512.png` — régénérer avec `npm run icons` (dégradé bleu→violet, alignement iOS/Android)                                                |
+| Image de présentation (1024×500) | Générer via `public/store-feature-graphic.html` : ouvrir dans un navigateur, cliquer « Télécharger l'image PNG »                                       |
+| Description courte               | Ex. : « Chronomètre multi-coureurs pour les enseignants d'EPS »                                                                                        |
+| Description longue               | Détail des fonctionnalités (chrono, passages, historique, hors ligne)                                                                                  |
+| Politique de confidentialité     | URL : `https://plamarque.github.io/chrono-eps/privacy.html` — Chrono EPS stocke les données localement ; l'absence de collecte serveur y est détaillée |
+| Catégorie                        | Ex. : Éducation, Productivité                                                                                                                          |
+
 
 ## 7. Limitations et points d'attention (Chrono EPS)
 
-| Point | Détail |
-|-------|--------|
+
+| Point                                  | Détail                                                                                                                                                |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **GitHub Pages + Digital Asset Links** | La contrainte `/.well-known/assetlinks.json` peut nécessiter un domaine personnalisé ou une configuration spécifique. Documenter la solution retenue. |
-| **base path** | `base: '/chrono-eps/'` — vérifier que `start_url` et les chemins sont corrects dans le manifeste pour le packaging. |
-| **Icône 512** | Non precachée (cf. [ISSUES.md](ISSUES.md)) ; acceptable pour le packaging stores. |
-| **Precache index.html** | `index.html` est exclu du precache Workbox pour que les apps TWA/iOS affichent la bonne version après mise à jour store sans refresh manuel. |
+| **base path**                          | `base: '/chrono-eps/'` — vérifier que `start_url` et les chemins sont corrects dans le manifeste pour le packaging.                                   |
+| **Icône 512**                          | Non precachée (cf. [ISSUES.md](ISSUES.md)) ; acceptable pour le packaging stores.                                                                     |
+| **Precache index.html**                | `index.html` est exclu du precache Workbox pour que les apps TWA/iOS affichent la bonne version après mise à jour store sans refresh manuel.          |
+
 
 ## 9. Pipeline CI/CD
 
-Le workflow `.github/workflows/release-stores.yml` s'exécute à chaque push de tag `v*` et automatise la release complète.
+Le workflow `.github/workflows/release-stores.yml` s'exécute à chaque push de tag `v`* et automatise la release complète.
 
 ### 9.1 Secrets GitHub requis
 
-| Secret | Description |
-|--------|-------------|
-| `PLAY_STORE_SERVICE_ACCOUNT` | JSON du Service Account (Google Cloud) ayant accès à l'API Play Console |
-| `ANDROID_KEYSTORE_BASE64` | Keystore encodé en base64 (`base64 -i android-twa/android.keystore`) |
-| `BUBBLEWRAP_KEYSTORE_PASSWORD` | Mot de passe du keystore |
-| `BUBBLEWRAP_KEY_PASSWORD` | Mot de passe de la clé |
-| `APPSTORE_ISSUER_ID` | Issuer ID (App Store Connect → Intégrations) |
-| `APPSTORE_KEY_ID` | Key ID de la clé API |
-| `APPSTORE_API_PRIVATE_KEY` | Contenu du fichier .p8 (clé API) |
-| `MATCH_PASSWORD` | Mot de passe pour décrypter les certificats Match |
-| `MATCH_GIT_URL` | URL HTTPS du dépôt privé contenant les certificats (ex. `https://github.com/user/certificates`) |
-| `MATCH_GIT_BASIC_AUTHORIZATION` | Base64 de `username:token` ou `x-access-token:TOKEN` pour cloner le dépôt Match |
+
+| Secret                          | Description                                                                                                                               |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `PLAY_STORE_SERVICE_ACCOUNT`    | JSON du Service Account (Google Cloud) ayant accès à l'API Play Console                                                                   |
+| `ANDROID_KEYSTORE_BASE64`       | Keystore encodé en base64 (`base64 -i android-twa/android.keystore`)                                                                      |
+| `BUBBLEWRAP_KEYSTORE_PASSWORD`  | Mot de passe du keystore                                                                                                                  |
+| `BUBBLEWRAP_KEY_PASSWORD`       | Mot de passe de la clé                                                                                                                    |
+| `APPSTORE_ISSUER_ID`            | Issuer ID (App Store Connect → Intégrations)                                                                                              |
+| `APPSTORE_KEY_ID`               | Key ID de la clé API                                                                                                                      |
+| `APPSTORE_API_PRIVATE_KEY`      | Contenu du fichier .p8 (clé API)                                                                                                          |
+| `MATCH_PASSWORD`                | Mot de passe pour décrypter les certificats Match                                                                                         |
+| `MATCH_GIT_URL`                 | URL HTTPS du dépôt privé contenant les certificats (ex. `https://github.com/user/certificates`)                                           |
+| `MATCH_GIT_BASIC_AUTHORIZATION` | **Une seule ligne** : Base64 de `x-access-token:VOTRE_PAT` (pas le PAT en clair) — détails et commande dans la section 10 (match / clone) |
+
 
 ### 9.2 Configuration Fastlane Match (iOS)
 
@@ -273,7 +278,7 @@ Avant la première exécution du job iOS :
 1. Créer un dépôt Git privé (ex. `chrono-eps-certificates`)
 2. Dans `ios/` : `bundle install` puis `bundle exec fastlane match appstore`
 3. Suivre les invites (git_url, mot de passe) pour stocker certificat et provisioning profile
-4. Ajouter les secrets `MATCH_*` dans GitHub
+4. Ajouter les secrets `MATCH`_* dans GitHub
 
 ### 9.3 Flux complet
 
@@ -289,6 +294,7 @@ Promote : ./scripts/promote-to-stores.sh v0.1.2
 ```
 
 **Jobs du workflow release-stores.yml :**
+
 - `create-release` : crée la release GitHub avec changelog (commits entre tags)
 - `build-android` : build AAB via Bubblewrap, upload Play Store (internal), `releaseName` + changelog
 - `build-ios` : build IPA via Fastlane, upload TestFlight, attache à la release
@@ -299,14 +305,17 @@ Une fois une version validée par les testeurs (internal + TestFlight), elle peu
 
 **Distinction release / promote :**
 
-| Action | Cible | Commande |
-|--------|-------|----------|
-| **Release** | Testeurs (internal, TestFlight) | `./scripts/release-version.sh --patch` |
-| **Promote** | Production (stores publics) | `./scripts/promote-to-stores.sh v0.1.2` ou `latest` |
+
+| Action      | Cible                           | Commande                                            |
+| ----------- | ------------------------------- | --------------------------------------------------- |
+| **Release** | Testeurs (internal, TestFlight) | `./scripts/release-version.sh --patch`              |
+| **Promote** | Production (stores publics)     | `./scripts/promote-to-stores.sh v0.1.2` ou `latest` |
+
 
 **Prérequis :** La version doit déjà avoir été release (présente sur internal + TestFlight avec binaires attachés à la release GitHub).
 
 **Comportement :**
+
 - **Android** : télécharge l'AAB depuis la release, l'uploade vers la piste `production` du Play Store
 - **iOS** : soumet le build TestFlight correspondant pour review App Store (via Fastlane `deliver`)
 
@@ -317,26 +326,31 @@ Une fois une version validée par les testeurs (internal + TestFlight), elle peu
 Points techniques importants pour la maintenance du pipeline :
 
 **Android (Bubblewrap) :**
+
 - **Prompts interactifs** : Bubblewrap pose des questions (JDK, SDK, licences). En CI, `yes y` est pipé pour répondre automatiquement. Ne pas limiter avec `head` — trop de prompts, le pipe se ferme et le build échoue (exit 130).
 - **Version écrasée par "y"** : La commande `update` lit stdin ; si elle reçoit "y", elle peut écraser la version. Le script utilise `update ... < /dev/null` pour isoler cette commande.
 - **versionCode unique** : Le Play Store exige un versionCode strictement croissant. En CI, `GITHUB_RUN_NUMBER` est intégré (ex. 0.2.7 + run 42 → 207042) pour permettre les ré-uploads.
 - **releaseName et changelog** : L'action `upload-google-play` reçoit `releaseName` (tag) et `whatsNewDirectory` (changelog depuis les commits entre tags) pour un affichage correct dans Play Console.
 
 **iOS (Fastlane) :**
+
 - **Authentification** : `upload_to_testflight` et `deliver` utilisent le paramètre `api_key` (pas `app_store_connect_api_key`).
 - **CFBundleShortVersionString** : La version marketing est synchronisée avec le tag de release (ex. v0.3.1 → 0.3.1). Chaque nouvel upload doit avoir une version supérieure à la dernière approuvée sur l'App Store.
 - **Build number unique** : TestFlight exige un CFBundleVersion strictement croissant. En CI, `GITHUB_RUN_NUMBER` est utilisé comme build number.
-- **Runner** : `macos-15` (Xcode 16) pour compatibilité Firebase/CocoaPods.
+- **Runner** : `macos-26` (Xcode 26, SDK iOS 26) — requis pour l’exigence App Store ITMS-90725 (depuis avril 2026).
 - **SDK iOS** : À partir d'avril 2026, Apple exigera un SDK plus récent — voir [ISSUES.md](ISSUES.md).
 
 **PWA :**
+
 - **Cache index.html** : `index.html` est exclu du precache Workbox (vite.config.js). Sans cela, après une mise à jour Play Store, l'app afficherait l'ancienne version jusqu'à un refresh manuel.
 
 **Play Console :**
+
 - Le compte de service (Google Cloud) doit être ajouté dans Play Console avec les droits nécessaires à l'API. Sinon : « The caller does not have permission ».
 - **Release notes** : Les notes de mise à jour sont limitées à 500 caractères par langue. Le workflow tronque automatiquement le changelog (commits entre tags) à cette limite.
 
 **TestFlight :**
+
 - Les testeurs reçoivent une notification (email/push) quand un build est disponible. La mise à jour se fait manuellement dans l'app TestFlight (pas d'auto-update).
 
 ## 10. Dépannage
@@ -353,6 +367,28 @@ Apple considère « 1 » et « 1.0.0 » comme **équivalents**. Si la dernière 
 ```
 
 La version iOS est désormais définie via Fastlane (`increment_version_number`) à partir du tag, ce qui est plus fiable que la modification manuelle du projet Xcode.
+
+### Erreur iOS : `match` — « Error cloning certificates git repo » (`could not read Username for 'https://github.com'`)
+
+**Cause :** Fastlane `match` clone le dépôt privé des certificats en HTTPS. Sur GitHub Actions, il n’y a pas de session Git interactive : il faut un **Personal Access Token (PAT)** GitHub avec accès **lecture** au dépôt des certificats, et le secret `MATCH_GIT_BASIC_AUTHORIZATION` correctement rempli.
+
+**À vérifier :**
+
+1. `**MATCH_GIT_URL`** — URL HTTPS exacte du dépôt (ex. `https://github.com/votre-org/chrono-eps-certificates.git`), sans faute de frappe.
+2. **PAT** — Token classique avec scope `**repo`** (ou token fine-grained avec **lecture** sur ce dépôt uniquement). Régénérer le token s’il a expiré ou été révoqué.
+3. `**MATCH_GIT_BASIC_AUTHORIZATION`** — Ce n’est **pas** le PAT en clair : c’est le **Base64** de la chaîne `x-access-token:TOKEN` (le `:` est important). Aucun retour à la ligne dans le secret.
+
+Génération locale (macOS / Linux) — copier **toute** la sortie sur une ligne dans le secret GitHub :
+
+```bash
+printf '%s' 'x-access-token:ghp_xxxxxxxx' | base64
+```
+
+Sur Linux, si la commande ajoute des retours ligne, utiliser `| tr -d '\n'`. Ne pas utiliser `echo` sans `-n` (sinon le Base64 est invalide).
+
+1. **Accès au dépôt** — Le compte du PAT doit pouvoir cloner le dépôt (membre de l’org ou collaborateur sur le repo privé).
+
+Après mise à jour des secrets : relancer le job **build-ios** (re-run failed job) ou pousser un tag de release à nouveau.
 
 ### Erreur Android : « release notes too long (max: 500) »
 
@@ -377,22 +413,27 @@ Source : Play Console (Fiche de l'application principale → Graphics) et [App S
 
 Format : PNG ou JPEG, max 8 Mo par image. Ratio 16:9 ou 9:16.
 
-| Cible | Côté min | Côté max |
-|-------|----------|----------|
-| **Téléphones** | 320 px | 3840 px |
-| **Tablettes 7"** | 320 px | 3840 px |
-| **Tablettes 10"** | 1080 px | 7680 px |
+
+| Cible             | Côté min | Côté max |
+| ----------------- | -------- | -------- |
+| **Téléphones**    | 320 px   | 3840 px  |
+| **Tablettes 7"**  | 320 px   | 3840 px  |
+| **Tablettes 10"** | 1080 px  | 7680 px  |
+
 
 **Où modifier :** Play Console → Développer l'audience → Présence en magasin → Fiche de l'application principale → section Graphics (Phone screenshots, Tablet 7-inch screenshots, Tablet 10-inch screenshots).
 
 ### Apple App Store (iOS)
 
-| Cible | Dimensions | Orientation |
-|-------|------------|-------------|
-| **iPhone 6.5"** | 1284 × 2778 px | Portrait |
-| **iPad 13"** | 2732 × 2048 px | Paysage (Chrono EPS) |
+
+| Cible           | Dimensions     | Orientation          |
+| --------------- | -------------- | -------------------- |
+| **iPhone 6.5"** | 1284 × 2778 px | Portrait             |
+| **iPad 13"**    | 2732 × 2048 px | Paysage (Chrono EPS) |
+
 
 ---
+
 - [PWABuilder docs — Android](https://docs.pwabuilder.com/#/builder/android)
 - [PWABuilder docs — App Store](https://docs.pwabuilder.com/#/builder/app-store)
 - [web.dev — PWAs in app stores](https://web.dev/articles/pwas-in-app-stores)
@@ -429,11 +470,13 @@ EPS,chronomètre,course,piste,relais,coureur,enseignant,éducation physique
 
 ### URLs
 
-| Champ | Valeur |
-|-------|--------|
-| **Support URL** | https://github.com/plamarque/chrono-eps/issues |
-| **Marketing URL** (optionnel) | https://github.com/plamarque/chrono-eps |
-| **Politique de confidentialité** | https://plamarque.github.io/chrono-eps/privacy.html |
+
+| Champ                            | Valeur                                                                                                     |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Support URL**                  | [https://github.com/plamarque/chrono-eps/issues](https://github.com/plamarque/chrono-eps/issues)           |
+| **Marketing URL** (optionnel)    | [https://github.com/plamarque/chrono-eps](https://github.com/plamarque/chrono-eps)                         |
+| **Politique de confidentialité** | [https://plamarque.github.io/chrono-eps/privacy.html](https://plamarque.github.io/chrono-eps/privacy.html) |
+
 
 ### Copyright
 
@@ -457,14 +500,15 @@ Première version : chronomètre multi-coureurs, passages de tours par tap, mode
 
 ### Checklist
 
-- [ ] Promotional Text
-- [ ] Description
-- [ ] Keywords
-- [ ] Support URL
-- [ ] Marketing URL (optionnel)
-- [ ] Copyright
-- [ ] Screenshots iPhone (1284×2778)
-- [ ] Screenshots iPad (2732×2048 paysage)
-- [ ] Build uploadé
-- [ ] App Review contact + Notes
-- [ ] Politique de confidentialité (section App Privacy ou équivalent)
+- Promotional Text
+- Description
+- Keywords
+- Support URL
+- Marketing URL (optionnel)
+- Copyright
+- Screenshots iPhone (1284×2778)
+- Screenshots iPad (2732×2048 paysage)
+- Build uploadé
+- App Review contact + Notes
+- Politique de confidentialité (section App Privacy ou équivalent)
+
