@@ -45,9 +45,9 @@ Deux actions distinctes permettent de repartir sur une nouvelle course :
 |--------|-------------|-------|---------------|
 | **Nouvelle course** | Barre d'outils (en haut à gauche, même ligne que Relais/Individuel) | Réinitialisation complète : efface participants, groupes, passages et chrono ; repart sur une course vierge (1 groupe avec 1 coureur par défaut en mode relais, ou 1 participant en mode individuel) | Toujours sur l'écran d'accueil |
 | **Dupliquer** | Sous le chronomètre (à la place de Réinitialiser) | Conserve participants et groupes ; efface uniquement les temps et passages ; permet de refaire une course avec la même configuration | Quand une course chargée a des passages ou a été lancée (pas une course « préparée » sans run) |
-| **Réinitialiser** | Sous le chronomètre | Conserve la configuration ; remet le chrono à zéro et efface les passages | Quand le chrono est en pause, sans course chargée |
+| **Réinitialiser** | Sous le chronomètre | Conserve la configuration ; remet le chrono à zéro et efface les passages ; dialogue de confirmation si un temps a été mesuré ou s'il existe des passages (sinon action immédiate) | Quand le chrono est en pause et que le bouton affiché n'est pas « Dupliquer » (course chargée avec passages ou lancée) |
 
-Dialogue de confirmation : « Nouvelle course » et le switcher Relais/Individuel affichent le même dialogue si une configuration en cours serait perdue.
+Dialogue de confirmation : « Nouvelle course » et le switcher Relais/Individuel affichent le même dialogue si une configuration en cours serait perdue. « Réinitialiser » sur l'accueil (hors libellé « Dupliquer ») affiche un dialogue dédié lorsqu'un temps ou des passages seraient effacés ; les boutons d'action sont libellés pour éviter l'ambiguïté avec le bouton chronomètre. Quitter l'écran d'accueil (lien Historique ou autre navigation) avec une session non enregistrée au même sens affiche un dialogue (Quitter / Rester) ; pas de dialogue lorsque la course affichée est une course déjà enregistrée en lecture seule (données persistées).
 
 ## Comportement
 

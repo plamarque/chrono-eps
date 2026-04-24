@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
@@ -284,9 +284,17 @@ function handleStart() {
   start()
 }
 
-function handleReset() {
+const isDuplicateChronoButton = computed(
+  () => !!currentCourse.value && !isPreparedCourse.value
+)
+
+const hasChronoDataToReset = computed(
+  () => hasAnyPassage.value || elapsedMs.value > 0
+)
+
+async function applyResetFromChrono() {
   if (currentCourse.value) {
-    doLoadCourseAsTemplate(currentCourse.value.id)
+    await doLoadCourseAsTemplate(currentCourse.value.id)
   } else {
     // Si mode individuel sans participants valides, réinitialiser proprement
     if (mode.value === 'individual' && participants.value.length === 0) {
@@ -298,6 +306,66 @@ function handleReset() {
     reset()
   }
 }
+
+function handleReset() {
+  if (isDuplicateChronoButton.value) {
+    void applyResetFromChrono()
+    return
+  }
+  if (!hasChronoDataToReset.value) {
+    void applyResetFromChrono()
+    return
+  }
+  confirm.require({
+    header: 'Réinitialiser ?',
+    message:
+      'Êtes-vous sûr de vouloir réinitialiser ? Les temps et passages seront effacés. Les participants et groupes restent configurés.',
+    acceptLabel: 'Oui, effacer',
+    rejectLabel: 'Annuler',
+    rejectProps: { severity: 'secondary' },
+    accept: () => {
+      void applyResetFromChrono()
+    }
+  })
+}
+
+/** Brouillon local : quitter l'accueil ferait perdre la même chose que « Nouvelle course » (sauf lecture seule d'une course déjà enregistrée). */
+function shouldConfirmLeaveHome() {
+  if (currentCourse.value && !isPreparedCourse.value) return false
+  return mode.value === 'relay' ? hasUnsavedRelayConfig.value : hasUnsavedIndividualConfig.value
+}
+
+onBeforeRouteLeave(() => {
+  if (!shouldConfirmLeaveHome()) return true
+  return new Promise((resolve) => {
+    let settled = false
+    let accepted = false
+    const settle = (allow) => {
+      if (settled) return
+      settled = true
+      resolve(allow)
+    }
+    const message =
+      mode.value === 'relay'
+        ? 'Vous avez une course en cours non enregistrée. Si vous quittez cette page, les temps, passages et la configuration seront perdus.'
+        : 'Vous avez une course en cours non enregistrée. Si vous quittez cette page, les temps, passages et les participants configurés seront perdus.'
+    confirm.require({
+      header: 'Quitter l\'accueil ?',
+      message,
+      acceptLabel: 'Quitter',
+      rejectLabel: 'Rester',
+      rejectProps: { severity: 'secondary' },
+      accept: () => {
+        accepted = true
+        settle(true)
+      },
+      reject: () => settle(false),
+      onHide: () => {
+        if (!accepted) settle(false)
+      }
+    })
+  })
+})
 
 function addParticipant(participant) {
   const max = mode.value === 'relay' ? 8 : 20

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
-import { createRouter, createMemoryHistory } from 'vue-router'
+import { createRouter, createMemoryHistory, RouterView } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
 import ConfirmationService from 'primevue/confirmationservice'
@@ -25,6 +26,14 @@ const createTestRouter = (initialPath = '/', initialQuery = {}) => {
   return router
 }
 
+/** Coque minimale pour que `onBeforeRouteLeave` dans HomeView soit enregistré (enfant de router-view). */
+const HomeViewTestShell = defineComponent({
+  name: 'HomeViewTestShell',
+  setup() {
+    return () => h(RouterView)
+  }
+})
+
 async function mountHomeView(routerOptions = {}) {
   const router = createTestRouter(
     routerOptions.path ?? '/',
@@ -32,7 +41,7 @@ async function mountHomeView(routerOptions = {}) {
   )
   await router.isReady()
 
-  const wrapper = mount(HomeView, {
+  const shell = mount(HomeViewTestShell, {
     global: {
       plugins: [PrimeVue, ToastService, ConfirmationService, router],
       stubs: {
@@ -48,7 +57,10 @@ async function mountHomeView(routerOptions = {}) {
     }
   })
 
-  return { wrapper, router }
+  const wrapper = shell.findComponent(HomeView)
+  expect(wrapper.exists()).toBe(true)
+
+  return { wrapper, router, shell }
 }
 
 /**
@@ -64,17 +76,17 @@ describe('HomeView', () => {
   })
 
   it('bouton Enregistrer activé quand pas de course chargée et chrono à l\'arrêt (sans passages)', async () => {
-    const { wrapper } = await mountHomeView()
+    const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
     const btn = wrapper.findAll('button').find((b) => b.text().includes('Enregistrer'))
     expect(btn.exists()).toBe(true)
     expect(btn.attributes('disabled')).toBeUndefined()
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('bouton Enregistrer désactivé pendant que le chrono tourne', async () => {
-    const { wrapper } = await mountHomeView()
+    const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
     const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
@@ -85,11 +97,11 @@ describe('HomeView', () => {
     const enregistrer = wrapper.findAll('button').find((b) => b.text().includes('Enregistrer'))
     expect(enregistrer.exists()).toBe(true)
     expect(enregistrer.attributes('disabled')).toBeDefined()
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('bouton Enregistrer activé après arrêt du chrono même sans passages', async () => {
-    const { wrapper } = await mountHomeView()
+    const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
     const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
@@ -103,7 +115,7 @@ describe('HomeView', () => {
     const enregistrer = wrapper.findAll('button').find((b) => b.text().includes('Enregistrer'))
     expect(enregistrer.exists()).toBe(true)
     expect(enregistrer.attributes('disabled')).toBeUndefined()
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('modal Enregistrer prérempli avec le nom de la course préparée', async () => {
@@ -119,7 +131,7 @@ describe('HomeView', () => {
     }
     mockLoadCourse.mockResolvedValue(preparedCourse)
 
-    const { wrapper } = await mountHomeView({
+    const { wrapper, shell } = await mountHomeView({
       path: '/',
       query: { loadCourseId: preparedCourse.id }
     })
@@ -140,13 +152,13 @@ describe('HomeView', () => {
 
     const input = wrapper.find('[data-testid="course-nom-input"]')
     expect(input.element.value).toBe('Équipe du 20 février')
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('modal Enregistrer prérempli avec Course du [date] [heure] pour une nouvelle course', async () => {
     vi.setSystemTime(new Date('2025-02-26T14:45:00')) // 26 février 2025, 14:45
 
-    const { wrapper } = await mountHomeView()
+    const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
     const enregistrer = wrapper.findAll('button').find((b) => b.text().includes('Enregistrer'))
@@ -157,7 +169,7 @@ describe('HomeView', () => {
     expect(input.element.value).toBe('Course du 26 février 14:45')
 
     vi.useRealTimers()
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('course préparée : bouton Démarrer visible pour lancer la course', async () => {
@@ -173,7 +185,7 @@ describe('HomeView', () => {
     }
     mockLoadCourse.mockResolvedValue(preparedCourse)
 
-    const { wrapper } = await mountHomeView({
+    const { wrapper, shell } = await mountHomeView({
       path: '/',
       query: { loadCourseId: preparedCourse.id }
     })
@@ -182,7 +194,7 @@ describe('HomeView', () => {
 
     const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
     expect(demarrer.exists()).toBe(true)
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('Dupliquer (chronomètre) : conserve la config des coureurs et efface uniquement les temps', async () => {
@@ -203,7 +215,7 @@ describe('HomeView', () => {
     }
     mockLoadCourse.mockResolvedValue(savedCourse)
 
-    const { wrapper } = await mountHomeView({
+    const { wrapper, shell } = await mountHomeView({
       path: '/',
       query: { loadCourseId: savedCourse.id }
     })
@@ -225,7 +237,7 @@ describe('HomeView', () => {
     expect(wrapper.vm.participants).toHaveLength(2)
     expect(wrapper.vm.participants.map((p) => p.nom)).toEqual(['Coureur 1', 'Coureur 2'])
     expect(Object.keys(wrapper.vm.passagesByParticipant)).toHaveLength(0)
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('newFromCourseId charge en mode template : groupes/coureurs conservés, pas de nom ni passages', async () => {
@@ -241,7 +253,7 @@ describe('HomeView', () => {
     }
     mockLoadCourse.mockResolvedValue(sourceCourse)
 
-    const { wrapper } = await mountHomeView({
+    const { wrapper, shell } = await mountHomeView({
       path: '/',
       query: { newFromCourseId: sourceCourse.id }
     })
@@ -252,7 +264,7 @@ describe('HomeView', () => {
     expect(wrapper.find('.home-course-title').exists()).toBe(false)
     expect(wrapper.text()).toContain('Groupe 1')
     expect(wrapper.text()).toContain('Alice')
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('newFromCourseId mode individuel : config des coureurs conservée, temps réinitialisés', async () => {
@@ -275,7 +287,7 @@ describe('HomeView', () => {
     }
     mockLoadCourse.mockResolvedValue(sourceCourse)
 
-    const { wrapper } = await mountHomeView({
+    const { wrapper, shell } = await mountHomeView({
       path: '/',
       query: { newFromCourseId: sourceCourse.id }
     })
@@ -291,7 +303,7 @@ describe('HomeView', () => {
     expect(wrapper.vm.participants.map((p) => p.nom)).toEqual(['Coureur 1', 'Coureur 2', 'Coureur 3'])
     expect(Object.keys(wrapper.vm.passagesByParticipant)).toHaveLength(0)
     expect(wrapper.vm.currentCourse).toBeNull()
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('newFromCourseId mode individuel avec passages : participants triés par temps croissant', async () => {
@@ -314,7 +326,7 @@ describe('HomeView', () => {
     }
     mockLoadCourse.mockResolvedValue(sourceCourse)
 
-    const { wrapper } = await mountHomeView({
+    const { wrapper, shell } = await mountHomeView({
       path: '/',
       query: { newFromCourseId: sourceCourse.id }
     })
@@ -327,7 +339,7 @@ describe('HomeView', () => {
       'Coureur 3'
     ])
     expect(Object.keys(wrapper.vm.passagesByParticipant)).toHaveLength(0)
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('newFromCourseId mode individuel sans passages : ordre conservé', async () => {
@@ -346,7 +358,7 @@ describe('HomeView', () => {
     }
     mockLoadCourse.mockResolvedValue(sourceCourse)
 
-    const { wrapper } = await mountHomeView({
+    const { wrapper, shell } = await mountHomeView({
       path: '/',
       query: { newFromCourseId: sourceCourse.id }
     })
@@ -358,11 +370,11 @@ describe('HomeView', () => {
       'Bob',
       'Charlie'
     ])
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('changement de mode avec config non sauvegardée : dialogue de confirmation (mode inchangé tant que non confirmé)', async () => {
-    const { wrapper } = await mountHomeView()
+    const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
     expect(wrapper.vm.mode).toBe('relay')
@@ -376,11 +388,11 @@ describe('HomeView', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.mode).toBe('relay')
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('changement de mode sans config à perdre : bascule immédiate', async () => {
-    const { wrapper } = await mountHomeView()
+    const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
     expect(wrapper.vm.mode).toBe('relay')
@@ -389,11 +401,11 @@ describe('HomeView', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.mode).toBe('individual')
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('recliquer sur Individuel en mode individuel garde le mode individuel', async () => {
-    const { wrapper } = await mountHomeView()
+    const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
     const individuelBtn = wrapper.findAll('button').find((b) => b.text() === 'Individuel')
@@ -406,11 +418,11 @@ describe('HomeView', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.mode).toBe('individual')
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('onModeChange(null) ne change pas le mode (désélection ignorée)', async () => {
-    const { wrapper } = await mountHomeView()
+    const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
     wrapper.vm.mode = 'individual'
@@ -421,21 +433,21 @@ describe('HomeView', () => {
     wrapper.vm.onModeChange(null)
     expect(wrapper.vm.mode).toBe('relay')
 
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('Nouvelle course (toolbar) : toujours visible sur l\'écran d\'accueil', async () => {
-    const { wrapper } = await mountHomeView()
+    const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
     const toolbar = wrapper.find('.home-toolbar')
     const nouvelleCourseBtn = toolbar.findAll('button').find((b) => b.text() === 'Nouvelle course')
     expect(nouvelleCourseBtn.exists()).toBe(true)
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('Nouvelle course (toolbar) avec config en cours : dialogue de confirmation, pas de reset sans accepter', async () => {
-    const { wrapper } = await mountHomeView()
+    const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
     const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
@@ -447,11 +459,49 @@ describe('HomeView', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.status).toBe('running')
-    wrapper.unmount()
+    shell.unmount()
+  })
+
+  it('Réinitialiser avec passages : dialogue de confirmation, pas de reset sans accepter', async () => {
+    const { wrapper, shell } = await mountHomeView()
+    await vi.advanceTimersByTimeAsync(0)
+
+    const individuelBtn = wrapper.findAll('button').find((b) => b.text() === 'Individuel')
+    await individuelBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
+    await demarrer.trigger('click')
+    await vi.advanceTimersByTimeAsync(10)
+
+    const marquer = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Marquer passage')
+    expect(marquer?.exists()).toBe(true)
+    await marquer.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const arreter = wrapper.findAll('button').find((b) => b.text() === 'Arrêter')
+    await arreter.trigger('click')
+    await vi.advanceTimersByTimeAsync(0)
+
+    const passageCount = Object.values(wrapper.vm.passagesByParticipant).filter(
+      (arr) => Array.isArray(arr) && arr.length > 0
+    ).length
+    expect(passageCount).toBeGreaterThan(0)
+
+    const reinit = wrapper.findAll('button').find((b) => b.text() === 'Réinitialiser')
+    expect(reinit?.exists()).toBe(true)
+    await reinit.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const passageCountAfter = Object.values(wrapper.vm.passagesByParticipant).filter(
+      (arr) => Array.isArray(arr) && arr.length > 0
+    ).length
+    expect(passageCountAfter).toBe(passageCount)
+    shell.unmount()
   })
 
   it('Nouvelle course (toolbar) sans config à perdre : reset complet immédiat', async () => {
-    const { wrapper } = await mountHomeView()
+    const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
     expect(wrapper.vm.mode).toBe('relay')
@@ -463,7 +513,7 @@ describe('HomeView', () => {
 
     expect(wrapper.vm.participants).toHaveLength(1)
     expect(wrapper.vm.currentCourse).toBeNull()
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('Nouvelle course (toolbar) : startNewCourse efface toute la config (vs Dupliquer qui la conserve)', async () => {
@@ -481,7 +531,7 @@ describe('HomeView', () => {
     }
     mockLoadCourse.mockResolvedValue(savedCourse)
 
-    const { wrapper } = await mountHomeView({ path: '/', query: { loadCourseId: savedCourse.id } })
+    const { wrapper, shell } = await mountHomeView({ path: '/', query: { loadCourseId: savedCourse.id } })
     await vi.runAllTimersAsync()
     await wrapper.vm.$nextTick()
 
@@ -493,11 +543,11 @@ describe('HomeView', () => {
     expect(wrapper.vm.participants).toHaveLength(1)
     expect(wrapper.vm.currentCourse).toBeNull()
     expect(Object.keys(wrapper.vm.passagesByParticipant)).toHaveLength(0)
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('changement Individuel → Relais avec chrono en cours : dialogue de confirmation', async () => {
-    const { wrapper } = await mountHomeView()
+    const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
     const individuelBtn = wrapper.findAll('button').find((b) => b.text() === 'Individuel')
@@ -514,11 +564,11 @@ describe('HomeView', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.mode).toBe('individual')
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('mode relais : premier groupe a Coureur 1 par défaut, nouveau groupe reçoit Coureur N+1', async () => {
-    const { wrapper } = await mountHomeView()
+    const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
     expect(wrapper.vm.mode).toBe('relay')
@@ -535,7 +585,7 @@ describe('HomeView', () => {
     const g2 = wrapper.vm.participants[1]
     expect(wrapper.vm.groupRunners[g2.id]).toHaveLength(1)
     expect(wrapper.vm.groupRunners[g2.id][0].nom).toBe('Coureur 2')
-    wrapper.unmount()
+    shell.unmount()
   })
 
   it('newFromCourseId mode individuel : participants sans passage en fin de liste', async () => {
@@ -556,7 +606,7 @@ describe('HomeView', () => {
     }
     mockLoadCourse.mockResolvedValue(sourceCourse)
 
-    const { wrapper } = await mountHomeView({
+    const { wrapper, shell } = await mountHomeView({
       path: '/',
       query: { newFromCourseId: sourceCourse.id }
     })
@@ -566,6 +616,6 @@ describe('HomeView', () => {
     expect(wrapper.vm.participants[0].nom).toBe('Avec temps')
     expect(wrapper.vm.participants.map((p) => p.nom)).toContain('Sans passage 1')
     expect(wrapper.vm.participants.map((p) => p.nom)).toContain('Sans passage 2')
-    wrapper.unmount()
+    shell.unmount()
   })
 })

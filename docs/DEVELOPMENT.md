@@ -73,11 +73,11 @@ Avant chaque déploiement ou release, valider manuellement les parcours critique
 
 | Parcours | Vérifications |
 |----------|---------------|
-| Chronomètre | Démarrer, Arrêter, Réinitialiser fonctionnent ; affichage mm:ss.ms correct |
+| Chronomètre | Démarrer, Arrêter, Réinitialiser fonctionnent ; confirmation avant réinitialisation si temps ou passages ; affichage mm:ss.ms correct |
 | Tours | Bouton Tour enregistre les passages ; liste des tours affiche numéro, temps tour, temps total |
 | Responsive | Affichage correct sur mobile/tablette ; zones tactiles ≥ 44px |
 | PWA | Installation possible depuis le navigateur ; icônes 192/512 ; manifeste valide |
-| Historique | Navigation Accueil / Historique ; liste des courses ; détail lecture seule |
+| Historique | Navigation Accueil / Historique ; confirmation si session non enregistrée sur l'accueil ; liste des courses ; détail lecture seule |
 
 Les tests unitaires (Vitest) couvrent la logique ; cette checklist couvre les flux utilisateur complets. Les tests E2E (Playwright) couvrent les parcours critiques : chrono, mode individuel, relais, historique, replay. Les tests du courseStore utilisent fake-indexeddb (vitest.setup.js) pour IndexedDB en environnement Node.
 
