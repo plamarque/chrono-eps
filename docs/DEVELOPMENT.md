@@ -2,7 +2,7 @@
 
 ## Prérequis
 
-- Node.js 20+
+- Node.js 24+
 - npm
 - [GitHub CLI (gh)](https://cli.github.com/) pour les releases (authentification requise)
 
