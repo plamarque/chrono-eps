@@ -180,7 +180,14 @@ function tourLabel(index) {
           :role="readOnly && !allowParticipantEdit ? null : 'button'"
           :tabindex="readOnly && !allowParticipantEdit ? -1 : 0"
         >
-          {{ p.nom }}
+          <span class="indiv-header-inner">
+            <i
+              v-if="!readOnly || allowParticipantEdit"
+              class="pi pi-pencil indiv-header-edit-icon"
+              aria-hidden="true"
+            />
+            <span class="indiv-header-nom">{{ p.nom }}</span>
+          </span>
         </div>
 
         <div v-if="!readOnly && !allowParticipantEdit" class="indiv-controls">
@@ -338,6 +345,25 @@ function tourLabel(index) {
   padding: 0.5rem 0.75rem;
   font-weight: 600;
   text-align: center;
+}
+
+.indiv-header-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  max-width: 100%;
+}
+
+.indiv-header-nom {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.indiv-header-edit-icon {
+  font-size: 0.72rem;
+  opacity: 0.92;
+  flex-shrink: 0;
 }
 
 .indiv-header-clickable {

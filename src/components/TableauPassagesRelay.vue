@@ -250,7 +250,14 @@ const hasAnyPassage = computed(() =>
           :role="readOnly ? null : 'button'"
           :tabindex="readOnly ? -1 : 0"
         >
-          {{ group.nom }}
+          <span class="tableau-relay-header-inner">
+            <i
+              v-if="!readOnly"
+              class="pi pi-pencil tableau-relay-header-edit-icon"
+              aria-hidden="true"
+            />
+            <span class="tableau-relay-header-nom">{{ group.nom }}</span>
+          </span>
         </div>
 
         <div v-if="!readOnly" class="tableau-relay-controls">
@@ -452,6 +459,25 @@ const hasAnyPassage = computed(() =>
   padding: 0.5rem 0.75rem;
   font-weight: 600;
   text-align: center;
+}
+
+.tableau-relay-header-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  max-width: 100%;
+}
+
+.tableau-relay-header-nom {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.tableau-relay-header-edit-icon {
+  font-size: 0.72rem;
+  opacity: 0.92;
+  flex-shrink: 0;
 }
 
 .tableau-relay-header-clickable {
