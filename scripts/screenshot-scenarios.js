@@ -36,13 +36,13 @@ export const SCENARIOS = [
     setup: async (page) => {
       await page.goto('/')
       await page.getByRole('button', { name: 'Individuel' }).click()
-      // 12 participants (1 par défaut + 11 ajoutés)
-      for (let i = 0; i < 11; i++) {
-        await page.getByRole('button', { name: 'Ajouter un participant' }).click()
-        await delay(80)
-      }
       await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
       await delay(300)
+      for (let i = 0; i < 12; i++) {
+        await chrono(page).getByRole('button', { name: 'Arrivée' }).click()
+        await delay(120)
+      }
+      await delay(800)
       await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
       await delay(300)
     },
@@ -52,13 +52,9 @@ export const SCENARIOS = [
     setup: async (page) => {
       await page.goto('/')
       await page.getByRole('button', { name: 'Individuel' }).click()
-      for (let i = 0; i < 11; i++) {
-        await page.getByRole('button', { name: 'Ajouter un participant' }).click()
-        await delay(80)
-      }
       await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
       await delay(300)
-      await page.getByRole('button', { name: 'Marquer passage' }).first().click()
+      await chrono(page).getByRole('button', { name: 'Arrivée' }).click()
       await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
       await chrono(page).getByRole('button', { name: 'Enregistrer' }).click()
       await delay(300)
@@ -69,13 +65,9 @@ export const SCENARIOS = [
     setup: async (page) => {
       await page.goto('/')
       await page.getByRole('button', { name: 'Individuel' }).click()
-      for (let i = 0; i < 11; i++) {
-        await page.getByRole('button', { name: 'Ajouter un participant' }).click()
-        await delay(80)
-      }
       await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
       await delay(300)
-      await page.getByRole('button', { name: 'Marquer passage' }).first().click()
+      await chrono(page).getByRole('button', { name: 'Arrivée' }).click()
       await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
       await delay(300)
     },
@@ -108,13 +100,9 @@ export const SCENARIOS = [
         } else {
           await page.getByRole('button', { name: 'Individuel' }).click()
           await delay(200)
-          for (let i = 0; i < 11; i++) {
-            await page.getByRole('button', { name: 'Ajouter un participant' }).click()
-            await delay(60)
-          }
           await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
           await delay(300)
-          await page.getByRole('button', { name: 'Marquer passage' }).first().click()
+          await chrono(page).getByRole('button', { name: 'Arrivée' }).click()
           await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
         }
         await chrono(page).getByRole('button', { name: 'Enregistrer' }).click()
@@ -168,41 +156,15 @@ export const SCENARIOS = [
     setup: async (page) => {
       await page.goto('/')
       await page.getByRole('button', { name: 'Individuel' }).click()
-      // 12 participants (1 par défaut + 11 ajoutés)
-      for (let i = 0; i < 11; i++) {
-        await page.getByRole('button', { name: 'Ajouter un participant' }).click()
-        await delay(80)
-      }
       await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
       await delay(400)
-
-      const lap = (runnerIndex) =>
-        page.locator('.tableau-passages-compact-card').nth(runnerIndex).getByRole('button', { name: 'Marquer passage' })
-      const stopRunner = (name) => page.getByRole('button', { name: `Arrêter ${name}`, exact: true })
-
-      // Tour 1 : passage pour chaque coureur
       for (let i = 0; i < 12; i++) {
-        await lap(i).click()
+        await chrono(page).getByRole('button', { name: 'Arrivée' }).click()
         await delay(400)
       }
-      // Stop Coureur 1 (non consécutif 1)
-      await stopRunner('Coureur 1').click()
+      await delay(4000)
+      await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
       await delay(300)
-      // Tour 2 : coureurs 2 à 12
-      for (let i = 1; i < 12; i++) {
-        await lap(i).click()
-        await delay(400)
-      }
-      // Stop Coureur 3 (non consécutif 2)
-      await stopRunner('Coureur 3').click()
-      await delay(300)
-      // Tour 3 : coureurs 2, 4-12 (indices 1,3-11 ; Coureur 3 = index 2 stoppé)
-      for (const i of [1, 3, 4, 5, 6, 7, 8, 9, 10, 11]) {
-        await lap(i).click()
-        await delay(400)
-      }
-      await delay(400)
-      // Screenshot : 2 stoppés (Coureur 1, 3), 10 en course
     },
   },
   {
@@ -210,13 +172,9 @@ export const SCENARIOS = [
     setup: async (page) => {
       await page.goto('/')
       await page.getByRole('button', { name: 'Individuel' }).click()
-      for (let i = 0; i < 11; i++) {
-        await page.getByRole('button', { name: 'Ajouter un participant' }).click()
-        await delay(60)
-      }
       await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
       await delay(300)
-      await page.getByRole('button', { name: 'Marquer passage' }).first().click()
+      await chrono(page).getByRole('button', { name: 'Arrivée' }).click()
       await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
       await chrono(page).getByRole('button', { name: 'Enregistrer' }).click()
       await page.getByLabel('Nom de la course').fill('1500m - Second B')
@@ -235,16 +193,10 @@ export const SCENARIOS = [
     setup: async (page) => {
       await page.goto('/')
       await page.getByRole('button', { name: 'Individuel' }).click()
-      for (let i = 0; i < 11; i++) {
-        await page.getByRole('button', { name: 'Ajouter un participant' }).click()
-        await delay(60)
-      }
       await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
       await delay(300)
-      // Passages espacés pour répartir les coureurs sur la piste (participants 1 à 6)
-      const lap = (idx) => page.locator('.tableau-passages-compact-card').nth(idx).getByRole('button', { name: 'Marquer passage' })
       for (let i = 0; i < 6; i++) {
-        await lap(i).click()
+        await chrono(page).getByRole('button', { name: 'Arrivée' }).click()
         await delay(400)
       }
       await chrono(page).getByRole('button', { name: 'Arrêter' }).click()

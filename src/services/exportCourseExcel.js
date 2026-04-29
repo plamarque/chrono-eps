@@ -50,6 +50,25 @@ export function buildExportDataIndividual(course) {
     : 0
   const totalCourseMs = getMaxTotalMsFromPassages(passagesByParticipant)
 
+  const useSimpleArrivalSheet =
+    !isSolo &&
+    participantsToExport.every((p) => (pbp[p.id] ?? []).length <= 1) &&
+    maxTourNum <= 1
+
+  if (useSimpleArrivalSheet) {
+    const header = ['Coureur', "Temps d'arrivée"]
+    const rows = [header]
+    for (const p of participantsToExport) {
+      const passages = (pbp[p.id] ?? [])
+        .slice()
+        .sort((a, b) => (a.tourNum ?? 0) - (b.tourNum ?? 0))
+      const totalMs = passages.length > 0 ? passages[0].totalMs : null
+      rows.push([p.nom ?? 'Coureur', totalMs != null ? formatTime(totalMs) : EMPTY_CELL])
+    }
+    rows.push(['Durée max. course', totalCourseMs > 0 ? formatTime(totalCourseMs) : EMPTY_CELL])
+    return rows
+  }
+
   const header = ['Coureur', ...Array.from({ length: maxTourNum }, (_, i) => `Tour ${i + 1}`), 'Total']
   const rows = [header]
 

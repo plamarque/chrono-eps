@@ -1,6 +1,7 @@
 import { ref, computed, watch, onUnmounted, unref } from 'vue'
 
 const SOLO_ID = '__solo__'
+const RACE_ID = '__race__'
 
 /**
  * @param {import('vue').Ref<Array<{id:string}>>} participantsRef
@@ -12,6 +13,14 @@ export function useChronometre(participantsRef, options = {}) {
   const passagesByParticipant = ref({})
   const chronoEpochMs = ref(null) // Epoch ms du démarrage chrono (pour persistance)
   let animationFrameId = null
+
+  function isRelay() {
+    return opts().mode === 'relay'
+  }
+
+  function isIndividual() {
+    return opts().mode !== 'relay'
+  }
 
   function ensureParticipantState(id) {
     if (!participantStates.value[id]) {
@@ -42,21 +51,12 @@ export function useChronometre(participantsRef, options = {}) {
   function startAll() {
     const participants = participantsRef?.value ?? []
     const now = performance.now()
-    if (chronoEpochMs.value == null) {
-      chronoEpochMs.value = Date.now() - (participantStates.value[participants.length === 0 ? SOLO_ID : participants[0]?.id]?.elapsedMs ?? 0)
-    }
-    if (participants.length === 0) {
-      const s = ensureParticipantState(SOLO_ID)
-      participantStates.value = {
-        ...participantStates.value,
-        [SOLO_ID]: {
-          ...s,
-          status: 'running',
-          elapsedBeforePause: s.elapsedMs ?? 0,
-          startTime: now
-        }
+
+    if (isRelay()) {
+      if (chronoEpochMs.value == null) {
+        chronoEpochMs.value =
+          Date.now() - (participantStates.value[participants[0]?.id]?.elapsedMs ?? 0)
       }
-    } else {
       const next = { ...participantStates.value }
       for (const p of participants) {
         const s = ensureParticipantState(p.id)
@@ -68,26 +68,60 @@ export function useChronometre(participantsRef, options = {}) {
         }
       }
       participantStates.value = next
+    } else {
+      // Individuel : une seule horloge de course (RACE_ID), indépendante des lignes coureur
+      if (chronoEpochMs.value == null) {
+        const s = participantStates.value[RACE_ID]
+        chronoEpochMs.value = Date.now() - (s?.elapsedMs ?? 0)
+      }
+      const s = ensureParticipantState(RACE_ID)
+      participantStates.value = {
+        ...participantStates.value,
+        [RACE_ID]: {
+          ...s,
+          status: 'running',
+          elapsedBeforePause: s.elapsedMs ?? 0,
+          startTime: now
+        }
+      }
     }
+
     if (!animationFrameId) {
       animationFrameId = requestAnimationFrame(tick)
     }
   }
 
   function stopAll() {
-    const states = participantStates.value
-    const next = { ...states }
-    for (const id of Object.keys(next)) {
-      if (next[id].status === 'running') {
-        recordPassage(id)
-        next[id] = {
-          ...next[id],
-          elapsedBeforePause: next[id].elapsedMs,
-          status: 'paused'
+    if (isRelay()) {
+      const states = participantStates.value
+      const next = { ...states }
+      for (const id of Object.keys(next)) {
+        if (next[id].status === 'running') {
+          recordPassage(id)
+          next[id] = {
+            ...next[id],
+            elapsedBeforePause: next[id].elapsedMs,
+            status: 'paused'
+          }
+        }
+      }
+      participantStates.value = next
+    } else {
+      const s = participantStates.value[RACE_ID]
+      if (!s || s.status !== 'running') return
+      const now = performance.now()
+      const elapsedMsAtStop = s.elapsedBeforePause + (now - s.startTime)
+      participantStates.value = {
+        ...participantStates.value,
+        [RACE_ID]: {
+          ...s,
+          elapsedMs: elapsedMsAtStop,
+          elapsedBeforePause: elapsedMsAtStop,
+          status: 'paused',
+          startTime: 0
         }
       }
     }
-    participantStates.value = next
     cancelAnimationFrame(animationFrameId)
     animationFrameId = null
   }
@@ -98,9 +132,12 @@ export function useChronometre(participantsRef, options = {}) {
     animationFrameId = null
     chronoEpochMs.value = null
     const next = {}
-    if (participants.length === 0) {
-      next[SOLO_ID] = { elapsedMs: 0, status: 'idle', elapsedBeforePause: 0, startTime: 0 }
+    if (isRelay()) {
+      for (const p of participants) {
+        next[p.id] = { elapsedMs: 0, status: 'idle', elapsedBeforePause: 0, startTime: 0 }
+      }
     } else {
+      next[RACE_ID] = { elapsedMs: 0, status: 'idle', elapsedBeforePause: 0, startTime: 0 }
       for (const p of participants) {
         next[p.id] = { elapsedMs: 0, status: 'idle', elapsedBeforePause: 0, startTime: 0 }
       }
@@ -110,6 +147,7 @@ export function useChronometre(participantsRef, options = {}) {
   }
 
   function startParticipant(id) {
+    if (!isRelay()) return
     const s = ensureParticipantState(id)
     if (s.status === 'running') return
     if (chronoEpochMs.value == null) {
@@ -131,9 +169,9 @@ export function useChronometre(participantsRef, options = {}) {
   }
 
   function stopParticipant(id) {
+    if (!isRelay()) return
     const s = participantStates.value[id]
     if (!s || s.status !== 'running') return
-    // Capture le temps du coureur avant de passer en paused
     recordPassage(id)
     participantStates.value = {
       ...participantStates.value,
@@ -151,71 +189,124 @@ export function useChronometre(participantsRef, options = {}) {
   }
 
   function recordPassage(participantId) {
+    if (!isRelay()) return
     const s = participantStates.value[participantId]
     if (!s || s.status !== 'running') return
-    const { mode = 'individual', groupRunners } = opts()
+    const { groupRunners } = opts()
     const passages = passagesByParticipant.value[participantId] ?? []
     const passageIndex = passages.length
     const totalMs = s.elapsedMs ?? 0
     const lastTotal = passages.length > 0 ? passages[passages.length - 1].totalMs : 0
     const lapMs = totalMs - lastTotal
     const entry = { tourNum: passageIndex + 1, lapMs, totalMs }
-    if (mode === 'relay') {
-      const runners = (unref(groupRunners) ?? {})[participantId] ?? []
-      const nbRunners = runners.length || 1
-      entry.studentIndex = passageIndex % nbRunners
-    }
+    const runners = (unref(groupRunners) ?? {})[participantId] ?? []
+    const nbRunners = runners.length || 1
+    entry.studentIndex = passageIndex % nbRunners
     passagesByParticipant.value = {
       ...passagesByParticipant.value,
       [participantId]: [...passages, entry]
     }
   }
 
-  const elapsedMs = computed(() => {
-    const states = participantStates.value
-    let max = 0
-    for (const s of Object.values(states)) {
-      if ((s.elapsedMs ?? 0) > max) max = s.elapsedMs
+  /**
+   * Individuel séquentiel : enregistre une arrivée (un seul passage) sans chrono par coureur.
+   * @param {string} participantId
+   * @param {number} totalMs
+   */
+  function recordArrivalForParticipant(participantId, totalMs) {
+    if (isRelay()) return
+    const entry = { tourNum: 1, lapMs: totalMs, totalMs }
+    passagesByParticipant.value = {
+      ...passagesByParticipant.value,
+      [participantId]: [entry]
     }
-    return max
+  }
+
+  /** Temps courant de l'horloge de course (individuel). */
+  function getRaceElapsedMs() {
+    if (isRelay()) return 0
+    const s = participantStates.value[RACE_ID]
+    if (!s) return 0
+    if (s.status !== 'running') return s.elapsedMs ?? 0
+    const now = performance.now()
+    return s.elapsedBeforePause + (now - s.startTime)
+  }
+
+  const elapsedMs = computed(() => {
+    if (isRelay()) {
+      const states = participantStates.value
+      let max = 0
+      for (const s of Object.values(states)) {
+        if ((s.elapsedMs ?? 0) > max) max = s.elapsedMs
+      }
+      return max
+    }
+    const s = participantStates.value[RACE_ID]
+    if (!s) return 0
+    // En cours : tick() met elapsedMs à jour chaque frame — il faut lire cette prop
+    // pour que le computed se recalcule (évite performance.now() sans dépendance réactive).
+    return s.elapsedMs ?? 0
   })
 
   const status = computed(() => {
-    const participants = participantsRef?.value ?? []
-    const states = participantStates.value
-    const ids = participants.length === 0 ? [SOLO_ID] : participants.map((p) => p.id)
-    let anyRunning = false
-    let anyPaused = false
-    for (const id of ids) {
-      const s = states[id]
-      if (s?.status === 'running') anyRunning = true
-      if (s?.status === 'paused') anyPaused = true
+    if (isRelay()) {
+      const participants = participantsRef?.value ?? []
+      const states = participantStates.value
+      let anyRunning = false
+      let anyPaused = false
+      for (const p of participants) {
+        const s = states[p.id]
+        if (s?.status === 'running') anyRunning = true
+        if (s?.status === 'paused') anyPaused = true
+      }
+      if (anyRunning) return 'running'
+      if (anyPaused) return 'paused'
+      return 'idle'
     }
-    if (anyRunning) return 'running'
-    if (anyPaused) return 'paused'
+    const s = participantStates.value[RACE_ID]
+    if (s?.status === 'running') return 'running'
+    if (s?.status === 'paused') return 'paused'
     return 'idle'
   })
 
   watch(
-    () => participantsRef?.value ?? [],
-    (participants) => {
+    [participantsRef, () => unref(options)?.mode],
+    () => {
+      const participants = participantsRef?.value ?? []
       const next = { ...participantStates.value }
-      if (participants.length === 0) {
-        if (!next[SOLO_ID]) {
-          next[SOLO_ID] = { elapsedMs: 0, status: 'idle', elapsedBeforePause: 0, startTime: 0 }
-        }
-      } else {
+      if (isRelay()) {
+        delete next[RACE_ID]
+        delete next[SOLO_ID]
         for (const p of participants) {
           if (!next[p.id]) {
             next[p.id] = { elapsedMs: 0, status: 'idle', elapsedBeforePause: 0, startTime: 0 }
           }
         }
         for (const id of Object.keys(next)) {
-          if (id !== SOLO_ID && !participants.some((p) => p.id === id)) {
+          if (!participants.some((p) => p.id === id)) {
             delete next[id]
           }
         }
+      } else {
         delete next[SOLO_ID]
+        const prevRace = next[RACE_ID] ?? {
+          elapsedMs: 0,
+          status: 'idle',
+          elapsedBeforePause: 0,
+          startTime: 0
+        }
+        next[RACE_ID] = prevRace
+        for (const p of participants) {
+          if (!next[p.id]) {
+            next[p.id] = { elapsedMs: 0, status: 'idle', elapsedBeforePause: 0, startTime: 0 }
+          }
+        }
+        for (const id of Object.keys(next)) {
+          if (id === RACE_ID) continue
+          if (!participants.some((p) => p.id === id)) {
+            delete next[id]
+          }
+        }
       }
       participantStates.value = next
     },
@@ -237,6 +328,8 @@ export function useChronometre(participantsRef, options = {}) {
     reset: resetAll,
     startParticipant,
     stopParticipant,
-    recordPassage
+    recordPassage,
+    recordArrivalForParticipant,
+    getRaceElapsedMs
   }
 }

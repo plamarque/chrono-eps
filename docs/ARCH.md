@@ -41,13 +41,13 @@ Application PWA **client-only** : pas de backend obligatoire pour la première v
 
 | Composant | Responsabilité | Emplacement / Tech cible |
 |-----------|----------------|--------------------------|
-| **UI Chronomètre** | Affichage temps ; boutons Démarrer/Arrêter ; Réinitialiser (chrono en pause, garde la config) ou Dupliquer (course chargée avec passages, garde config et efface temps) ; en vue détail : Replay, Dupliquer. Sur l'accueil, les confirmations (réinitialiser, quitter la page) sont gérées dans HomeView (`onBeforeRouteLeave`, PrimeVue ConfirmDialog). Voir SPEC « Actions Nouvelle course et Dupliquer ». | src/components/Chronometre.vue |
+| **UI Chronomètre** | Affichage temps ; Démarrer/Arrêter ; en **individuel** pendant la course : bouton **Arrivée** (drapeau) ; Réinitialiser (chrono en pause) ou Dupliquer (course chargée) ; en vue détail : Replay, Dupliquer. Confirmations dans HomeView (`onBeforeRouteLeave`, ConfirmDialog). Voir SPEC « Actions Nouvelle course et Dupliquer ». | src/components/Chronometre.vue |
 | **Vue Replay** | Replay visuel d'une course : piste virtuelle ovale, marqueurs par participant, contrôles play/pause/slider | src/views/ReplayView.vue |
 | **useReplay** | Logique replay : interpolation position, coureur actuel (relais), playback | src/composables/useReplay.js |
 | **Liste Coureurs** | Gestion et sélection des coureurs pour une course | src/ |
 | **Saisie Passages** | Enregistrement des passages (tap sur coureur, enregistrement timestamp) | src/ |
 | **Tableau relais** | Affichage « Couru » / « Prochain » par groupe, tap par groupe | src/components/ |
-| **Vue compacte (individuel)** | Grille de cartes par coureur ; Stop/Start individuel ; carte stoppée = fond gris, temps affichés, bouton Play pour reprendre | src/components/TableauPassagesCompact.vue |
+| **Vue compacte (individuel)** | Liste des arrivées (Coureur 1, 2, …) ; renommage par double-clic ou bouton crayon ; affichage multi-tours pour données historiques | src/components/TableauPassagesCompact.vue |
 | **Stockage local** | Persistance des données (coureurs, courses, passages, performances) ; liste, chargement, suppression | IndexedDB (Dexie.js) |
 | **Couche PWA** | Service worker, manifeste ; installation, cache, offline | public/, sw.js ou équivalent |
 | **UI responsive** | Layout adapté tablette et smartphone | PrimeVue |

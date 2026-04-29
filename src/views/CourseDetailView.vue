@@ -150,7 +150,7 @@ watch(() => route.params.id, fetchCourse)
           <Chronometre
             :elapsed-ms="displayedElapsedMs"
             status="idle"
-            :show-tour="false"
+            :show-arrival="false"
             :is-viewing-loaded-course="true"
             @reset="createNewFromThis"
           >
@@ -193,6 +193,7 @@ watch(() => route.params.id, fetchCourse)
               :passages-by-participant="course.passagesByParticipant"
               status="idle"
               :read-only="true"
+              :sequential-individual="true"
             />
             <!-- Vue tableau conservée en attente des retours utilisateurs
             <TableauPassages

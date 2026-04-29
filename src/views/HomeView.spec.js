@@ -474,9 +474,9 @@ describe('HomeView', () => {
     await demarrer.trigger('click')
     await vi.advanceTimersByTimeAsync(10)
 
-    const marquer = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Marquer passage')
-    expect(marquer?.exists()).toBe(true)
-    await marquer.trigger('click')
+    const arrivee = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Enregistrer une arrivée')
+    expect(arrivee?.exists()).toBe(true)
+    await arrivee.trigger('click')
     await wrapper.vm.$nextTick()
 
     const arreter = wrapper.findAll('button').find((b) => b.text() === 'Arrêter')
@@ -540,7 +540,7 @@ describe('HomeView', () => {
     wrapper.vm.startNewCourse()
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.participants).toHaveLength(1)
+    expect(wrapper.vm.participants).toHaveLength(0)
     expect(wrapper.vm.currentCourse).toBeNull()
     expect(Object.keys(wrapper.vm.passagesByParticipant)).toHaveLength(0)
     shell.unmount()

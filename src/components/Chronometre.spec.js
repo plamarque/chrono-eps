@@ -7,7 +7,7 @@ function mountChronometre(props = {}) {
     props: {
       elapsedMs: props.elapsedMs ?? 0,
       status: props.status ?? 'idle',
-      showTour: props.showTour ?? false,
+      showArrival: props.showArrival ?? false,
       isViewingLoadedCourse: props.isViewingLoadedCourse ?? false
     },
     global: {
@@ -100,6 +100,21 @@ describe('Chronometre', () => {
     const btn = wrapper.findAll('button').find((b) => b.text() === 'Dupliquer')
     await btn.trigger('click')
     expect(wrapper.emitted('reset')).toBeTruthy()
+    wrapper.unmount()
+  })
+
+  it('affiche Arrivée quand showArrival et chrono en cours', () => {
+    const wrapper = mountChronometre({ status: 'running', showArrival: true })
+    const arrivee = wrapper.findAll('button').find((b) => b.text() === 'Arrivée')
+    expect(arrivee?.exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('émet record-arrival au clic sur Arrivée', async () => {
+    const wrapper = mountChronometre({ status: 'running', showArrival: true })
+    const arrivee = wrapper.findAll('button').find((b) => b.text() === 'Arrivée')
+    await arrivee.trigger('click')
+    expect(wrapper.emitted('record-arrival')).toBeTruthy()
     wrapper.unmount()
   })
 })

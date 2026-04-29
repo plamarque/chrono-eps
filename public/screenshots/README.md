@@ -23,9 +23,9 @@ Le script Playwright génère tous les écrans dans les résolutions requises. I
 
 **Écrans générés :** `relais`, `indiv`, `indiv-enregistrer`, `indiv-eleve`, `indiv-course`, `historique`, `groupe`, `groupe-perf`, `course`, `replay`
 
-- `indiv-course` : mode individuel en direct, 12 coureurs, plusieurs tours, 2 stoppés (Coureur 1 et 3) pendant que les autres courent
+- `indiv-course` : mode individuel en direct, 12 arrivées enregistrées via le bouton **Arrivée** du chronomètre
 - Courses relais : 5 groupes minimum
-- Courses individuelles : 12 participants minimum
+- Courses individuelles : 12 arrivées minimum (scénario `indiv`)
 - Historique : 5 courses avec noms réalistes (2x500m - Terminale 1, 1500m - Second B, Cross 2km - Epreuve, Relais 4x100m - 3e, Demi-fond 800m - Première)
 
 **Convention de nommage :** `chrono-eps-<ecran>-<device>-<orientation>.png`

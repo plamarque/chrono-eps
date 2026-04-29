@@ -54,6 +54,27 @@ describe('exportCourseExcel', () => {
       expect(buildExportDataIndividual(course)).toEqual([])
     })
 
+    it('export arrivées séquentielles : deux colonnes Coureur / Temps d\'arrivée', () => {
+      const course = {
+        participants: [
+          { id: 'p1', nom: 'Coureur 1', color: '#fff' },
+          { id: 'p2', nom: 'Alice', color: '#000' }
+        ],
+        passagesByParticipant: {
+          p1: [{ tourNum: 1, lapMs: 45230, totalMs: 45230 }],
+          p2: [{ tourNum: 1, lapMs: 48000, totalMs: 48000 }]
+        }
+      }
+      const rows = buildExportDataIndividual(course)
+      expect(rows[0]).toEqual(['Coureur', "Temps d'arrivée"])
+      expect(rows[1][0]).toBe('Coureur 1')
+      expect(rows[1][1]).toBe('00:45.23')
+      expect(rows[2][0]).toBe('Alice')
+      expect(rows[2][1]).toBe('00:48.00')
+      expect(rows[3][0]).toBe('Durée max. course')
+      expect(rows[3][1]).toBe('00:48.00')
+    })
+
     it('gère le mode solo (participants vides, passages sous __solo__)', () => {
       const course = {
         participants: [],

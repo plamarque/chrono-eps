@@ -1,12 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, ref } from 'vue'
+import { defineComponent, h, ref, nextTick } from 'vue'
 import { useChronometre } from './useChronometre.js'
+
+const relayOpts = { mode: 'relay' }
 
 const TestWrapper = defineComponent({
   setup() {
     const participants = ref([{ id: 'p1', nom: 'P1' }])
-    const chrono = useChronometre(participants)
+    const chrono = useChronometre(participants, relayOpts)
     return () =>
       h('div', [
         h('span', { class: 'chrono-epoch', 'data-testid': 'chronoEpoch' }, chrono.chronoEpochMs.value == null ? 'null' : 'set'),
@@ -81,7 +83,7 @@ describe('useChronometre', () => {
     wrapper.unmount()
   })
 
-  it('enregistre un passage par participant', async () => {
+  it('enregistre un passage par participant (relais)', async () => {
     const wrapper = mount(TestWrapper)
     await wrapper.findAll('button')[0].trigger('click')
     await vi.advanceTimersByTimeAsync(5000)
@@ -97,12 +99,12 @@ describe('useChronometre', () => {
     wrapper.unmount()
   })
 
-  it('scénario multi-participants : passages multiples et reset efface tout', async () => {
+  it('scénario multi-participants relais : passages multiples et reset efface tout', async () => {
     const participants = ref([
       { id: 'p1', nom: 'Alice' },
       { id: 'p2', nom: 'Bob' }
     ])
-    const chrono = useChronometre(participants)
+    const chrono = useChronometre(participants, relayOpts)
     const wrapper = mount({
       setup: () => () =>
         h('div', [
@@ -173,9 +175,9 @@ describe('useChronometre', () => {
     wrapper.unmount()
   })
 
-  it('recordPassage sur participant non running est sans effet', async () => {
+  it('recordPassage sur participant non running est sans effet (relais)', async () => {
     const participants = ref([{ id: 'p1', nom: 'P1' }])
-    const chrono = useChronometre(participants)
+    const chrono = useChronometre(participants, relayOpts)
     const wrapper = mount({
       setup: () => () =>
         h('div', [
@@ -194,12 +196,12 @@ describe('useChronometre', () => {
     wrapper.unmount()
   })
 
-  it("stop (bouton principal) enregistre un passage par participant en cours", async () => {
+  it("stop (bouton principal) enregistre un passage par groupe en cours (relais)", async () => {
     const participants = ref([
       { id: 'p1', nom: 'Groupe 1' },
       { id: 'p2', nom: 'Groupe 2' }
     ])
-    const chrono = useChronometre(participants)
+    const chrono = useChronometre(participants, relayOpts)
     const wrapper = mount({
       setup: () => () =>
         h('div', [
@@ -222,9 +224,9 @@ describe('useChronometre', () => {
     wrapper.unmount()
   })
 
-  it("stopParticipant enregistre un passage avec le temps du coureur", async () => {
+  it("stopParticipant enregistre un passage avec le temps du coureur (relais)", async () => {
     const participants = ref([{ id: 'p1', nom: 'Coureur 1' }])
-    const chrono = useChronometre(participants)
+    const chrono = useChronometre(participants, relayOpts)
     const wrapper = mount({
       setup: () => () =>
         h('div', [
@@ -251,12 +253,12 @@ describe('useChronometre', () => {
     wrapper.unmount()
   })
 
-  it('suppression d’un participant nettoie participantStates via le watcher', async () => {
+  it('suppression d’un participant nettoie participantStates via le watcher (relais)', async () => {
     const participants = ref([
       { id: 'p1', nom: 'Alice' },
       { id: 'p2', nom: 'Bob' }
     ])
-    const chrono = useChronometre(participants)
+    const chrono = useChronometre(participants, relayOpts)
     const wrapper = mount({
       setup: () => () =>
         h('div', [
@@ -277,5 +279,63 @@ describe('useChronometre', () => {
     expect(states).not.toHaveProperty('p2')
 
     wrapper.unmount()
+  })
+})
+
+describe('useChronometre mode individuel séquentiel', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('démarre une horloge course (RACE) sans participants', async () => {
+    const participants = ref([])
+    const chrono = useChronometre(participants, { mode: 'individual' })
+    chrono.start()
+    expect(chrono.status.value).toBe('running')
+    await vi.advanceTimersByTimeAsync(2000)
+    expect(chrono.getRaceElapsedMs()).toBeGreaterThanOrEqual(1500)
+    chrono.stop()
+    expect(chrono.status.value).toBe('paused')
+    const passages = chrono.passagesByParticipant.value
+    expect(Object.keys(passages).length).toBe(0)
+    chrono.reset()
+    expect(chrono.status.value).toBe('idle')
+  })
+
+  it('stop sans passage puis recordArrivalForParticipant après ajout coureur', async () => {
+    const participants = ref([])
+    const chrono = useChronometre(participants, { mode: 'individual' })
+    chrono.start()
+    await vi.advanceTimersByTimeAsync(8000)
+    const totalMs = chrono.getRaceElapsedMs()
+    participants.value = [{ id: 'c1', nom: 'Coureur 1', color: '#ef4444' }]
+    await nextTick()
+    chrono.recordArrivalForParticipant('c1', totalMs)
+    expect(chrono.passagesByParticipant.value.c1).toEqual([
+      { tourNum: 1, lapMs: totalMs, totalMs }
+    ])
+    chrono.stop()
+    expect(chrono.passagesByParticipant.value.c1).toHaveLength(1)
+  })
+
+  it('recordPassage est sans effet en individuel', () => {
+    const participants = ref([{ id: 'c1', nom: 'Coureur 1', color: '#ef4444' }])
+    const chrono = useChronometre(participants, { mode: 'individual' })
+    chrono.start()
+    chrono.recordPassage('c1')
+    expect(chrono.passagesByParticipant.value).toEqual({})
+  })
+
+  it('startParticipant / stopParticipant sont sans effet en individuel', () => {
+    const participants = ref([{ id: 'c1', nom: 'Coureur 1', color: '#ef4444' }])
+    const chrono = useChronometre(participants, { mode: 'individual' })
+    chrono.start()
+    chrono.stopParticipant('c1')
+    chrono.startParticipant('c1')
+    expect(chrono.passagesByParticipant.value).toEqual({})
   })
 })

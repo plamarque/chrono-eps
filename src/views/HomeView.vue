@@ -40,6 +40,8 @@ const chronoOptions = computed(() => ({
   mode: mode.value,
   groupRunners: groupRunners.value
 }))
+const MAX_INDIVIDUAL_RUNNERS = 20
+
 const {
   elapsedMs,
   status,
@@ -51,7 +53,9 @@ const {
   reset,
   startParticipant,
   stopParticipant,
-  recordPassage
+  recordPassage,
+  recordArrivalForParticipant,
+  getRaceElapsedMs
 } = useChronometre(participants, chronoOptions)
 
 const hasAnyPassage = computed(() => {
@@ -80,7 +84,7 @@ const hasUnsavedRelayConfig = computed(() => {
 
 const hasUnsavedIndividualConfig = computed(
   () =>
-    participants.value.length > 1 ||
+    participants.value.length > 0 ||
     hasAnyPassage.value ||
     status.value !== 'idle'
 )
@@ -256,12 +260,6 @@ function ensureRelayHasDefaultGroup() {
   groupRunners.value = { [group.id]: [createRelayRunner(1, 0)] }
 }
 
-function ensureIndividualHasDefaultParticipant() {
-  if (mode.value !== 'individual' || currentCourse.value || participants.value.length > 0) return
-  const participant = createParticipant(1)
-  participants.value = [participant]
-}
-
 function startNewCourse() {
   currentCourse.value = null
   suggestedSaveNom.value = ''
@@ -271,8 +269,6 @@ function startNewCourse() {
   passagesByParticipant.value = {}
   if (mode.value === 'relay') {
     ensureRelayHasDefaultGroup()
-  } else {
-    ensureIndividualHasDefaultParticipant()
   }
 }
 
@@ -282,6 +278,23 @@ function handleStart() {
     currentCourse.value = null
   }
   start()
+}
+
+function handleCaptureArrival() {
+  if (mode.value !== 'individual' || status.value !== 'running') return
+  if (participants.value.length >= MAX_INDIVIDUAL_RUNNERS) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Limite atteinte',
+      detail: 'Au plus 20 coureurs pour une course individuelle.',
+      life: 4000
+    })
+    return
+  }
+  const totalMs = getRaceElapsedMs()
+  const participant = createParticipant(participants.value.length + 1)
+  addParticipant(participant)
+  recordArrivalForParticipant(participant.id, totalMs)
 }
 
 const isDuplicateChronoButton = computed(
@@ -297,9 +310,6 @@ async function applyResetFromChrono() {
     await doLoadCourseAsTemplate(currentCourse.value.id)
   } else {
     // Si mode individuel sans participants valides, réinitialiser proprement
-    if (mode.value === 'individual' && participants.value.length === 0) {
-      ensureIndividualHasDefaultParticipant()
-    }
     if (mode.value === 'relay' && participants.value.length === 0) {
       ensureRelayHasDefaultGroup()
     }
@@ -485,7 +495,7 @@ watch(
     if (oldMode === undefined || oldMode === newMode) return
 
     if (newMode === 'individual') {
-      participants.value = [createParticipant(1)]
+      participants.value = []
       groupRunners.value = {}
       passagesByParticipant.value = {}
       reset()
@@ -505,8 +515,6 @@ onMounted(async () => {
   await maybeLoadFromQuery()
   if (mode.value === 'relay') {
     ensureRelayHasDefaultGroup()
-  } else if (mode.value === 'individual' && !currentCourse.value && participants.value.length === 0) {
-    ensureIndividualHasDefaultParticipant()
   }
 })
 watch(
@@ -555,12 +563,12 @@ watch(
           <Chronometre
             :elapsed-ms="displayedElapsedMs"
             :status="status"
-            :show-tour="participants.length === 0 && mode !== 'relay'"
+            :show-arrival="mode === 'individual' && !(currentCourse && !isPreparedCourse)"
             :is-viewing-loaded-course="!!currentCourse && !isPreparedCourse"
             @start="handleStart"
             @stop="stop"
             @reset="handleReset"
-            @record-tour="() => recordPassage('__solo__')"
+            @record-arrival="handleCaptureArrival"
           >
             <template #extra-controls>
               <Button
@@ -592,6 +600,7 @@ watch(
               :passages-by-participant="passagesByParticipant"
               :status="status"
               :read-only="!!currentCourse && !isPreparedCourse"
+              :sequential-individual="true"
               @add="addParticipant"
               @update="updateParticipant"
               @remove="removeParticipant"

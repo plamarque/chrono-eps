@@ -6,11 +6,12 @@ import { formatTime } from '../utils/formatTime.js'
 const props = defineProps({
   elapsedMs: { type: Number, default: 0 },
   status: { type: String, default: 'idle' },
-  showTour: { type: Boolean, default: false },
+  /** Mode individuel séquentiel : bouton drapeau pour enregistrer une arrivée (chrono en cours). */
+  showArrival: { type: Boolean, default: false },
   isViewingLoadedCourse: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['start', 'stop', 'reset', 'record-tour'])
+const emit = defineEmits(['start', 'stop', 'reset', 'record-arrival'])
 
 const displayedTime = computed(() => formatTime(props.elapsedMs))
 </script>
@@ -35,12 +36,13 @@ const displayedTime = computed(() => formatTime(props.elapsedMs))
         @click="emit('start')"
       />
       <Button
-        v-if="!isViewingLoadedCourse && status === 'running' && showTour"
-        label="Tour"
+        v-if="!isViewingLoadedCourse && status === 'running' && showArrival"
+        label="Arrivée"
         icon="pi pi-flag"
         severity="info"
         class="chronometre-btn"
-        @click="emit('record-tour')"
+        aria-label="Enregistrer une arrivée"
+        @click="emit('record-arrival')"
       />
       <Button
         v-if="!isViewingLoadedCourse && status === 'running'"

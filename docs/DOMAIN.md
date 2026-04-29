@@ -13,10 +13,11 @@ Ce document définit le vocabulaire, les entités et les règles du domaine pour
 | **Course** | Session chronométrée : une activité à un instant donné (ex. course du jour, tour de piste). |
 | **Tour** | Unité de parcours complétée (ex. un tour de piste, une longueur de bassin). |
 | **Passage** | Traversée d'un point de contrôle par un coureur à un instant donné ; enregistrement d'un tour complété. |
+| **Arrivée (individuel)** | En mode individuel actuel : enregistrement ordonné du temps de passage à la ligne d'arrivée ; crée un coureur « Coureur N » avec un seul temps (pas de tours multiples par coureur dans cette version). |
 | **Passage (relais)** | Un tour de piste complété par un coureur d'un groupe ; l'ordre cycle sur les coureurs (ex. Alice, Bob, Claire, Daniel, Alice, Bob...) ; la course continue jusqu'à l'arrêt par le professeur. |
 | **Groupe (relais)** | Ensemble ordonné de coureurs qui courent l'un après l'autre ; a une couleur (chasubles communes) et une liste de noms de coureurs. |
 | **Performance** | Résultat associé à un coureur pour une course : temps, nombre de tours complétés, etc. |
-| **Arrêt individuel** | Action qui stoppe le chrono d'un seul coureur en mode individuel ; la carte du coureur reste visible (fond gris, temps affichés, bouton Start pour reprendre). |
+| **Arrêt individuel (historique)** | Ancien comportement : chrono parallèle par coureur avec Stop sur carte ; les **données** de courses déjà enregistrées sous ce modèle restent valides (affichage et export multi-tours). |
 | **Replay** | Visualisation différée d'une course sauvegardée : relecture au fil du temps avec position des participants sur une piste virtuelle. |
 | **Piste virtuelle** | Représentation graphique (ovale ou anneau) de la piste sur laquelle les positions des participants sont affichées pendant le replay. |
 | **Nouvelle course** | Action (bouton barre d'outils) : réinitialisation complète ; efface participants, groupes, passages ; repart sur une course vierge. |
@@ -43,7 +44,7 @@ Ce document définit le vocabulaire, les entités et les règles du domaine pour
 3. Les passages sont ordonnés chronologiquement ; le timestamp est non modifiable une fois enregistré. [ASSUMPTION]
 4. Les performances sont dérivées des passages : temps du premier passage, du dernier, nombre de tours, etc.
 5. [ASSUMPTION] Format temps : mm:ss.ms ou équivalent pour l'affichage et le stockage.
-6. En mode individuel, l'arrêt d'un coureur (Stop sur sa carte) conserve sa cellule visible : fond gris, temps affichés, bouton Start pour reprendre le chrono de ce coureur.
+6. En mode individuel actuel, un **chrono de course unique** s'applique ; les arrivées sont enregistrées dans l'ordre via l'action **Arrivée** ; l'**Arrêt** du chronomètre principal met fin à la course sans créer d'arrivée. Les courses individuelles déjà stockées avec plusieurs passages par coureur (ancien usage) restent affichées et exportées avec le détail par tour.
 
 ## Hypothèses et incertitudes
 
