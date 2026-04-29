@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
+import ConfirmationService from 'primevue/confirmationservice'
 import CourseDetailView from './CourseDetailView.vue'
 
 const mockLoadCourse = vi.fn()
@@ -26,7 +27,7 @@ async function mountCourseDetail(courseId) {
 
   const wrapper = mount(CourseDetailView, {
     global: {
-      plugins: [PrimeVue, ToastService, router]
+      plugins: [PrimeVue, ToastService, ConfirmationService, router]
     }
   })
 

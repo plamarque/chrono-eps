@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import PrimeVue from 'primevue/config'
+import ConfirmationService from 'primevue/confirmationservice'
 import { COULEURS_PALETTE } from '../models/participant.js'
 import TableauPassagesRelay from './TableauPassagesRelay.vue'
 import RelayGroupModal from './RelayGroupModal.vue'
@@ -161,7 +162,7 @@ describe('TableauPassagesRelay', () => {
         readOnly: false
       },
       global: {
-        plugins: [PrimeVue],
+        plugins: [PrimeVue, ConfirmationService],
         stubs: {
           Dialog: {
             template: '<div v-if="visible"><slot></slot><slot name="footer"></slot></div>',
@@ -198,7 +199,7 @@ describe('TableauPassagesRelay', () => {
         readOnly: false
       },
       global: {
-        plugins: [PrimeVue],
+        plugins: [PrimeVue, ConfirmationService],
         stubs: {
           Dialog: {
             template: '<div v-if="visible"><slot></slot><slot name="footer"></slot></div>',

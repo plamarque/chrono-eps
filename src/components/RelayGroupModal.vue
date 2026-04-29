@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
+import { useConfirm } from 'primevue/useconfirm'
 import { createRelayRunner, safeRelayRunnerNom } from '../models/participant.js'
 import { COULEURS_PALETTE } from '../models/participant.js'
 
@@ -17,6 +18,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:visible', 'save', 'remove', 'hide'])
+
+const confirm = useConfirm()
 
 const groupNom = ref('')
 const groupColor = ref(COULEURS_PALETTE[0])
@@ -63,6 +66,24 @@ function removeRunner(index) {
   runnersForm.value = runnersForm.value.filter((_, i) => i !== index).map((r, i) => ({ ...r, ordre: i }))
 }
 
+function requestRemoveRunner(index) {
+  if (runnersForm.value.length <= 1) return
+  const runner = runnersForm.value[index]
+  const nom = (runner?.nom ?? '').trim() || `Coureur ${index + 1}`
+  confirm.require({
+    header: 'Retirer le coureur ?',
+    message: `Retirer « ${nom} » de la liste de ce groupe ?`,
+    acceptLabel: 'Retirer',
+    rejectLabel: 'Annuler',
+    rejectProps: { severity: 'secondary' },
+    acceptProps: { severity: 'danger' },
+    defaultFocus: 'reject',
+    accept: () => {
+      removeRunner(index)
+    }
+  })
+}
+
 function save() {
   if (!props.group) return
   const total = Number(props.totalRunnersCount) || 0
@@ -84,8 +105,24 @@ function save() {
   emit('save', { group: groupUpdate, runners })
 }
 
-function remove() {
-  emit('remove')
+function requestRemoveGroup() {
+  if (!props.group) return
+  const nom =
+    (groupNom.value ?? '').trim() ||
+    (props.group.nom ?? '').trim() ||
+    'ce groupe'
+  confirm.require({
+    header: 'Supprimer le groupe ?',
+    message: `Supprimer le groupe « ${nom} » ? Tous les passages enregistrés et la configuration des coureurs seront effacés.`,
+    acceptLabel: 'Supprimer',
+    rejectLabel: 'Annuler',
+    rejectProps: { severity: 'secondary' },
+    acceptProps: { severity: 'danger' },
+    defaultFocus: 'reject',
+    accept: () => {
+      emit('remove')
+    }
+  })
 }
 
 function onHide() {
@@ -150,7 +187,7 @@ function onHide() {
           text
           :aria-label="`Supprimer ${runnersForm[i]?.nom || 'coureur ' + (i + 1)}`"
           class="relay-group-remove-btn"
-          @click="removeRunner(i)"
+          @click="requestRemoveRunner(i)"
         />
       </div>
       <div class="relay-group-runner-actions">
@@ -170,7 +207,7 @@ function onHide() {
         severity="danger"
         icon="pi pi-trash"
         class="participant-btn"
-        @click="remove"
+        @click="requestRemoveGroup"
       />
       <Button
         label="Enregistrer"

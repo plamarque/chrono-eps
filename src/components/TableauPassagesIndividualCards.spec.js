@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import ConfirmationService from 'primevue/confirmationservice'
 import TableauPassagesIndividualCards from './TableauPassagesIndividualCards.vue'
 
 function mountCards(props = {}) {
@@ -16,6 +17,7 @@ function mountCards(props = {}) {
       allowParticipantEdit: props.allowParticipantEdit ?? false
     },
     global: {
+      plugins: [ConfirmationService],
       stubs: {
         Button: {
           props: ['label', 'icon', 'severity'],

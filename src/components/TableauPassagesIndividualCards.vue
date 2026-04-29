@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
+import { useConfirm } from 'primevue/useconfirm'
 import { COULEURS_PALETTE } from '../models/participant.js'
 import { sumLapMs } from '../utils/courseUtils.js'
 import { formatTime } from '../utils/formatTime.js'
@@ -45,6 +46,8 @@ const props = defineProps({
 
 const emit = defineEmits(['update', 'remove', 'record', 'start-participant', 'stop-participant'])
 
+const confirm = useConfirm()
+
 const showParticipantModal = ref(false)
 const editedParticipant = ref(null)
 const modalNom = ref('')
@@ -74,10 +77,24 @@ function saveParticipant() {
   closeParticipantModal()
 }
 
-function deleteParticipant() {
+function requestDeleteParticipant() {
   if (!editedParticipant.value) return
-  emit('remove', editedParticipant.value)
-  closeParticipantModal()
+  const nom = (editedParticipant.value.nom ?? '').trim() || 'ce coureur'
+  confirm.require({
+    header: 'Supprimer le coureur ?',
+    message: `Supprimer « ${nom} » ? Les passages enregistrés pour ce coureur seront effacés.`,
+    acceptLabel: 'Supprimer',
+    rejectLabel: 'Annuler',
+    rejectProps: { severity: 'secondary' },
+    acceptProps: { severity: 'danger' },
+    defaultFocus: 'reject',
+    accept: () => {
+      const p = editedParticipant.value
+      if (!p) return
+      emit('remove', p)
+      closeParticipantModal()
+    }
+  })
 }
 
 function isParticipantRunning(participantId) {
@@ -288,7 +305,7 @@ function tourLabel(index) {
           severity="danger"
           icon="pi pi-trash"
           class="participant-btn"
-          @click="deleteParticipant"
+          @click="requestDeleteParticipant"
         />
         <Button
           v-if="!readOnly || allowParticipantEdit"

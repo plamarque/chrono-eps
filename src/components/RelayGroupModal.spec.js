@@ -1,4 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+
+vi.mock('primevue/useconfirm', () => ({
+  useConfirm: () => ({
+    require: (options) => {
+      options.accept?.()
+    }
+  })
+}))
+
 import { mount } from '@vue/test-utils'
 import PrimeVue from 'primevue/config'
 import RelayGroupModal from './RelayGroupModal.vue'

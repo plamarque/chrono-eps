@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import ConfirmationService from 'primevue/confirmationservice'
 import TableauPassagesCompact from './TableauPassagesCompact.vue'
 
 function mountTableauPassagesCompact(props = {}) {
@@ -13,6 +14,7 @@ function mountTableauPassagesCompact(props = {}) {
       hideFinished: props.hideFinished ?? true
     },
     global: {
+      plugins: [ConfirmationService],
       stubs: {
         Dialog: {
           template: '<div v-if="visible"><slot></slot><slot name="footer"></slot></div>',

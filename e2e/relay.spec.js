@@ -44,6 +44,7 @@ test.describe('Mode relais', () => {
     await page.getByRole('button', { name: 'Ajouter un coureur' }).click()
     await expect(page.getByRole('button', { name: 'Supprimer Coureur 2' })).toBeVisible()
     await page.getByRole('button', { name: 'Supprimer Coureur 2' }).click()
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Retirer' }).click()
     await expect(page.getByRole('button', { name: 'Supprimer Coureur 2' })).not.toBeVisible()
     await expect(page.getByRole('button', { name: /Supprimer Coureur/ })).not.toBeVisible()
     await page.getByRole('button', { name: 'Enregistrer' }).last().click()
