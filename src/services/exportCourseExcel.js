@@ -1,9 +1,25 @@
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
 import { formatTime } from '../utils/formatTime.js'
 import { getMaxTotalMsFromPassages, sumLapMs } from '../utils/courseUtils.js'
 import { safeRelayRunnerNom } from '../models/participant.js'
 
 const EMPTY_CELL = '-'
+
+/**
+ * Ajoute des lignes à une feuille à partir d’un tableau de lignes (comme SheetJS aoa_to_sheet).
+ * Une ligne vide `[]` produit une ligne vide dans le classeur.
+ * @param {import('exceljs').Worksheet} worksheet
+ * @param {Array<Array<string|number|undefined>>} rows
+ */
+function appendRowsFromAoA(worksheet, rows) {
+  for (const row of rows) {
+    if (Array.isArray(row) && row.length === 0) {
+      worksheet.addRow([])
+    } else {
+      worksheet.addRow(row)
+    }
+  }
+}
 
 /**
  * Génère le nom de fichier pour l'export.
@@ -193,10 +209,11 @@ export function buildExportDataRelay(course) {
 /**
  * Crée un workbook Excel à partir d'une course.
  * @param {Object} course
- * @returns {Object} Workbook XLSX
+ * @returns {import('exceljs').Workbook}
  */
 export function courseToExcelWorkbook(course) {
-  const wb = XLSX.utils.book_new()
+  const workbook = new ExcelJS.Workbook()
+  workbook.creator = 'Chrono EPS'
   const mode = course.mode || 'individual'
 
   const metaRows = [
@@ -208,19 +225,19 @@ export function courseToExcelWorkbook(course) {
   if (mode === 'individual') {
     const dataRows = buildExportDataIndividual(course)
     const allRows = [...metaRows, [], ...dataRows]
-    const ws = XLSX.utils.aoa_to_sheet(allRows)
-    XLSX.utils.book_append_sheet(wb, ws, 'Course')
+    const worksheet = workbook.addWorksheet('Course')
+    appendRowsFromAoA(worksheet, allRows)
   } else {
     const sheets = buildExportDataRelay(course)
     for (let i = 0; i < sheets.length; i++) {
       const { sheetName, rows } = sheets[i]
       const allRows = i === 0 ? [...metaRows, [], ...rows] : rows
-      const ws = XLSX.utils.aoa_to_sheet(allRows)
-      XLSX.utils.book_append_sheet(wb, ws, sheetName)
+      const worksheet = workbook.addWorksheet(sheetName)
+      appendRowsFromAoA(worksheet, allRows)
     }
   }
 
-  return wb
+  return workbook
 }
 
 /**
@@ -229,8 +246,8 @@ export function courseToExcelWorkbook(course) {
  * @returns {Promise<Blob>}
  */
 export async function exportCourseAsExcelBlob(course) {
-  const wb = courseToExcelWorkbook(course)
-  const buf = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
+  const workbook = courseToExcelWorkbook(course)
+  const buf = await workbook.xlsx.writeBuffer()
   return new Blob([buf], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   })

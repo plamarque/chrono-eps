@@ -160,8 +160,7 @@ describe('exportCourseExcel', () => {
         passagesByParticipant: { p1: [{ tourNum: 1, lapMs: 60000, totalMs: 60000 }] }
       }
       const wb = courseToExcelWorkbook(course)
-      expect(wb.SheetNames).toContain('Course')
-      expect(wb.Sheets.Course).toBeTruthy()
+      expect(wb.getWorksheet('Course')).toBeTruthy()
     })
 
     it('crée une feuille par groupe pour le mode relais', () => {
@@ -183,8 +182,8 @@ describe('exportCourseExcel', () => {
         }
       }
       const wb = courseToExcelWorkbook(course)
-      expect(wb.SheetNames).toContain('Rouge')
-      expect(wb.SheetNames).toContain('Bleu')
+      expect(wb.getWorksheet('Rouge')).toBeTruthy()
+      expect(wb.getWorksheet('Bleu')).toBeTruthy()
     })
   })
 
