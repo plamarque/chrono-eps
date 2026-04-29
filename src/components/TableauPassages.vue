@@ -71,7 +71,8 @@ const performancesByParticipant = computed(() => {
     const dernierTotalMs = nbTours > 0 ? passages[nbTours - 1].totalMs : null
     const passagesList = passages.map((pass, i) => ({
       label: `P${i + 1}`,
-      lapMs: pass.lapMs
+      lapMs: pass.lapMs,
+      totalMs: pass.totalMs
     }))
     return { participant: p, nbTours, dernierTotalMs, passagesList }
   })
@@ -299,6 +300,11 @@ function toggleParticipant(participant) {
           >
             <span class="tableau-passages-resume-passage-nom">{{ item.label }} :</span>
             <span class="tableau-passages-resume-passage-time">{{ formatTime(item.lapMs) }}</span>
+            <span class="tableau-passages-resume-passage-sep" aria-hidden="true"> · </span>
+            <span class="tableau-passages-resume-passage-total-label">Total :</span>
+            <span class="tableau-passages-resume-passage-total">{{
+              formatTime(item.totalMs)
+            }}</span>
           </div>
         </div>
       </div>
@@ -573,6 +579,20 @@ function toggleParticipant(participant) {
 }
 
 .tableau-passages-resume-passage-time {
+  font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
+  color: #1a1a1a;
+}
+
+.tableau-passages-resume-passage-sep {
+  color: #9ca3af;
+}
+
+.tableau-passages-resume-passage-total-label {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.tableau-passages-resume-passage-total {
   font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
   color: #6b7280;
 }

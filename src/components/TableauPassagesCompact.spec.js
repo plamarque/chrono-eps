@@ -283,6 +283,7 @@ describe('TableauPassagesCompact', () => {
     expect(wrapper.text()).toContain('00:35.00')
     expect(wrapper.text()).toContain('00:42.00')
     expect(wrapper.text()).toContain('01:15.00')
+    expect(wrapper.text()).toContain('Total')
   })
 
   it('affiche le bouton Ajouter quand participants < 20', () => {

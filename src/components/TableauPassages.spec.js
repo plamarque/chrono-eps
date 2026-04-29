@@ -174,6 +174,7 @@ describe('TableauPassages', () => {
     expect(wrapper.text()).toContain('00:35.00')
     expect(wrapper.text()).toContain('00:36.00')
     expect(wrapper.text()).toContain('00:42.00')
+    expect(wrapper.text()).toContain('Total')
     wrapper.unmount()
   })
 
