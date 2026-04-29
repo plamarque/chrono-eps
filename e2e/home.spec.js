@@ -1,6 +1,10 @@
 import { test, expect } from '@playwright/test'
 
 const chrono = (page) => page.getByRole('region', { name: 'Chronomètre' })
+const btnCoureurChrono = (page) =>
+  chrono(page).getByRole('button', {
+    name: 'Ajouter un coureur qui passe devant le chronomètre'
+  })
 
 test.describe('Accueil - Chronomètre', () => {
   test('Démarrer puis Arrêter met le chrono en pause', async ({ page }) => {
@@ -17,12 +21,11 @@ test.describe('Accueil - Chronomètre', () => {
     const ch = chrono(page)
     await ch.getByRole('button', { name: 'Démarrer' }).click()
     await page.waitForTimeout(300)
-    await ch.getByRole('button', { name: 'Arrivée' }).click()
     await ch.getByRole('button', { name: 'Arrêter' }).click()
     await ch.getByRole('button', { name: 'Réinitialiser' }).click()
     await expect(page.getByRole('button', { name: 'Oui, effacer' })).toBeVisible()
     await page.getByRole('button', { name: 'Oui, effacer' }).click()
-    await expect(page.getByText('00:00.00')).toBeVisible()
+    await expect(ch.getByRole('timer', { name: 'Temps écoulé' })).toHaveText('00:00.00')
   })
 })
 
@@ -48,21 +51,34 @@ test.describe('Accueil - Mode individuel', () => {
     await page.getByRole('button', { name: 'Individuel' }).click()
   })
 
-  test('Arrivée enregistre Coureur 1 puis Coureur 2', async ({ page }) => {
-    const ch = chrono(page)
-    await ch.getByRole('button', { name: 'Démarrer' }).click()
-    await page.waitForTimeout(250)
-    await ch.getByRole('button', { name: 'Arrivée' }).click()
+  test('Coureur 1 par défaut ; bouton Coureur ajoute Coureur 2 puis Coureur 3', async ({ page }) => {
     await expect(page.getByText('Coureur 1')).toBeVisible()
-    await ch.getByRole('button', { name: 'Arrivée' }).click()
+    await btnCoureurChrono(page).click()
     await expect(page.getByText('Coureur 2')).toBeVisible()
+    await btnCoureurChrono(page).click()
+    await expect(page.getByText('Coureur 3')).toBeVisible()
+  })
+
+  test('individuel : après Démarrer, Coureur fige Tour 1 sur la carte C1 et met C2 en course', async ({ page }) => {
+    const part = page.getByRole('region', { name: 'Participants' })
+    await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
+    await page.waitForTimeout(400)
+    await btnCoureurChrono(page).click()
+    const cardC1 = part.locator('.indiv-card').nth(0)
+    const cardC2 = part.locator('.indiv-card').nth(1)
+    await expect(cardC1.getByText('Temps')).toBeVisible()
+    await expect(cardC1.getByText('Tour 1')).not.toBeVisible()
+    await expect(cardC1.getByText('Tour 2 :')).not.toBeVisible()
+    await expect(cardC1.getByText('Tour 2 en cours')).not.toBeVisible()
+    await expect(cardC2).toBeVisible()
+    await expect(cardC2.getByText('Temps')).toBeVisible()
+    await expect(cardC2.getByText('Tour en cours')).not.toBeVisible()
   })
 
   test('Sauvegarder une course avec passage', async ({ page }) => {
     const ch = chrono(page)
     await ch.getByRole('button', { name: 'Démarrer' }).click()
     await page.waitForTimeout(300)
-    await ch.getByRole('button', { name: 'Arrivée' }).click()
     await ch.getByRole('button', { name: 'Arrêter' }).click()
     await page.getByRole('button', { name: 'Enregistrer' }).click()
     await page.getByLabel('Nom de la course').fill('Course E2E')
@@ -78,7 +94,6 @@ test.describe('Accueil - Dupliquer', () => {
     const ch = chrono(page)
     await ch.getByRole('button', { name: 'Démarrer' }).click()
     await page.waitForTimeout(200)
-    await ch.getByRole('button', { name: 'Arrivée' }).click()
     await ch.getByRole('button', { name: 'Arrêter' }).click()
     await page.getByRole('button', { name: 'Enregistrer' }).click()
     await page.getByLabel('Nom de la course').fill('À dupliquer')
@@ -86,7 +101,7 @@ test.describe('Accueil - Dupliquer', () => {
     await expect(page.getByText('Sauvegardé')).toBeVisible()
     await page.getByRole('button', { name: 'Dupliquer' }).click()
     await expect(page.getByText('Coureur 1')).toBeVisible()
-    await expect(page.getByText('00:00.00')).toBeVisible()
+    await expect(ch.getByRole('timer', { name: 'Temps écoulé' })).toHaveText('00:00.00')
   })
 })
 
@@ -121,7 +136,6 @@ test.describe('Accueil - Navigation', () => {
     const ch = chrono(page)
     await ch.getByRole('button', { name: 'Démarrer' }).click()
     await page.waitForTimeout(200)
-    await ch.getByRole('button', { name: 'Arrivée' }).click()
     await ch.getByRole('button', { name: 'Arrêter' }).click()
     await page.getByRole('link', { name: 'Historique' }).click()
     await expect(page.getByText('Quitter l\'accueil ?')).toBeVisible()
@@ -135,7 +149,6 @@ test.describe('Accueil - Navigation', () => {
     const ch = chrono(page)
     await ch.getByRole('button', { name: 'Démarrer' }).click()
     await page.waitForTimeout(200)
-    await ch.getByRole('button', { name: 'Arrivée' }).click()
     await ch.getByRole('button', { name: 'Arrêter' }).click()
     await page.getByRole('link', { name: 'Historique' }).click()
     await expect(page.getByText('Quitter l\'accueil ?')).toBeVisible()
@@ -160,7 +173,6 @@ test.describe('Accueil - Export', () => {
     const ch = chrono(page)
     await ch.getByRole('button', { name: 'Démarrer' }).click()
     await page.waitForTimeout(300)
-    await ch.getByRole('button', { name: 'Arrivée' }).click()
     await ch.getByRole('button', { name: 'Arrêter' }).click()
     await page.getByRole('button', { name: 'Enregistrer' }).click()
     await page.getByLabel('Nom de la course').fill('Course export E2E')

@@ -5,6 +5,10 @@
 
 const chrono = (page) => page.getByRole('region', { name: 'Chronomètre' })
 const participants = (page) => page.getByRole('region', { name: 'Participants' })
+const btnCoureurChrono = (page) =>
+  chrono(page).getByRole('button', {
+    name: 'Ajouter un coureur qui passe devant le chronomètre'
+  })
 
 const delay = (ms) => new Promise((r) => setTimeout(r, ms))
 
@@ -36,12 +40,13 @@ export const SCENARIOS = [
     setup: async (page) => {
       await page.goto('/')
       await page.getByRole('button', { name: 'Individuel' }).click()
-      await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
-      await delay(300)
-      for (let i = 0; i < 12; i++) {
-        await chrono(page).getByRole('button', { name: 'Arrivée' }).click()
+      // 12 cartes : Coureur 1 par défaut + 11 ajouts (bouton Coureur zone chronomètre)
+      for (let i = 0; i < 11; i++) {
+        await btnCoureurChrono(page).click()
         await delay(120)
       }
+      await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
+      await delay(300)
       await delay(800)
       await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
       await delay(300)
@@ -54,7 +59,6 @@ export const SCENARIOS = [
       await page.getByRole('button', { name: 'Individuel' }).click()
       await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
       await delay(300)
-      await chrono(page).getByRole('button', { name: 'Arrivée' }).click()
       await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
       await chrono(page).getByRole('button', { name: 'Enregistrer' }).click()
       await delay(300)
@@ -67,7 +71,6 @@ export const SCENARIOS = [
       await page.getByRole('button', { name: 'Individuel' }).click()
       await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
       await delay(300)
-      await chrono(page).getByRole('button', { name: 'Arrivée' }).click()
       await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
       await delay(300)
     },
@@ -102,7 +105,6 @@ export const SCENARIOS = [
           await delay(200)
           await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
           await delay(300)
-          await chrono(page).getByRole('button', { name: 'Arrivée' }).click()
           await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
         }
         await chrono(page).getByRole('button', { name: 'Enregistrer' }).click()
@@ -156,12 +158,12 @@ export const SCENARIOS = [
     setup: async (page) => {
       await page.goto('/')
       await page.getByRole('button', { name: 'Individuel' }).click()
-      await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
-      await delay(400)
-      for (let i = 0; i < 12; i++) {
-        await chrono(page).getByRole('button', { name: 'Arrivée' }).click()
+      for (let i = 0; i < 11; i++) {
+        await btnCoureurChrono(page).click()
         await delay(400)
       }
+      await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
+      await delay(400)
       await delay(4000)
       await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
       await delay(300)
@@ -174,7 +176,6 @@ export const SCENARIOS = [
       await page.getByRole('button', { name: 'Individuel' }).click()
       await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
       await delay(300)
-      await chrono(page).getByRole('button', { name: 'Arrivée' }).click()
       await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
       await chrono(page).getByRole('button', { name: 'Enregistrer' }).click()
       await page.getByLabel('Nom de la course').fill('1500m - Second B')
@@ -193,12 +194,13 @@ export const SCENARIOS = [
     setup: async (page) => {
       await page.goto('/')
       await page.getByRole('button', { name: 'Individuel' }).click()
-      await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
-      await delay(300)
-      for (let i = 0; i < 6; i++) {
-        await chrono(page).getByRole('button', { name: 'Arrivée' }).click()
+      // 6 coureurs : Coureur 1 par défaut + 5 ajouts (bouton Coureur sous le chrono)
+      for (let i = 0; i < 5; i++) {
+        await btnCoureurChrono(page).click()
         await delay(400)
       }
+      await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
+      await delay(300)
       await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
       await chrono(page).getByRole('button', { name: 'Enregistrer' }).click()
       await page.getByLabel('Nom de la course').fill('Cross 2km - Epreuve')

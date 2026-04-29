@@ -13,7 +13,7 @@ function normalizeRunnerDisplayName(nom) {
  * @param {Object} payload
  * @param {string} payload.nom - Nom de la course
  * @param {Array<{id:string,nom:string,color:string}>} payload.participants
- * @param {Object} payload.passagesByParticipant - { [participantId]: [{ tourNum, lapMs, totalMs, studentIndex? }] }
+ * @param {Object} payload.passagesByParticipant - { [participantId]: [{ tourNum, lapMs, totalMs, studentIndex?, source? }] }
  * @param {number|null} payload.chronoStartMs - Epoch ms du démarrage chrono (null si solo sans chrono démarré)
  * @param {string} payload.statusAtSave - 'idle' | 'running' | 'paused'
  * @param {'individual'|'relay'} [payload.mode] - Mode de la course (défaut 'individual')
@@ -65,6 +65,9 @@ export async function saveCourse({
       }
       if (mode === 'relay' && p.studentIndex !== undefined) {
         passageRow.studentIndex = p.studentIndex
+      }
+      if (mode === 'individual' && p.source) {
+        passageRow.source = p.source
       }
       passagesToSave.push(passageRow)
     }
@@ -152,6 +155,7 @@ export async function loadCourse(courseId) {
     const lapMs = totalMs - lastTotal
     const entry = { tourNum: p.tourNum, lapMs, totalMs }
     if (p.studentIndex !== undefined) entry.studentIndex = p.studentIndex
+    if (p.source) entry.source = p.source
     passagesByParticipant[p.participantId].push(entry)
   }
 

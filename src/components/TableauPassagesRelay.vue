@@ -4,6 +4,7 @@ import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import { createRelayGroup, COULEURS_PALETTE, safeRelayRunnerNom } from '../models/participant.js'
 import { formatTime } from '../utils/formatTime.js'
+import { sumLapMs } from '../utils/courseUtils.js'
 import RelayGroupModal from './RelayGroupModal.vue'
 
 const MAX_GROUPS = 8
@@ -112,7 +113,7 @@ function getPassagesList(groupId) {
 function getPerformancesByRunner(groupId) {
   const runners = (props.groupRunners[groupId] ?? []).slice().sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
   const passages = (props.passagesByParticipant[groupId] ?? []).slice().sort((a, b) => a.tourNum - b.tourNum)
-  const groupTotalMs = passages.length > 0 ? passages[passages.length - 1].totalMs : null
+  const groupTotalMs = passages.length > 0 ? sumLapMs(passages) : null
 
   const byRunner = {}
   for (let i = 0; i < runners.length; i++) {

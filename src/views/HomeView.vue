@@ -7,7 +7,7 @@ import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import SelectButton from 'primevue/selectbutton'
 import Chronometre from '../components/Chronometre.vue'
-import TableauPassagesCompact from '../components/TableauPassagesCompact.vue'
+import TableauPassagesIndividualCards from '../components/TableauPassagesIndividualCards.vue'
 import TableauPassagesRelay from '../components/TableauPassagesRelay.vue'
 import { useChronometre } from '../composables/useChronometre.js'
 import { useToast } from 'primevue/usetoast'
@@ -47,6 +47,7 @@ const {
   status,
   participantStates,
   passagesByParticipant,
+  individualJoinBaselineMs,
   chronoEpochMs,
   start,
   stop,
@@ -54,8 +55,7 @@ const {
   startParticipant,
   stopParticipant,
   recordPassage,
-  recordArrivalForParticipant,
-  getRaceElapsedMs
+  seedIndividualParticipantAtJoin
 } = useChronometre(participants, chronoOptions)
 
 const hasAnyPassage = computed(() => {
@@ -82,12 +82,23 @@ const hasUnsavedRelayConfig = computed(() => {
   )
 })
 
-const hasUnsavedIndividualConfig = computed(
+/** Comme le relais « 1 groupe / 1 coureur » au repos : une carte seule, pas de passage, chrono idle. */
+const isDefaultIndividualState = computed(
   () =>
+    mode.value === 'individual' &&
+    participants.value.length === 1 &&
+    !hasAnyPassage.value &&
+    status.value === 'idle'
+)
+
+const hasUnsavedIndividualConfig = computed(() => {
+  if (isDefaultIndividualState.value) return false
+  return (
     participants.value.length > 0 ||
     hasAnyPassage.value ||
     status.value !== 'idle'
-)
+  )
+})
 
 const canSave = computed(
   () => !currentCourse.value && status.value !== 'running'
@@ -260,28 +271,21 @@ function ensureRelayHasDefaultGroup() {
   groupRunners.value = { [group.id]: [createRelayRunner(1, 0)] }
 }
 
-function startNewCourse() {
-  currentCourse.value = null
-  suggestedSaveNom.value = ''
-  participants.value = []
-  groupRunners.value = {}
-  reset()
-  passagesByParticipant.value = {}
-  if (mode.value === 'relay') {
-    ensureRelayHasDefaultGroup()
-  }
+function ensureIndividualHasDefaultRunner() {
+  if (mode.value !== 'individual' || currentCourse.value || participants.value.length > 0) return
+  addParticipant(createParticipant(1))
 }
 
-function handleStart() {
-  if (isPreparedCourse.value) {
-    suggestedSaveNom.value = currentCourse.value.nom || ''
-    currentCourse.value = null
+function nextIndividualParticipantIndex() {
+  let max = 0
+  for (const p of participants.value) {
+    const m = p.nom?.match(/^(?:Coureur|Élève|Elève) (\d+)$/)
+    if (m) max = Math.max(max, parseInt(m[1], 10))
   }
-  start()
+  return max + 1
 }
 
-function handleCaptureArrival() {
-  if (mode.value !== 'individual' || status.value !== 'running') return
+function handleAddCoureur() {
   if (participants.value.length >= MAX_INDIVIDUAL_RUNNERS) {
     toast.add({
       severity: 'warn',
@@ -291,10 +295,47 @@ function handleCaptureArrival() {
     })
     return
   }
-  const totalMs = getRaceElapsedMs()
-  const participant = createParticipant(participants.value.length + 1)
-  addParticipant(participant)
-  recordArrivalForParticipant(participant.id, totalMs)
+  const list = participants.value
+  const last = list.length > 0 ? list[list.length - 1] : null
+  const globalRunning = status.value === 'running'
+  const lastRunning =
+    last != null && participantStates.value[last.id]?.status === 'running'
+
+  /** File d’arrivée : un nouveau coureur devant le chrono fige le tour en cours du précédent et démarre le nouveau synchronisé. */
+  if (globalRunning && lastRunning) {
+    recordPassage(last.id, { source: 'coureur' })
+  }
+
+  const newP = createParticipant(nextIndividualParticipantIndex())
+  addParticipant(newP, {
+    individualFirstLapFromRaceStart: globalRunning && lastRunning
+  })
+
+  if (globalRunning && lastRunning) {
+    startParticipant(newP.id)
+  }
+}
+
+function startNewCourse() {
+  currentCourse.value = null
+  suggestedSaveNom.value = ''
+  participants.value = []
+  groupRunners.value = {}
+  reset()
+  passagesByParticipant.value = {}
+  if (mode.value === 'relay') {
+    ensureRelayHasDefaultGroup()
+  } else {
+    ensureIndividualHasDefaultRunner()
+  }
+}
+
+function handleStart() {
+  if (isPreparedCourse.value) {
+    suggestedSaveNom.value = currentCourse.value.nom || ''
+    currentCourse.value = null
+  }
+  start()
 }
 
 const isDuplicateChronoButton = computed(
@@ -312,6 +353,8 @@ async function applyResetFromChrono() {
     // Si mode individuel sans participants valides, réinitialiser proprement
     if (mode.value === 'relay' && participants.value.length === 0) {
       ensureRelayHasDefaultGroup()
+    } else if (mode.value === 'individual' && participants.value.length === 0) {
+      ensureIndividualHasDefaultRunner()
     }
     reset()
   }
@@ -377,14 +420,28 @@ onBeforeRouteLeave(() => {
   })
 })
 
-function addParticipant(participant) {
+/**
+ * @param {{ individualFirstLapFromRaceStart?: boolean }} [options] — individuel : premier tour mesuré depuis le départ course (0 ms) si coureur ajouté pendant une course lancée (même départ que les autres).
+ */
+function addParticipant(participant, options = {}) {
   const max = mode.value === 'relay' ? 8 : 20
-  if (participants.value.length >= max) return
+  if (participants.value.length >= max) {
+    if (mode.value === 'individual') {
+      toast.add({
+        severity: 'warn',
+        summary: 'Limite atteinte',
+        detail: 'Au plus 20 coureurs pour une course individuelle.',
+        life: 4000
+      })
+    }
+    return
+  }
   if (participants.value.length === 0) {
     const next = { ...passagesByParticipant.value }
     delete next['__solo__']
     passagesByParticipant.value = next
   }
+  const joinMs = mode.value === 'individual' ? elapsedMs.value : 0
   participants.value.push(participant)
   if (mode.value === 'relay') {
     let totalRunnersCount = 0
@@ -396,6 +453,13 @@ function addParticipant(participant) {
       ...groupRunners.value,
       [participant.id]: [newRunner]
     }
+  } else {
+    /** Immédiatement après le push : sinon le watch participants peut fixer elapsedMs à 0 avant le nextTick et un flash ou état faux si le chrono principal tourne déjà. */
+    seedIndividualParticipantAtJoin(
+      participant.id,
+      joinMs,
+      options.individualFirstLapFromRaceStart === true
+    )
   }
 }
 
@@ -416,6 +480,9 @@ function removeParticipant(participant) {
   groupRunners.value = nextGr
   if (mode.value === 'relay' && !currentCourse.value && participants.value.length === 0) {
     ensureRelayHasDefaultGroup()
+  }
+  if (mode.value === 'individual' && !currentCourse.value && participants.value.length === 0) {
+    ensureIndividualHasDefaultRunner()
   }
 }
 
@@ -499,6 +566,7 @@ watch(
       groupRunners.value = {}
       passagesByParticipant.value = {}
       reset()
+      ensureIndividualHasDefaultRunner()
     } else if (newMode === 'relay') {
       const group = createRelayGroup(0)
       participants.value = [group]
@@ -515,6 +583,8 @@ onMounted(async () => {
   await maybeLoadFromQuery()
   if (mode.value === 'relay') {
     ensureRelayHasDefaultGroup()
+  } else if (mode.value === 'individual' && !currentCourse.value && participants.value.length === 0) {
+    ensureIndividualHasDefaultRunner()
   }
 })
 watch(
@@ -563,12 +633,12 @@ watch(
           <Chronometre
             :elapsed-ms="displayedElapsedMs"
             :status="status"
-            :show-arrival="mode === 'individual' && !(currentCourse && !isPreparedCourse)"
             :is-viewing-loaded-course="!!currentCourse && !isPreparedCourse"
+            :show-add-coureur="mode === 'individual' && !(currentCourse && !isPreparedCourse)"
             @start="handleStart"
             @stop="stop"
             @reset="handleReset"
-            @record-arrival="handleCaptureArrival"
+            @add-coureur="handleAddCoureur"
           >
             <template #extra-controls>
               <Button
@@ -594,14 +664,13 @@ watch(
         </section>
         <section class="home-section" aria-label="Participants">
           <template v-if="mode === 'individual'">
-            <TableauPassagesCompact
+            <TableauPassagesIndividualCards
               :participants="participants"
               :participant-states="participantStates"
               :passages-by-participant="passagesByParticipant"
+              :participant-join-baseline="individualJoinBaselineMs"
               :status="status"
               :read-only="!!currentCourse && !isPreparedCourse"
-              :sequential-individual="true"
-              @add="addParticipant"
               @update="updateParticipant"
               @remove="removeParticipant"
               @record="recordPassage"

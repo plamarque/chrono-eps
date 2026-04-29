@@ -41,13 +41,14 @@ Application PWA **client-only** : pas de backend obligatoire pour la première v
 
 | Composant | Responsabilité | Emplacement / Tech cible |
 |-----------|----------------|--------------------------|
-| **UI Chronomètre** | Affichage temps ; Démarrer/Arrêter ; en **individuel** pendant la course : bouton **Arrivée** (drapeau) ; Réinitialiser (chrono en pause) ou Dupliquer (course chargée) ; en vue détail : Replay, Dupliquer. Confirmations dans HomeView (`onBeforeRouteLeave`, ConfirmDialog). Voir SPEC « Actions Nouvelle course et Dupliquer ». | src/components/Chronometre.vue |
+| **UI Chronomètre** | Affichage temps ; Démarrer/Arrêter ; bouton **Coureur** (individuel terrain, après Démarrer/Arrêter) ; Réinitialiser (chrono en pause) ou Dupliquer (course chargée) ; en vue détail : Replay, Dupliquer. Confirmations dans HomeView (`onBeforeRouteLeave`, ConfirmDialog). Voir SPEC « Actions Nouvelle course et Dupliquer ». | src/components/Chronometre.vue |
 | **Vue Replay** | Replay visuel d'une course : piste virtuelle ovale, marqueurs par participant, contrôles play/pause/slider | src/views/ReplayView.vue |
 | **useReplay** | Logique replay : interpolation position, coureur actuel (relais), playback | src/composables/useReplay.js |
 | **Liste Coureurs** | Gestion et sélection des coureurs pour une course | src/ |
 | **Saisie Passages** | Enregistrement des passages (tap sur coureur, enregistrement timestamp) | src/ |
 | **Tableau relais** | Affichage « Couru » / « Prochain » par groupe, tap par groupe | src/components/ |
-| **Vue compacte (individuel)** | Liste des arrivées (Coureur 1, 2, …) ; renommage par double-clic ou bouton crayon ; affichage multi-tours pour données historiques | src/components/TableauPassagesCompact.vue |
+| **Cartes individuel (terrain + fiche)** | Grille type relais : en-tête couleur, Play/Stop, drapeau tour, liste des tours et total ; ajout de coureurs via le bouton **Coureur** du composant Chronomètre (HomeView : `handleAddCoureur` — passage implicite du dernier coureur en course + nouveau coureur synchronisé si chrono global lancé, sinon simple ajout au temps du clic) ; fiche historique : `readOnly` + `allowParticipantEdit` pour le nom | src/components/TableauPassagesIndividualCards.vue |
+| **Vue compacte** | Ancienne grille solo / variantes ; encore utilisée pour certains affichages tests | src/components/TableauPassagesCompact.vue |
 | **Stockage local** | Persistance des données (coureurs, courses, passages, performances) ; liste, chargement, suppression | IndexedDB (Dexie.js) |
 | **Couche PWA** | Service worker, manifeste ; installation, cache, offline | public/, sw.js ou équivalent |
 | **UI responsive** | Layout adapté tablette et smartphone | PrimeVue |

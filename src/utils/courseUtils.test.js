@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest'
 import {
   getMaxTotalMsFromPassages,
   sortParticipantsByTotalTimeAsc,
-  getModeIcon
+  getModeIcon,
+  sumLapMs
 } from './courseUtils.js'
 
 describe('getModeIcon', () => {
@@ -68,6 +69,24 @@ describe('sortParticipantsByTotalTimeAsc', () => {
   })
 })
 
+describe('sumLapMs', () => {
+  it('somme les lapMs quand tous sont renseignés (ignore totalMs incohérent)', () => {
+    const passages = [
+      { tourNum: 1, lapMs: 10000, totalMs: 10000 },
+      { tourNum: 2, lapMs: 15000, totalMs: 99999 }
+    ]
+    expect(sumLapMs(passages)).toBe(25000)
+  })
+
+  it('reconstruit depuis totalMs si lapMs absent', () => {
+    const passages = [
+      { tourNum: 1, totalMs: 30000 },
+      { tourNum: 2, totalMs: 58000 }
+    ]
+    expect(sumLapMs(passages)).toBe(58000)
+  })
+})
+
 describe('getMaxTotalMsFromPassages', () => {
   it('retourne 0 pour objet vide', () => {
     expect(getMaxTotalMsFromPassages({})).toBe(0)
@@ -92,5 +111,17 @@ describe('getMaxTotalMsFromPassages', () => {
       p2: 'invalid'
     }
     expect(getMaxTotalMsFromPassages(pbp)).toBe(1000)
+  })
+
+  it('prend le max des sommes de tours par participant, pas un totalMs ponctuel erroné', () => {
+    const pbp = {
+      p1: [
+        { tourNum: 1, lapMs: 20000, totalMs: 20000 },
+        { tourNum: 2, lapMs: 10000, totalMs: 999999 }
+      ],
+      p2: [{ tourNum: 1, lapMs: 50000, totalMs: 50000 }]
+    }
+    expect(sumLapMs(pbp.p1)).toBe(30000)
+    expect(getMaxTotalMsFromPassages(pbp)).toBe(50000)
   })
 })

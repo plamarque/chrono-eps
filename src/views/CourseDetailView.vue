@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
 import Chronometre from '../components/Chronometre.vue'
-import TableauPassagesCompact from '../components/TableauPassagesCompact.vue'
+import TableauPassagesIndividualCards from '../components/TableauPassagesIndividualCards.vue'
 import TableauPassagesRelay from '../components/TableauPassagesRelay.vue'
 import { loadCourse, updateCourseParticipant } from '../services/courseStore.js'
 import {
@@ -175,7 +175,6 @@ watch(() => route.params.id, fetchCourse)
           <Chronometre
             :elapsed-ms="displayedElapsedMs"
             status="idle"
-            :show-arrival="false"
             :is-viewing-loaded-course="true"
             @reset="createNewFromThis"
           >
@@ -212,14 +211,14 @@ watch(() => route.params.id, fetchCourse)
         </section>
         <section class="course-detail-section" aria-label="Participants">
           <template v-if="course.mode !== 'relay'">
-            <TableauPassagesCompact
+            <TableauPassagesIndividualCards
               :participants="course.participants"
               :participant-states="emptyParticipantStates"
               :passages-by-participant="course.passagesByParticipant"
               status="idle"
-              :read-only="false"
+              read-only
+              allow-participant-edit
               :hide-participant-remove="true"
-              :sequential-individual="true"
               @update="onParticipantUpdate"
             />
             <!-- Vue tableau conservée en attente des retours utilisateurs

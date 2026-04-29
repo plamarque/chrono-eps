@@ -75,6 +75,22 @@ describe('exportCourseExcel', () => {
       expect(rows[3][1]).toBe('00:48.00')
     })
 
+    it('colonne Total = somme des lapMs même si totalMs enregistrés est incohérent', () => {
+      const course = {
+        participants: [{ id: 'p1', nom: 'Alice', color: '#fff' }],
+        passagesByParticipant: {
+          p1: [
+            { tourNum: 1, lapMs: 10000, totalMs: 10000 },
+            { tourNum: 2, lapMs: 20000, totalMs: 999999 }
+          ]
+        }
+      }
+      const rows = buildExportDataIndividual(course)
+      expect(rows[0]).toEqual(['Coureur', 'Tour 1', 'Tour 2', 'Total'])
+      expect(rows[1][3]).toBe('00:30.00')
+      expect(rows[2][3]).toBe('00:30.00')
+    })
+
     it('gère le mode solo (participants vides, passages sous __solo__)', () => {
       const course = {
         participants: [],

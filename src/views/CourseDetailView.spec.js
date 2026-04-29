@@ -114,7 +114,7 @@ describe('CourseDetailView', () => {
     wrapper.unmount()
   })
 
-  it('course individuelle : édition du nom (bouton crayon)', async () => {
+  it('course individuelle : en-tête carte ouvre la modale de renommage', async () => {
     const completedCourse = {
       id: 'completed-edit',
       nom: 'Course du 15 février',
@@ -132,8 +132,11 @@ describe('CourseDetailView', () => {
     await new Promise((r) => setTimeout(r, 80))
     await wrapper.vm.$nextTick()
 
-    const pencil = wrapper.find('[aria-label="Modifier le nom"]')
-    expect(pencil.exists()).toBe(true)
+    const header = wrapper.find('.indiv-header')
+    expect(header.exists()).toBe(true)
+    await header.trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(document.body.textContent).toContain('Modifier Coureur 1')
     wrapper.unmount()
   })
 })

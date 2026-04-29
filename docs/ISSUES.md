@@ -58,7 +58,7 @@
 
 **Problème :** En mode individuel, les boutons Stop et Tour étaient trop proches sur les cartes coureur.
 
-**État :** Supersédé — l'UX individuel terrain a été refondue : plus de Stop/Tour par carte ; **Arrivée** est sur le chronomètre principal (voir SPEC, mode individuel arrivées séquentielles).
+**État :** Supersédé — l'UX individuel terrain est en **cartes type relais** (Play/Stop, drapeau, tours) ; ajout par le bouton **Coureur** au chronomètre, total initial = chrono principal au clic (voir SPEC / ARCH).
 
 ### [UX] Perte de configuration au changement de mode sans enregistrer
 

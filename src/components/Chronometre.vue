@@ -6,12 +6,19 @@ import { formatTime } from '../utils/formatTime.js'
 const props = defineProps({
   elapsedMs: { type: Number, default: 0 },
   status: { type: String, default: 'idle' },
-  /** Mode individuel séquentiel : bouton drapeau pour enregistrer une arrivée (chrono en cours). */
-  showArrival: { type: Boolean, default: false },
-  isViewingLoadedCourse: { type: Boolean, default: false }
+  isViewingLoadedCourse: { type: Boolean, default: false },
+  /** Mode individuel terrain : bouton bleu « Coureur » après Démarrer / Arrêter. */
+  showAddCoureur: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['start', 'stop', 'reset', 'record-arrival'])
+const emit = defineEmits(['start', 'stop', 'reset', 'add-coureur'])
+
+const showCoureurBtn = computed(
+  () =>
+    props.showAddCoureur &&
+    !props.isViewingLoadedCourse &&
+    (props.status === 'idle' || props.status === 'paused' || props.status === 'running')
+)
 
 const displayedTime = computed(() => formatTime(props.elapsedMs))
 </script>
@@ -36,21 +43,21 @@ const displayedTime = computed(() => formatTime(props.elapsedMs))
         @click="emit('start')"
       />
       <Button
-        v-if="!isViewingLoadedCourse && status === 'running' && showArrival"
-        label="Arrivée"
-        icon="pi pi-flag"
-        severity="info"
-        class="chronometre-btn"
-        aria-label="Enregistrer une arrivée"
-        @click="emit('record-arrival')"
-      />
-      <Button
         v-if="!isViewingLoadedCourse && status === 'running'"
         label="Arrêter"
         icon="pi pi-stop"
         severity="danger"
         @click="emit('stop')"
         class="chronometre-btn"
+      />
+      <Button
+        v-if="showCoureurBtn"
+        label="Coureur"
+        icon="pi pi-user-plus"
+        severity="info"
+        class="chronometre-btn"
+        aria-label="Ajouter un coureur qui passe devant le chronomètre"
+        @click="emit('add-coureur')"
       />
       <Button
         v-if="isViewingLoadedCourse || status === 'paused'"

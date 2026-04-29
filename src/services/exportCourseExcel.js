@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx'
 import { formatTime } from '../utils/formatTime.js'
-import { getMaxTotalMsFromPassages } from '../utils/courseUtils.js'
+import { getMaxTotalMsFromPassages, sumLapMs } from '../utils/courseUtils.js'
 import { safeRelayRunnerNom } from '../models/participant.js'
 
 const EMPTY_CELL = '-'
@@ -62,7 +62,7 @@ export function buildExportDataIndividual(course) {
       const passages = (pbp[p.id] ?? [])
         .slice()
         .sort((a, b) => (a.tourNum ?? 0) - (b.tourNum ?? 0))
-      const totalMs = passages.length > 0 ? passages[0].totalMs : null
+      const totalMs = passages.length > 0 ? sumLapMs(passages) : null
       rows.push([p.nom ?? 'Coureur', totalMs != null ? formatTime(totalMs) : EMPTY_CELL])
     }
     rows.push(['Durée max. course', totalCourseMs > 0 ? formatTime(totalCourseMs) : EMPTY_CELL])
@@ -77,7 +77,7 @@ export function buildExportDataIndividual(course) {
       .slice()
       .sort((a, b) => (a.tourNum ?? 0) - (b.tourNum ?? 0))
     const tourMap = Object.fromEntries(passages.map((pass) => [pass.tourNum, pass.lapMs]))
-    const totalMs = passages.length > 0 ? passages[passages.length - 1].totalMs : null
+    const totalMs = passages.length > 0 ? sumLapMs(passages) : null
 
     const row = [
       p.nom ?? 'Coureur',
@@ -131,7 +131,7 @@ function buildExportDataRelayGroup(group, runners, passages) {
     byRunner[idx].passages.push({ tourNum: p.tourNum, lapMs: p.lapMs })
   }
 
-  const groupTotalMs = sortedPassages.length > 0 ? sortedPassages[sortedPassages.length - 1].totalMs : null
+  const groupTotalMs = sortedPassages.length > 0 ? sumLapMs(sortedPassages) : null
   const maxTourNum = sortedPassages.length > 0
     ? Math.max(...sortedPassages.map((p) => p.tourNum ?? 0))
     : 0

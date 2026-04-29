@@ -462,6 +462,52 @@ describe('HomeView', () => {
     shell.unmount()
   })
 
+  it('individuel : en course, Coureur enregistre le tour du dernier coureur et démarre le nouveau synchronisé', async () => {
+    const { wrapper, shell } = await mountHomeView()
+    await vi.advanceTimersByTimeAsync(0)
+
+    await wrapper.findAll('button').find((b) => b.text() === 'Individuel').trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const idC1 = wrapper.vm.participants[0].id
+    await wrapper.findAll('button').find((b) => b.text() === 'Démarrer').trigger('click')
+    await vi.advanceTimersByTimeAsync(80)
+
+    const coureurBtn = wrapper.find('[aria-labelledby="chrono-heading"]').find(
+      '[aria-label="Ajouter un coureur qui passe devant le chronomètre"]'
+    )
+    await coureurBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.vm.participants).toHaveLength(2)
+    const c2 = wrapper.vm.participants[1]
+    expect(wrapper.vm.passagesByParticipant[idC1]?.length).toBe(1)
+    expect(wrapper.vm.passagesByParticipant[idC1][0].tourNum).toBe(1)
+    expect(wrapper.vm.participantStates[c2.id].status).toBe('running')
+    expect(wrapper.vm.participantStates[idC1].status).toBe('running')
+    shell.unmount()
+  })
+
+  it('individuel : chrono au repos, Coureur ajoute une carte sans tour sur le précédent', async () => {
+    const { wrapper, shell } = await mountHomeView()
+    await vi.advanceTimersByTimeAsync(0)
+
+    await wrapper.findAll('button').find((b) => b.text() === 'Individuel').trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const idC1 = wrapper.vm.participants[0].id
+    const coureurBtn = wrapper.find('[aria-labelledby="chrono-heading"]').find(
+      '[aria-label="Ajouter un coureur qui passe devant le chronomètre"]'
+    )
+    await coureurBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const c2 = wrapper.vm.participants[1]
+    expect(wrapper.vm.passagesByParticipant[idC1]?.length ?? 0).toBe(0)
+    expect(wrapper.vm.participantStates[c2.id].status).toBe('idle')
+    shell.unmount()
+  })
+
   it('Réinitialiser avec passages : dialogue de confirmation, pas de reset sans accepter', async () => {
     const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
@@ -470,14 +516,16 @@ describe('HomeView', () => {
     await individuelBtn.trigger('click')
     await wrapper.vm.$nextTick()
 
+    const coureurBtn = wrapper.find('[aria-labelledby="chrono-heading"]').find(
+      '[aria-label="Ajouter un coureur qui passe devant le chronomètre"]'
+    )
+    expect(coureurBtn.exists()).toBe(true)
+    await coureurBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
     const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
     await demarrer.trigger('click')
     await vi.advanceTimersByTimeAsync(10)
-
-    const arrivee = wrapper.findAll('button').find((b) => b.attributes('aria-label') === 'Enregistrer une arrivée')
-    expect(arrivee?.exists()).toBe(true)
-    await arrivee.trigger('click')
-    await wrapper.vm.$nextTick()
 
     const arreter = wrapper.findAll('button').find((b) => b.text() === 'Arrêter')
     await arreter.trigger('click')
@@ -540,7 +588,7 @@ describe('HomeView', () => {
     wrapper.vm.startNewCourse()
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.vm.participants).toHaveLength(0)
+    expect(wrapper.vm.participants).toHaveLength(1)
     expect(wrapper.vm.currentCourse).toBeNull()
     expect(Object.keys(wrapper.vm.passagesByParticipant)).toHaveLength(0)
     shell.unmount()

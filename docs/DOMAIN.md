@@ -13,7 +13,7 @@ Ce document définit le vocabulaire, les entités et les règles du domaine pour
 | **Course** | Session chronométrée : une activité à un instant donné (ex. course du jour, tour de piste). |
 | **Tour** | Unité de parcours complétée (ex. un tour de piste, une longueur de bassin). |
 | **Passage** | Traversée d'un point de contrôle par un coureur à un instant donné ; enregistrement d'un tour complété. |
-| **Arrivée (individuel)** | En mode individuel actuel : enregistrement ordonné du temps de passage à la ligne d'arrivée ; crée un coureur « Coureur N » avec un seul temps (pas de tours multiples par coureur dans cette version). |
+| **Tour (individuel)** | Passage enregistré pour la carte d'un coureur (drapeau pendant que son chrono est en course, ou **clic Coureur** pendant une course lancée pour le **dernier** coureur de la liste s’il est en course : enregistrement implicite du temps mono-tour puis arrivée du coureur suivant) ; par défaut, tant qu’aucun **drapeau** n’a été cliqué pour une carte, elle est considérée **mono-tour** et affiche seulement **Temps** (pas de liste Tour 1 / total ni de compteur Tour 2) ; un **Arrêter** global ou carte reste aussi un arrêt mono-tour si aucun drapeau n’a été cliqué ; après un passage enregistré au drapeau, le compteur principal reste **Temps** et affiche la somme des tours validés, tandis qu’un compteur près du drapeau affiche le prochain tour à capturer ; plusieurs tours par coureur possibles ; **coureur ajouté pendant la course** : le **tour 1** est mesuré depuis le **départ commun** (temps du chrono principal à l’enregistrement du tour, comme pour les autres coureurs partis ensemble) ; hors course lancée, le bouton **Coureur** (zone chronomètre) ajoute une carte sans tour : le temps affiché reprend le temps du chrono principal à l’instant du clic. |
 | **Passage (relais)** | Un tour de piste complété par un coureur d'un groupe ; l'ordre cycle sur les coureurs (ex. Alice, Bob, Claire, Daniel, Alice, Bob...) ; la course continue jusqu'à l'arrêt par le professeur. |
 | **Groupe (relais)** | Ensemble ordonné de coureurs qui courent l'un après l'autre ; a une couleur (chasubles communes) et une liste de noms de coureurs. |
 | **Performance** | Résultat associé à un coureur pour une course : temps, nombre de tours complétés, etc. |
@@ -44,7 +44,7 @@ Ce document définit le vocabulaire, les entités et les règles du domaine pour
 3. Les passages sont ordonnés chronologiquement ; le timestamp est non modifiable une fois enregistré. [ASSUMPTION]
 4. Les performances sont dérivées des passages : temps du premier passage, du dernier, nombre de tours, etc.
 5. [ASSUMPTION] Format temps : mm:ss.ms ou équivalent pour l'affichage et le stockage.
-6. En mode individuel actuel, un **chrono de course unique** s'applique ; les arrivées sont enregistrées dans l'ordre via l'action **Arrivée** ; l'**Arrêt** du chronomètre principal met fin à la course sans créer d'arrivée. Les courses individuelles déjà stockées avec plusieurs passages par coureur (ancien usage) restent affichées et exportées avec le détail par tour.
+6. En mode individuel, chaque coureur a un **état de chrono** (idle / running / paused) comme en relais par groupe ; le **démarrage global** met tous les coureurs listés en course ; l'**arrêt global** enregistre un passage pour chaque coureur encore en course puis met en pause. Les courses individuelles déjà stockées (y compris anciennes variantes à une horloge unique) restent affichées et exportées avec le détail par tour.
 
 ## Hypothèses et incertitudes
 

@@ -7,13 +7,15 @@ function mountChronometre(props = {}) {
     props: {
       elapsedMs: props.elapsedMs ?? 0,
       status: props.status ?? 'idle',
-      showArrival: props.showArrival ?? false,
-      isViewingLoadedCourse: props.isViewingLoadedCourse ?? false
+      isViewingLoadedCourse: props.isViewingLoadedCourse ?? false,
+      showAddCoureur: props.showAddCoureur ?? false
     },
     global: {
       stubs: {
         Button: {
-          template: '<button @click="$emit(\'click\')">{{ $attrs.label }}</button>',
+          props: ['label', 'ariaLabel'],
+          template:
+            '<button type="button" :aria-label="$attrs[\'aria-label\'] || ariaLabel" @click="$emit(\'click\')">{{ label }}</button>',
           inheritAttrs: true
         }
       }
@@ -103,18 +105,52 @@ describe('Chronometre', () => {
     wrapper.unmount()
   })
 
-  it('affiche Arrivée quand showArrival et chrono en cours', () => {
-    const wrapper = mountChronometre({ status: 'running', showArrival: true })
-    const arrivee = wrapper.findAll('button').find((b) => b.text() === 'Arrivée')
-    expect(arrivee?.exists()).toBe(true)
+  it('n’affiche pas le bouton Coureur sans showAddCoureur', () => {
+    const wrapper = mountChronometre({ status: 'idle', showAddCoureur: false })
+    expect(
+      wrapper.find('button[aria-label="Ajouter un coureur qui passe devant le chronomètre"]').exists()
+    ).toBe(false)
     wrapper.unmount()
   })
 
-  it('émet record-arrival au clic sur Arrivée', async () => {
-    const wrapper = mountChronometre({ status: 'running', showArrival: true })
-    const arrivee = wrapper.findAll('button').find((b) => b.text() === 'Arrivée')
-    await arrivee.trigger('click')
-    expect(wrapper.emitted('record-arrival')).toBeTruthy()
+  it('affiche Coureur après Démarrer quand showAddCoureur et chrono idle', () => {
+    const wrapper = mountChronometre({ status: 'idle', showAddCoureur: true })
+    const labels = wrapper.findAll('button').map((b) => b.text())
+    const iDem = labels.indexOf('Démarrer')
+    const iCou = labels.indexOf('Coureur')
+    expect(iDem).toBeGreaterThanOrEqual(0)
+    expect(iCou).toBeGreaterThan(iDem)
+    wrapper.unmount()
+  })
+
+  it('affiche Coureur après Arrêter en running avec showAddCoureur', () => {
+    const wrapper = mountChronometre({ status: 'running', showAddCoureur: true })
+    const labels = wrapper.findAll('button').map((b) => b.text())
+    const iArr = labels.indexOf('Arrêter')
+    const iCou = labels.indexOf('Coureur')
+    expect(iArr).toBeGreaterThanOrEqual(0)
+    expect(iCou).toBeGreaterThan(iArr)
+    wrapper.unmount()
+  })
+
+  it('masque Coureur en lecture course chargée (isViewingLoadedCourse)', () => {
+    const wrapper = mountChronometre({
+      status: 'idle',
+      showAddCoureur: true,
+      isViewingLoadedCourse: true
+    })
+    expect(
+      wrapper.find('button[aria-label="Ajouter un coureur qui passe devant le chronomètre"]').exists()
+    ).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('émet add-coureur au clic sur Coureur', async () => {
+    const wrapper = mountChronometre({ status: 'idle', showAddCoureur: true })
+    await wrapper
+      .find('button[aria-label="Ajouter un coureur qui passe devant le chronomètre"]')
+      .trigger('click')
+    expect(wrapper.emitted('add-coureur')).toBeTruthy()
     wrapper.unmount()
   })
 })

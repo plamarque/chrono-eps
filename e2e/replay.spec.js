@@ -6,11 +6,11 @@ test.describe('Replay', () => {
     await page.goto('/')
     await page.getByRole('button', { name: 'Individuel' }).click()
     const chrono = page.getByRole('region', { name: 'Chronomètre' })
+    await chrono
+      .getByRole('button', { name: 'Ajouter un coureur qui passe devant le chronomètre' })
+      .click()
     await chrono.getByRole('button', { name: 'Démarrer' }).click()
-    await page.waitForTimeout(300)
-    await chrono.getByRole('button', { name: 'Arrivée' }).click()
-    await page.waitForTimeout(200)
-    await chrono.getByRole('button', { name: 'Arrivée' }).click()
+    await page.waitForTimeout(2000)
     await chrono.getByRole('button', { name: 'Arrêter' }).click()
     await chrono.getByRole('button', { name: 'Enregistrer' }).click()
     await page.getByLabel('Nom de la course').fill('Replay E2E')
@@ -30,13 +30,13 @@ test.describe('Replay', () => {
   })
 
   test('Play/Pause fonctionne', async ({ page }) => {
-    const playBtn = page.getByRole('region', { name: 'Contrôles de lecture' }).getByRole('button', { name: 'Lecture' })
-    const pauseBtn = page.getByRole('region', { name: 'Contrôles de lecture' }).getByRole('button', { name: 'Pause' })
+    const controls = page.getByRole('region', { name: 'Contrôles de lecture' })
+    const playBtn = controls.getByRole('button', { name: 'Lecture' })
+    const pauseBtn = controls.getByRole('button', { name: 'Pause' })
 
     await playBtn.click()
-    await expect(pauseBtn).toBeVisible()
-    await page.waitForTimeout(500)
-    await pauseBtn.click()
+    await expect(pauseBtn).toBeVisible({ timeout: 20000 })
+    await controls.getByRole('button', { name: 'Pause' }).click()
     await expect(playBtn).toBeVisible()
   })
 

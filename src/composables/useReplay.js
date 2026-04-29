@@ -1,4 +1,5 @@
 import { ref, computed, watch, onUnmounted, unref } from 'vue'
+import { sumLapMs } from '../utils/courseUtils.js'
 
 /**
  * Calcule la position interpolée sur la piste (en tours) pour un participant à un instant donné.
@@ -83,9 +84,8 @@ export function useReplay(course, options = {}) {
     let max = 0
     for (const passages of Object.values(c.passagesByParticipant)) {
       if (!Array.isArray(passages)) continue
-      for (const p of passages) {
-        if ((p.totalMs ?? 0) > max) max = p.totalMs
-      }
+      const s = sumLapMs(passages)
+      if (s > max) max = s
     }
     return max
   })
