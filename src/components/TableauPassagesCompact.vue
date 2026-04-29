@@ -37,6 +37,11 @@ const props = defineProps({
   sequentialIndividual: {
     type: Boolean,
     default: false
+  },
+  /** Masque le bouton Supprimer du dialogue (ex. vue détail historique : édition nom uniquement). */
+  hideParticipantRemove: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -408,7 +413,7 @@ function toggleParticipant(participant) {
       </div>
       <template #footer>
         <Button
-          v-if="!readOnly"
+          v-if="!readOnly && !hideParticipantRemove"
           label="Supprimer"
           severity="danger"
           icon="pi pi-trash"

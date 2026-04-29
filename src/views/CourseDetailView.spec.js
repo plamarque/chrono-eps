@@ -6,8 +6,10 @@ import ToastService from 'primevue/toastservice'
 import CourseDetailView from './CourseDetailView.vue'
 
 const mockLoadCourse = vi.fn()
+const mockUpdateCourseParticipant = vi.fn()
 vi.mock('../services/courseStore.js', () => ({
-  loadCourse: (id) => mockLoadCourse(id)
+  loadCourse: (id) => mockLoadCourse(id),
+  updateCourseParticipant: (...args) => mockUpdateCourseParticipant(...args)
 }))
 
 async function mountCourseDetail(courseId) {
@@ -34,6 +36,8 @@ async function mountCourseDetail(courseId) {
 describe('CourseDetailView', () => {
   beforeEach(() => {
     mockLoadCourse.mockReset()
+    mockUpdateCourseParticipant.mockReset()
+    mockUpdateCourseParticipant.mockResolvedValue(undefined)
   })
 
   it('affiche le bouton Lancer pour une course préparée (sans temps ni passage)', async () => {
@@ -107,6 +111,29 @@ describe('CourseDetailView', () => {
     await dupliquer.trigger('click')
 
     expect(pushSpy).toHaveBeenCalledWith({ path: '/', query: { newFromCourseId: 'completed-1' } })
+    wrapper.unmount()
+  })
+
+  it('course individuelle : édition du nom (bouton crayon)', async () => {
+    const completedCourse = {
+      id: 'completed-edit',
+      nom: 'Course du 15 février',
+      createdAt: new Date().toISOString(),
+      participants: [{ id: 'p1', nom: 'Coureur 1', color: '#3b82f6' }],
+      passagesByParticipant: {
+        p1: [{ tourNum: 1, lapMs: 60000, totalMs: 60000 }]
+      },
+      statusAtSave: 'paused',
+      mode: 'individual'
+    }
+    mockLoadCourse.mockResolvedValue(completedCourse)
+
+    const { wrapper } = await mountCourseDetail('completed-edit')
+    await new Promise((r) => setTimeout(r, 80))
+    await wrapper.vm.$nextTick()
+
+    const pencil = wrapper.find('[aria-label="Modifier le nom"]')
+    expect(pencil.exists()).toBe(true)
     wrapper.unmount()
   })
 })

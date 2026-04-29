@@ -6,7 +6,7 @@ import Button from 'primevue/button'
 import Chronometre from '../components/Chronometre.vue'
 import TableauPassagesCompact from '../components/TableauPassagesCompact.vue'
 import TableauPassagesRelay from '../components/TableauPassagesRelay.vue'
-import { loadCourse } from '../services/courseStore.js'
+import { loadCourse, updateCourseParticipant } from '../services/courseStore.js'
 import {
   exportCourseAsExcelBlob,
   shareOrDownload,
@@ -116,6 +116,31 @@ function createNewFromThis() {
   router.push({ path: '/', query: { newFromCourseId: course.value.id } })
 }
 
+async function onParticipantUpdate(updated) {
+  const c = course.value
+  if (!c || c.mode === 'relay') return
+  try {
+    await updateCourseParticipant(c.id, updated.id, { nom: updated.nom, color: updated.color })
+    course.value = {
+      ...c,
+      participants: c.participants.map((p) => (p.id === updated.id ? { ...updated } : p))
+    }
+    toast.add({
+      severity: 'success',
+      summary: 'Enregistré',
+      detail: 'Le coureur a été mis à jour.',
+      life: 2500
+    })
+  } catch (err) {
+    toast.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: err?.message ?? 'Impossible de mettre à jour.',
+      life: 5000
+    })
+  }
+}
+
 onMounted(fetchCourse)
 watch(() => route.params.id, fetchCourse)
 </script>
@@ -192,8 +217,10 @@ watch(() => route.params.id, fetchCourse)
               :participant-states="emptyParticipantStates"
               :passages-by-participant="course.passagesByParticipant"
               status="idle"
-              :read-only="true"
+              :read-only="false"
+              :hide-participant-remove="true"
               :sequential-individual="true"
+              @update="onParticipantUpdate"
             />
             <!-- Vue tableau conservée en attente des retours utilisateurs
             <TableauPassages

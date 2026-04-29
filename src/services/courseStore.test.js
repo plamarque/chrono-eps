@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { db } from '../db/chronoDb.js'
-import { saveCourse, loadCourse, listCourses, deleteCourse } from './courseStore.js'
+import { saveCourse, loadCourse, listCourses, deleteCourse, updateCourseParticipant } from './courseStore.js'
 
 describe('courseStore', () => {
   beforeEach(async () => {
@@ -130,6 +130,28 @@ describe('courseStore', () => {
     expect(loaded.groupRunners.g1[0]).toMatchObject({ nom: 'Alice', ordre: 0 })
     expect(loaded.passagesByParticipant.g1[0].studentIndex).toBe(0)
     expect(loaded.passagesByParticipant.g1[1].studentIndex).toBe(1)
+  })
+
+  it('updateCourseParticipant met à jour nom et couleur en base', async () => {
+    const id = await saveCourse({
+      nom: 'Course edit',
+      participants: [
+        { id: 'p1', nom: 'Coureur 1', color: '#ef4444' },
+        { id: 'p2', nom: 'Coureur 2', color: '#3b82f6' }
+      ],
+      passagesByParticipant: {
+        p1: [{ tourNum: 1, lapMs: 10000, totalMs: 10000 }]
+      },
+      chronoStartMs: 0,
+      statusAtSave: 'paused'
+    })
+    await updateCourseParticipant(id, 'p1', { nom: 'Jean Martin', color: '#22c55e' })
+    const loaded = await loadCourse(id)
+    expect(loaded.participants.find((p) => p.id === 'p1')).toMatchObject({
+      nom: 'Jean Martin',
+      color: '#22c55e'
+    })
+    expect(loaded.participants.find((p) => p.id === 'p2').nom).toBe('Coureur 2')
   })
 
   it('deleteCourse supprime la course et ses données', async () => {

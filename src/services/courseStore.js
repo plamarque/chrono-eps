@@ -222,3 +222,26 @@ export async function deleteCourse(courseId) {
     await db.courses.delete(courseId)
   })
 }
+
+/**
+ * Met à jour le nom et/ou la couleur d'un participant (mode individuel) pour une course déjà enregistrée.
+ * @param {string} courseId
+ * @param {string} participantId - id métier du participant (UUID)
+ * @param {{ nom?: string, color?: string }} fields
+ */
+export async function updateCourseParticipant(courseId, participantId, fields) {
+  const rowId = `${courseId}::${participantId}`
+  const updates = {}
+  if (fields.nom !== undefined) {
+    const n = typeof fields.nom === 'string' ? fields.nom.trim() : ''
+    updates.nom = n || 'Coureur'
+  }
+  if (fields.color !== undefined) {
+    updates.color = fields.color || '#94a3b8'
+  }
+  if (Object.keys(updates).length === 0) return
+  const n = await db.course_participants.update(rowId, updates)
+  if (n === 0) {
+    throw new Error('Participant introuvable pour cette course')
+  }
+}
