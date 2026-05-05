@@ -418,4 +418,49 @@ describe('useChronometre mode individuel (états par coureur)', () => {
     expect(passages.c1[0].lapMs).toBe(passages.c1[0].totalMs)
     wrapper.unmount()
   })
+
+  it('individuel : pauseParticipantAtRecordedTotal évite que stop global duplique le passage du coureur déjà figé (Coureur+)', async () => {
+    const participants = ref([{ id: 'c1', nom: 'Coureur 1', color: '#ef4444' }])
+    const chrono = useChronometre(participants, { mode: 'individual' })
+    const wrapper = mount({
+      setup: () => () =>
+        h('div', [
+          h('span', { 'data-testid': 'passages' }, JSON.stringify(chrono.passagesByParticipant.value)),
+          h('button', { onClick: chrono.start }, 'Start'),
+          h('button', {
+            onClick: () => {
+              chrono.recordPassage('c1', { source: 'coureur' })
+              chrono.pauseParticipantAtRecordedTotal('c1')
+            }
+          }, 'CoureurPlus'),
+          h('button', { onClick: chrono.stop }, 'Stop')
+        ])
+    })
+    await wrapper.findAll('button')[0].trigger('click')
+    await vi.advanceTimersByTimeAsync(1000)
+    await wrapper.findAll('button')[1].trigger('click')
+    await wrapper.vm.$nextTick()
+    let passages = JSON.parse(wrapper.find('[data-testid="passages"]').text())
+    expect(passages.c1).toHaveLength(1)
+    const t1 = passages.c1[0].totalMs
+
+    participants.value = [
+      { id: 'c1', nom: 'Coureur 1', color: '#ef4444' },
+      { id: 'c2', nom: 'Coureur 2', color: '#3b82f6' }
+    ]
+    await nextTick()
+    const join = chrono.elapsedMs.value
+    chrono.seedIndividualParticipantAtJoin('c2', join, true)
+    chrono.startParticipant('c2')
+    await vi.advanceTimersByTimeAsync(2000)
+    await wrapper.findAll('button')[2].trigger('click')
+    await wrapper.vm.$nextTick()
+
+    passages = JSON.parse(wrapper.find('[data-testid="passages"]').text())
+    expect(passages.c1).toHaveLength(1)
+    expect(passages.c1[0].totalMs).toBe(t1)
+    expect(passages.c2).toHaveLength(1)
+    expect(passages.c2[0].totalMs).toBeGreaterThan(t1)
+    wrapper.unmount()
+  })
 })

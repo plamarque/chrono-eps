@@ -484,7 +484,7 @@ describe('HomeView', () => {
     expect(wrapper.vm.passagesByParticipant[idC1]?.length).toBe(1)
     expect(wrapper.vm.passagesByParticipant[idC1][0].tourNum).toBe(1)
     expect(wrapper.vm.participantStates[c2.id].status).toBe('running')
-    expect(wrapper.vm.participantStates[idC1].status).toBe('running')
+    expect(wrapper.vm.participantStates[idC1].status).toBe('paused')
     shell.unmount()
   })
 
@@ -615,7 +615,7 @@ describe('HomeView', () => {
     shell.unmount()
   })
 
-  it('mode relais : premier groupe a Coureur 1 par défaut, nouveau groupe reçoit Coureur N+1', async () => {
+  it('mode relais : chaque nouveau groupe a Coureur 1 par défaut (numérotation locale)', async () => {
     const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
@@ -632,7 +632,7 @@ describe('HomeView', () => {
     expect(wrapper.vm.participants).toHaveLength(2)
     const g2 = wrapper.vm.participants[1]
     expect(wrapper.vm.groupRunners[g2.id]).toHaveLength(1)
-    expect(wrapper.vm.groupRunners[g2.id][0].nom).toBe('Coureur 2')
+    expect(wrapper.vm.groupRunners[g2.id][0].nom).toBe('Coureur 1')
     shell.unmount()
   })
 

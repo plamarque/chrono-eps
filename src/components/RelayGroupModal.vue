@@ -11,8 +11,6 @@ const props = defineProps({
   visible: { type: Boolean, default: false },
   group: { type: Object, default: null },
   runners: { type: Array, default: () => [] },
-  /** Nombre total de coureurs dans tous les groupes (numérotation continue entre groupes). */
-  totalRunnersCount: { type: Number, default: 0 },
   /** Le groupe a des passages enregistrés — suppression de coureurs interdite. */
   hasPassages: { type: Boolean, default: false }
 })
@@ -33,8 +31,7 @@ watch(
       groupColor.value = props.group.color ?? COULEURS_PALETTE[0]
       let sorted = [...(props.runners ?? [])].sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
       if (sorted.length === 0) {
-        const total = Number(props.totalRunnersCount) || 0
-        sorted = [createRelayRunner(total + 1, 0)]
+        sorted = [createRelayRunner(1, 0)]
       }
       runnersForm.value = sorted.map((r, i) => ({
         id: r.id ?? crypto.randomUUID(),
@@ -55,15 +52,20 @@ function updateRunner(index, field, value) {
 
 function addRunner() {
   const n = runnersForm.value.length
-  const total = Number(props.totalRunnersCount) || 0
-  const currentGroupSavedCount = props.runners?.length ?? 0
-  const nextNum = total - currentGroupSavedCount + n + 1
-  runnersForm.value = [...runnersForm.value, createRelayRunner(nextNum, n)]
+  runnersForm.value = [...runnersForm.value, createRelayRunner(n + 1, n)]
 }
 
+/** Libellés « Coureur k » automatiques : renumérotés après suppression ; noms personnalisés conservés. */
 function removeRunner(index) {
   if (runnersForm.value.length <= 1) return
-  runnersForm.value = runnersForm.value.filter((_, i) => i !== index).map((r, i) => ({ ...r, ordre: i }))
+  runnersForm.value = runnersForm.value
+    .filter((_, i) => i !== index)
+    .map((r, i) => {
+      const trimmed = (r.nom ?? '').trim()
+      const isAutoCoureur = /^Coureur \d+$/.test(trimmed)
+      const nom = isAutoCoureur || !trimmed ? `Coureur ${i + 1}` : trimmed
+      return { ...r, ordre: i, nom }
+    })
 }
 
 function requestRemoveRunner(index) {
@@ -86,17 +88,11 @@ function requestRemoveRunner(index) {
 
 function save() {
   if (!props.group) return
-  const total = Number(props.totalRunnersCount) || 0
-  const currentGroupSavedCount = props.runners?.length ?? 0
-  const runners = runnersForm.value.map((r, i) => {
-    const defaultNum = total - currentGroupSavedCount + i + 1
-    const safeDefaultNum = Number.isFinite(defaultNum) ? Math.max(1, defaultNum) : i + 1
-    return {
-      ...r,
-      nom: (r.nom ?? '').trim() || `Coureur ${safeDefaultNum}`,
-      ordre: r.ordre ?? i
-    }
-  })
+  const runners = runnersForm.value.map((r, i) => ({
+    ...r,
+    nom: (r.nom ?? '').trim() || `Coureur ${i + 1}`,
+    ordre: i
+  }))
   const groupUpdate = {
     ...props.group,
     nom: (groupNom.value ?? '').trim() || props.group.nom,

@@ -41,15 +41,6 @@ const emit = defineEmits(['add', 'update', 'remove', 'record', 'start-participan
 const showGroupModal = ref(false)
 const editedGroup = ref(null)
 
-/** Nombre total de coureurs dans tous les groupes (pour numérotation continue). */
-const totalRunnersCount = computed(() => {
-  let n = 0
-  for (const runners of Object.values(props.groupRunners ?? {})) {
-    n += Array.isArray(runners) ? runners.length : 0
-  }
-  return n
-})
-
 /** Le groupe en cours d'édition a des passages — suppression de coureurs interdite. */
 const hasPassagesForEditedGroup = computed(
   () => (props.passagesByParticipant[editedGroup.value?.id] ?? []).length > 0
@@ -79,6 +70,16 @@ function openGroupModal(group) {
 function closeGroupModal() {
   showGroupModal.value = false
   editedGroup.value = null
+}
+
+function isRelayGroupRunning(groupId) {
+  return props.participantStates[groupId]?.status === 'running'
+}
+
+function canOpenGroupModal(group) {
+  if (props.readOnly) return false
+  if (isRelayGroupRunning(group.id)) return false
+  return true
 }
 
 function saveGroupRunners({ group, runners }) {
@@ -243,16 +244,16 @@ const hasAnyPassage = computed(() =>
         <div
           class="tableau-relay-header"
           :style="{ backgroundColor: group.color ?? '#94a3b8', color: '#fff' }"
-          :class="{ 'tableau-relay-header-clickable': !readOnly }"
-          @click="!readOnly && openGroupModal(group)"
-          @keydown.enter="!readOnly && openGroupModal(group)"
-          @keydown.space.prevent="!readOnly && openGroupModal(group)"
-          :role="readOnly ? null : 'button'"
-          :tabindex="readOnly ? -1 : 0"
+          :class="{ 'tableau-relay-header-clickable': canOpenGroupModal(group) }"
+          @click="canOpenGroupModal(group) && openGroupModal(group)"
+          @keydown.enter="canOpenGroupModal(group) && openGroupModal(group)"
+          @keydown.space.prevent="canOpenGroupModal(group) && openGroupModal(group)"
+          :role="readOnly || isRelayGroupRunning(group.id) ? null : 'button'"
+          :tabindex="readOnly || isRelayGroupRunning(group.id) ? -1 : 0"
         >
           <span class="tableau-relay-header-inner">
             <i
-              v-if="!readOnly"
+              v-if="canOpenGroupModal(group)"
               class="pi pi-pencil tableau-relay-header-edit-icon"
               aria-hidden="true"
             />
@@ -272,11 +273,18 @@ const hasAnyPassage = computed(() =>
 
         <div
           class="tableau-relay-body"
-          :class="{ 'tableau-relay-body-clickable': !readOnly && (groupRunners[group.id] ?? []).length > 0 }"
-          @click="!readOnly && (groupRunners[group.id] ?? []).length > 0 && openGroupModal(group)"
+          :class="{
+            'tableau-relay-body-clickable':
+              canOpenGroupModal(group) && (groupRunners[group.id] ?? []).length > 0
+          }"
+          @click="
+            canOpenGroupModal(group) &&
+              (groupRunners[group.id] ?? []).length > 0 &&
+              openGroupModal(group)
+          "
         >
           <template v-if="(groupRunners[group.id] ?? []).length > 0">
-            <div v-if="canTap(group.id)" class="tableau-relay-tap-zone">
+            <div v-if="canTap(group.id)" class="tableau-relay-tap-zone" @click.stop>
               <div class="tableau-relay-tap-row">
                 <span class="tableau-relay-en-cours">En cours : {{ getCurrentAndNext(group.id).currentRunner?.nom ?? '—' }}</span>
                 <div class="tableau-relay-time">
@@ -332,12 +340,12 @@ const hasAnyPassage = computed(() =>
           <div
             v-else
             class="tableau-relay-empty"
-            :class="{ 'tableau-relay-empty-clickable': !readOnly }"
-            :role="readOnly ? null : 'button'"
-            :tabindex="readOnly ? -1 : 0"
-            @click="!readOnly && openGroupModal(group)"
-            @keydown.enter="!readOnly && openGroupModal(group)"
-            @keydown.space.prevent="!readOnly && openGroupModal(group)"
+            :class="{ 'tableau-relay-empty-clickable': canOpenGroupModal(group) }"
+            :role="readOnly || isRelayGroupRunning(group.id) ? null : 'button'"
+            :tabindex="readOnly || isRelayGroupRunning(group.id) ? -1 : 0"
+            @click="canOpenGroupModal(group) && openGroupModal(group)"
+            @keydown.enter="canOpenGroupModal(group) && openGroupModal(group)"
+            @keydown.space.prevent="canOpenGroupModal(group) && openGroupModal(group)"
           >
             <span v-if="!readOnly">Cliquez pour configurer les coureurs</span>
             <span v-else>—</span>
@@ -407,7 +415,6 @@ const hasAnyPassage = computed(() =>
       v-model:visible="showGroupModal"
       :group="editedGroup"
       :runners="editedGroup ? (groupRunners[editedGroup.id] ?? []) : []"
-      :total-runners-count="totalRunnersCount"
       :has-passages="hasPassagesForEditedGroup"
       @save="saveGroupRunners"
       @remove="deleteGroup"
@@ -559,15 +566,15 @@ const hasAnyPassage = computed(() =>
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0.5rem;
+  min-width: 56px;
+  min-height: 56px;
+  padding: 0.65rem;
   border: none;
   border-radius: var(--p-border-radius, 6px);
   background: #3b82f6;
   color: #fff;
   cursor: pointer;
-  font-size: 1.25rem;
+  font-size: 1.45rem;
 }
 
 .tableau-relay-tap-btn:hover {

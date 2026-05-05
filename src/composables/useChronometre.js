@@ -181,6 +181,34 @@ export function useChronometre(participantsRef, options = {}) {
     }
   }
 
+  /**
+   * Individuel : après un passage déjà enregistré (ex. clic « Coureur »),
+   * fige le participant sur le total du dernier passage sans ajouter de ligne.
+   * Évite que plusieurs cartes restent « running » avec le même temps global jusqu’au Stop principal.
+   */
+  function pauseParticipantAtRecordedTotal(participantId) {
+    if (!isIndividual()) return
+    const s = participantStates.value[participantId]
+    if (!s || s.status !== 'running') return
+    const passages = passagesByParticipant.value[participantId] ?? []
+    if (passages.length === 0) return
+    const totalMs = passages[passages.length - 1].totalMs
+    participantStates.value = {
+      ...participantStates.value,
+      [participantId]: {
+        ...s,
+        elapsedMs: totalMs,
+        elapsedBeforePause: totalMs,
+        status: 'paused'
+      }
+    }
+    const anyRunning = Object.values(participantStates.value).some((x) => x.status === 'running')
+    if (!anyRunning) {
+      cancelAnimationFrame(animationFrameId)
+      animationFrameId = null
+    }
+  }
+
   function recordPassage(participantId, options = {}) {
     const s = participantStates.value[participantId]
     if (!s || s.status !== 'running') return
@@ -281,6 +309,7 @@ export function useChronometre(participantsRef, options = {}) {
     reset: resetAll,
     startParticipant,
     stopParticipant,
+    pauseParticipantAtRecordedTotal,
     recordPassage,
     seedIndividualParticipantAtJoin
   }

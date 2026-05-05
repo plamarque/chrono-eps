@@ -218,4 +218,65 @@ describe('TableauPassagesRelay', () => {
     expect(deleteBtns.length).toBeGreaterThanOrEqual(1)
     wrapper.unmount()
   })
+
+  it('ne ouvre pas la config groupe tant que le groupe est en course', async () => {
+    const participants = [{ id: 'g1', nom: 'Groupe 1', color: '#ef4444' }]
+    const groupRunners = {
+      g1: [{ nom: 'Alice', ordre: 0 }]
+    }
+    const wrapper = mount(TableauPassagesRelay, {
+      props: {
+        participants,
+        groupRunners,
+        passagesByParticipant: {},
+        participantStates: {
+          g1: { status: 'running', elapsedMs: 500, elapsedBeforePause: 0, startTime: 0 }
+        },
+        status: 'running',
+        readOnly: false
+      },
+      global: {
+        plugins: [PrimeVue, ConfirmationService],
+        stubs: {
+          Dialog: {
+            template: '<div v-if="visible"><slot></slot><slot name="footer"></slot></div>',
+            props: ['visible']
+          }
+        }
+      }
+    })
+    expect(wrapper.find('.tableau-relay-header-clickable').exists()).toBe(false)
+    await wrapper.find('.tableau-relay-header').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.findComponent(RelayGroupModal).props('visible')).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('affiche des fallbacks sûrs pour des noms relay legacy invalides', () => {
+    const participants = [{ id: 'g1', nom: 'Groupe 1', color: '#ef4444' }]
+    const groupRunners = {
+      g1: [
+        { nom: 'Coureur NaN', ordre: 0 },
+        { nom: 'coureur nan', ordre: 1 }
+      ]
+    }
+    const passagesByParticipant = {
+      g1: [
+        { tourNum: 1, lapMs: 15000, totalMs: 15000, studentIndex: 0 },
+        { tourNum: 2, lapMs: 17000, totalMs: 32000, studentIndex: 1 }
+      ]
+    }
+    const wrapper = mountTableauPassagesRelay({
+      participants,
+      groupRunners,
+      passagesByParticipant,
+      participantStates: {
+        g1: { status: 'paused', elapsedMs: 32000, elapsedBeforePause: 32000, startTime: null }
+      }
+    })
+    expect(wrapper.text()).not.toContain('NaN')
+    expect(wrapper.text()).toContain('Coureur 1')
+    expect(wrapper.text()).toContain('Coureur 2')
+    wrapper.unmount()
+  })
 })

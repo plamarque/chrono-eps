@@ -22,7 +22,6 @@ function mountRelayGroupModal(props = {}) {
         { id: 'r2', nom: 'Bob', ordre: 1 },
         { id: 'r3', nom: 'Claire', ordre: 2 }
       ],
-      totalRunnersCount: props.totalRunnersCount ?? 3,
       hasPassages: props.hasPassages ?? false
     },
     global: {
@@ -52,8 +51,7 @@ describe('RelayGroupModal', () => {
 
   it('removeRunner ne fait rien si un seul coureur', async () => {
     const wrapper = mountRelayGroupModal({
-      runners: [{ id: 'r1', nom: 'Alice', ordre: 0 }],
-      totalRunnersCount: 1
+      runners: [{ id: 'r1', nom: 'Alice', ordre: 0 }]
     })
     const deleteBtns = wrapper.findAll('.relay-group-remove-btn')
     expect(deleteBtns).toHaveLength(0)
@@ -74,11 +72,72 @@ describe('RelayGroupModal', () => {
       runners: [
         { id: 'r1', nom: 'Alice', ordre: 0 },
         { id: 'r2', nom: 'Bob', ordre: 1 }
-      ],
-      totalRunnersCount: 2
+      ]
     })
     const deleteBtns = wrapper.findAll('.relay-group-remove-btn')
     expect(deleteBtns).toHaveLength(2)
+    wrapper.unmount()
+  })
+
+  it('Ajouter un coureur utilise Coureur 2 (numérotation locale au groupe)', async () => {
+    const wrapper = mountRelayGroupModal({
+      runners: [{ id: 'r1', nom: 'Coureur 1', ordre: 0 }]
+    })
+    const addBtn = wrapper.findAll('button').find((b) => b.text().includes('Ajouter un coureur'))
+    expect(addBtn).toBeDefined()
+    await addBtn.trigger('click')
+    const inputs = wrapper.findAll('.relay-group-nom-input')
+    expect(inputs).toHaveLength(2)
+    expect(inputs[1].element.value).toBe('Coureur 2')
+    wrapper.unmount()
+  })
+
+  it('removeRunner renumérote Coureur 1..n après suppression du milieu', async () => {
+    const wrapper = mountRelayGroupModal({
+      runners: [
+        { id: 'r1', nom: 'Coureur 1', ordre: 0 },
+        { id: 'r2', nom: 'Coureur 2', ordre: 1 },
+        { id: 'r3', nom: 'Coureur 3', ordre: 2 }
+      ]
+    })
+    const deleteBtns = wrapper.findAll('.relay-group-remove-btn')
+    await deleteBtns[1].trigger('click')
+    const inputs = wrapper.findAll('.relay-group-nom-input')
+    expect(inputs).toHaveLength(2)
+    expect(inputs[0].element.value).toBe('Coureur 1')
+    expect(inputs[1].element.value).toBe('Coureur 2')
+    wrapper.unmount()
+  })
+
+  it('removeRunner conserve un prénom personnalisé et renumérote les Coureur k', async () => {
+    const wrapper = mountRelayGroupModal({
+      runners: [
+        { id: 'r1', nom: 'Coureur 1', ordre: 0 },
+        { id: 'r2', nom: 'Alice', ordre: 1 },
+        { id: 'r3', nom: 'Coureur 3', ordre: 2 }
+      ]
+    })
+    await wrapper.findAll('.relay-group-remove-btn')[0].trigger('click')
+    const inputs = wrapper.findAll('.relay-group-nom-input')
+    expect(inputs).toHaveLength(2)
+    expect(inputs[0].element.value).toBe('Alice')
+    expect(inputs[1].element.value).toBe('Coureur 2')
+    wrapper.unmount()
+  })
+
+  it('normalise les noms legacy invalides (NaN) avec fallback local au groupe', () => {
+    const wrapper = mountRelayGroupModal({
+      runners: [
+        { id: 'r1', nom: 'Coureur NaN', ordre: 0 },
+        { id: 'r2', nom: 'coureur nan', ordre: 1 },
+        { id: 'r3', nom: 'Alice', ordre: 2 }
+      ]
+    })
+    const inputs = wrapper.findAll('.relay-group-nom-input')
+    expect(inputs).toHaveLength(3)
+    expect(inputs[0].element.value).toBe('Coureur 1')
+    expect(inputs[1].element.value).toBe('Coureur 2')
+    expect(inputs[2].element.value).toBe('Alice')
     wrapper.unmount()
   })
 })

@@ -2,6 +2,16 @@
 
 ## Bugs
 
+### [Individuel] Arrêt global réécrivait les temps après Coureur+
+
+**Problème :** En mode individuel, après plusieurs ajouts avec le bouton **Coureur** pendant la course (passage implicite du dernier coureur), un **Arrêter** global pouvait enregistrer le même temps pour tous les coureurs encore marqués « en course », au lieu de conserver le temps propre déjà figé pour chacun.
+
+**État :** Résolu
+
+**Solution :** Après le passage implicite déclenché par **Coureur**, le coureur concerné est mis **en pause** sur le total du passage enregistré (`pauseParticipantAtRecordedTotal`) ; seuls les coureurs encore **running** reçoivent un passage au **Arrêter** global.
+
+---
+
 ### [Relais] Temps non enregistrés à l'arrêt du chronomètre
 
 **Problème :** En mode relais, après Démarrer puis Arrêter (bouton principal du chronomètre), les temps n'étaient pas enregistrés dans les passages.
@@ -21,6 +31,16 @@
 **Impact :** En installation PWA, l'icône haute résolution est chargée à la demande. L'icône 192px est precachée. Comportement acceptable pour le MVP.
 
 ## UX
+
+### [UX] Relais : ouverture accidentelle de la modale pendant la course
+
+**Problème :** En mode relais, un tap à côté du drapeau pouvait ouvrir la modale de configuration des coureurs pendant la course.
+
+**État :** Résolu
+
+**Solution :** Configuration groupe inaccessible tant que le groupe est **en course** ; zone **tap** du drapeau élargie ; propagation du clic contenue sur la zone de passage.
+
+---
 
 ### [UX] Temps en direct dans les cellules de tour
 

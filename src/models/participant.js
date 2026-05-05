@@ -67,7 +67,8 @@ export function createRelayGroup(nomOrIndex, color) {
 /**
  * Crée un coureur dans un groupe relais.
  * La couleur est une propriété du groupe, pas du coureur.
- * @param {string|number} nomOrIndex - Nom du coureur ou numéro pour auto-génération
+ * En usage courant, `nomOrIndex` numérique est la position **1-based dans le groupe** (Coureur 1, Coureur 2…), pas un index global entre groupes.
+ * @param {string|number} nomOrIndex - Nom du coureur ou numéro pour auto-génération (`Coureur N`)
  * @param {number} ordre - Position dans l'ordre de course (0-based)
  * @returns {{ id: string, nom: string, ordre: number }}
  */
@@ -94,7 +95,8 @@ export function createRelayRunner(nomOrIndex, ordre = 0) {
  */
 export function safeRelayRunnerNom(nom, fallbackIndex = 0) {
   const trimmed = (nom ?? '').trim()
-  if (trimmed && !trimmed.includes('NaN')) return trimmed
+  const hasInvalidNaNToken = /\bnan\b/i.test(trimmed)
+  if (trimmed && !hasInvalidNaNToken) return trimmed
   const n = Number.isFinite(fallbackIndex) ? Math.max(1, fallbackIndex + 1) : 1
   return `Coureur ${n}`
 }

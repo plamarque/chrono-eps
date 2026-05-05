@@ -2,7 +2,7 @@
 
 ## Phase actuelle
 
-Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 11 — Replay (complet). Slice 10 — Dupliquer : réouverte (masquée en attente retours utilisateurs). **Vue compacte mode individuel** : implémentée en parallèle de la vue tableau (à l’essai auprès des professeurs). **Promote to stores** : script et workflow implémentés (release → testeurs ; promote → production). Prochain : Slice 8.
+Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 11 — Replay (complet). Slice 10 — Dupliquer : réouverte (masquée en attente retours utilisateurs). **Slices 12–14** (retours terrain 2026) : numérotation locale relais, verrouillage config relais en course, correction arrêt global individuel après Coureur+ — **faits**. **Vue compacte mode individuel** : implémentée en parallèle de la vue tableau (à l’essai auprès des professeurs). **Promote to stores** : script et workflow implémentés (release → testeurs ; promote → production). Prochain : Slice 8.
 
 ## Slices
 
@@ -19,6 +19,9 @@ Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 11 
 | 9     | Performances (P1, P2, …) | Liste temps de passage par tour, mode individuel et relais | Fait     |
 | 10    | Dupliquer                | Bouton Dupliquer à côté du chrono, création course à partir d'une existante | Réouverte (masqué) |
 | 11    | Replay                   | Piste virtuelle, marqueurs par participant, contrôles play/pause/slider, mode individuel et relais | Fait    |
+| 12    | Relais — libellés locaux | Coureur 1…N par groupe (id stable) ; DOMAIN/SPEC ; modal + HomeView | Fait     |
+| 13    | Relais — verrouillage terrain | Pas de modale config tant que groupe running ; cible drapeau plus grande | Fait     |
+| 14    | Individuel — Coureur+ puis Arrêter | Pause du coureur après passage implicite ; temps propres préservés | Fait     |
 
 ## Objectif MVP
 

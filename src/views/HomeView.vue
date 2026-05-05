@@ -55,7 +55,8 @@ const {
   startParticipant,
   stopParticipant,
   recordPassage,
-  seedIndividualParticipantAtJoin
+  seedIndividualParticipantAtJoin,
+  pauseParticipantAtRecordedTotal
 } = useChronometre(participants, chronoOptions)
 
 const hasAnyPassage = computed(() => {
@@ -304,6 +305,7 @@ function handleAddCoureur() {
   /** File d’arrivée : un nouveau coureur devant le chrono fige le tour en cours du précédent et démarre le nouveau synchronisé. */
   if (globalRunning && lastRunning) {
     recordPassage(last.id, { source: 'coureur' })
+    pauseParticipantAtRecordedTotal(last.id)
   }
 
   const newP = createParticipant(nextIndividualParticipantIndex())
@@ -444,11 +446,7 @@ function addParticipant(participant, options = {}) {
   const joinMs = mode.value === 'individual' ? elapsedMs.value : 0
   participants.value.push(participant)
   if (mode.value === 'relay') {
-    let totalRunnersCount = 0
-    for (const runners of Object.values(groupRunners.value ?? {})) {
-      totalRunnersCount += Array.isArray(runners) ? runners.length : 0
-    }
-    const newRunner = createRelayRunner(totalRunnersCount + 1, 0)
+    const newRunner = createRelayRunner(1, 0)
     groupRunners.value = {
       ...groupRunners.value,
       [participant.id]: [newRunner]
