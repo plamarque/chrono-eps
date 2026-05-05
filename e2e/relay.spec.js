@@ -64,4 +64,23 @@ test.describe('Mode relais', () => {
     await expect(page.getByRole('button', { name: /Supprimer Coureur/ })).not.toBeVisible()
     await page.getByRole('button', { name: 'Enregistrer' }).last().click()
   })
+
+  test('config relais : ouverture uniquement via en-tête, jamais via corps', async ({ page }) => {
+    const firstCard = page.locator('.tableau-relay-card').first()
+
+    await firstCard.locator('.tableau-relay-body').click()
+    await expect(page.getByRole('dialog')).not.toBeVisible()
+
+    await firstCard.locator('.tableau-relay-header-clickable').click()
+    await expect(page.getByRole('dialog').getByText('Configurer Groupe 1')).toBeVisible()
+    await page.getByRole('button', { name: 'Enregistrer' }).last().click()
+    await expect(page.getByRole('dialog')).not.toBeVisible()
+  })
+
+  test('config relais verrouillée pendant running du groupe', async ({ page }) => {
+    await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
+    await expect(page.locator('.tableau-relay-header-clickable').first()).not.toBeVisible()
+    await page.locator('.tableau-relay-header').first().click()
+    await expect(page.getByRole('dialog')).not.toBeVisible()
+  })
 })

@@ -135,4 +135,23 @@ describe('TableauPassagesIndividualCards', () => {
 
     wrapper.unmount()
   })
+
+  it('n’ouvre pas la modale depuis le corps de carte (uniquement via l’en-tête)', async () => {
+    const wrapper = mountCards({
+      participantStates: {
+        c1: { status: 'paused', elapsedMs: 12000 }
+      },
+      status: 'paused'
+    })
+
+    await wrapper.find('.indiv-body').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('[data-testid="participant-dialog-shell"]').exists()).toBe(false)
+
+    await wrapper.find('.indiv-header').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('[data-testid="participant-dialog-shell"]').exists()).toBe(true)
+
+    wrapper.unmount()
+  })
 })

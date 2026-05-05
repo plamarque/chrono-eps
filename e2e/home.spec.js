@@ -103,6 +103,19 @@ test.describe('Accueil - Mode individuel', () => {
     await page.getByRole('button', { name: 'Enregistrer', exact: true }).last().click()
     await expect(page.getByText('Sauvegardé')).toBeVisible()
   })
+
+  test('individuel : la modale de config s’ouvre uniquement via l’en-tête', async ({ page }) => {
+    const part = page.getByRole('region', { name: 'Participants' })
+    const card = part.locator('.indiv-card').first()
+
+    await card.locator('.indiv-body').click()
+    await expect(page.getByRole('dialog')).not.toBeVisible()
+
+    await card.locator('.indiv-header-clickable').click()
+    await expect(page.getByRole('dialog').getByText('Modifier Coureur 1')).toBeVisible()
+    await page.getByRole('button', { name: 'Enregistrer' }).last().click()
+    await expect(page.getByRole('dialog')).not.toBeVisible()
+  })
 })
 
 test.describe('Accueil - Dupliquer', () => {
