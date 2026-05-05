@@ -462,7 +462,7 @@ describe('HomeView', () => {
     shell.unmount()
   })
 
-  it('individuel : en course, Coureur enregistre le tour du dernier coureur et démarre le nouveau synchronisé', async () => {
+  it('individuel : en course, Coureur ajoute un nouveau coureur synchronisé sans passage implicite', async () => {
     const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
@@ -481,10 +481,9 @@ describe('HomeView', () => {
 
     expect(wrapper.vm.participants).toHaveLength(2)
     const c2 = wrapper.vm.participants[1]
-    expect(wrapper.vm.passagesByParticipant[idC1]?.length).toBe(1)
-    expect(wrapper.vm.passagesByParticipant[idC1][0].tourNum).toBe(1)
+    expect(wrapper.vm.passagesByParticipant[idC1]?.length ?? 0).toBe(0)
     expect(wrapper.vm.participantStates[c2.id].status).toBe('running')
-    expect(wrapper.vm.participantStates[idC1].status).toBe('paused')
+    expect(wrapper.vm.participantStates[idC1].status).toBe('running')
     shell.unmount()
   })
 
