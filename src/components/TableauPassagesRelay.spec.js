@@ -142,6 +142,39 @@ describe('TableauPassagesRelay', () => {
     wrapper.unmount()
   })
 
+  it('n’ouvre pas la modale depuis le corps de carte (uniquement l’en-tête)', async () => {
+    const participants = [{ id: 'g1', nom: 'Groupe 1', color: '#ef4444' }]
+    const groupRunners = {
+      g1: [{ nom: 'Alice', ordre: 0 }]
+    }
+    const wrapper = mount(TableauPassagesRelay, {
+      props: {
+        participants,
+        groupRunners,
+        passagesByParticipant: {},
+        status: 'idle',
+        readOnly: false
+      },
+      global: {
+        plugins: [PrimeVue, ConfirmationService],
+        stubs: {
+          Dialog: {
+            template: '<div v-if="visible"><slot></slot><slot name="footer"></slot></div>',
+            props: ['visible']
+          }
+        }
+      }
+    })
+    await wrapper.find('.tableau-relay-body').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.findComponent(RelayGroupModal).props('visible')).toBe(false)
+
+    await wrapper.find('.tableau-relay-header-clickable').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.findComponent(RelayGroupModal).props('visible')).toBe(true)
+    wrapper.unmount()
+  })
+
   it('passe hasPassages au RelayGroupModal : boutons suppr. masqués quand le groupe a des passages', async () => {
     const participants = [{ id: 'g1', nom: 'Groupe 1', color: '#ef4444' }]
     const groupRunners = {
@@ -171,8 +204,8 @@ describe('TableauPassagesRelay', () => {
         }
       }
     })
-    const body = wrapper.find('.tableau-relay-body-clickable')
-    await body.trigger('click')
+    const header = wrapper.find('.tableau-relay-header-clickable')
+    await header.trigger('click')
     await wrapper.vm.$nextTick()
     const modal = wrapper.findComponent(RelayGroupModal)
     expect(modal.exists()).toBe(true)
@@ -208,8 +241,8 @@ describe('TableauPassagesRelay', () => {
         }
       }
     })
-    const body = wrapper.find('.tableau-relay-body-clickable')
-    await body.trigger('click')
+    const header = wrapper.find('.tableau-relay-header-clickable')
+    await header.trigger('click')
     await wrapper.vm.$nextTick()
     const modal = wrapper.findComponent(RelayGroupModal)
     expect(modal.exists()).toBe(true)
@@ -248,6 +281,88 @@ describe('TableauPassagesRelay', () => {
     expect(wrapper.find('.tableau-relay-header-clickable').exists()).toBe(false)
     await wrapper.find('.tableau-relay-header').trigger('click')
     await wrapper.vm.$nextTick()
+    expect(wrapper.findComponent(RelayGroupModal).props('visible')).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('autorise la config d’un groupe idle même si un autre groupe est running', async () => {
+    const participants = [
+      { id: 'g1', nom: 'Groupe 1', color: '#ef4444' },
+      { id: 'g2', nom: 'Groupe 2', color: '#3b82f6' }
+    ]
+    const groupRunners = {
+      g1: [{ nom: 'Alice', ordre: 0 }],
+      g2: [{ nom: 'Bob', ordre: 0 }]
+    }
+    const wrapper = mount(TableauPassagesRelay, {
+      props: {
+        participants,
+        groupRunners,
+        passagesByParticipant: {},
+        participantStates: {
+          g1: { status: 'running', elapsedMs: 500, elapsedBeforePause: 0, startTime: 0 },
+          g2: { status: 'idle', elapsedMs: 0, elapsedBeforePause: 0, startTime: 0 }
+        },
+        status: 'running',
+        readOnly: false
+      },
+      global: {
+        plugins: [PrimeVue, ConfirmationService],
+        stubs: {
+          Dialog: {
+            template: '<div v-if="visible"><slot></slot><slot name="footer"></slot></div>',
+            props: ['visible']
+          }
+        }
+      }
+    })
+    const headers = wrapper.findAll('.tableau-relay-header')
+    await headers[0].trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.findComponent(RelayGroupModal).props('visible')).toBe(false)
+
+    await headers[1].trigger('click')
+    await wrapper.vm.$nextTick()
+    const modal = wrapper.findComponent(RelayGroupModal)
+    expect(modal.props('visible')).toBe(true)
+    expect(modal.props('group').id).toBe('g2')
+    wrapper.unmount()
+  })
+
+  it('tap drapeau émet record une fois et ne déclenche pas la config', async () => {
+    const participants = [{ id: 'g1', nom: 'Groupe 1', color: '#ef4444' }]
+    const groupRunners = {
+      g1: [{ nom: 'Alice', ordre: 0 }, { nom: 'Bob', ordre: 1 }]
+    }
+    const wrapper = mount(TableauPassagesRelay, {
+      props: {
+        participants,
+        groupRunners,
+        passagesByParticipant: {},
+        participantStates: {
+          g1: { status: 'running', elapsedMs: 500, elapsedBeforePause: 0, startTime: 0 }
+        },
+        status: 'running',
+        readOnly: false
+      },
+      global: {
+        plugins: [PrimeVue, ConfirmationService],
+        stubs: {
+          Dialog: {
+            template: '<div v-if="visible"><slot></slot><slot name="footer"></slot></div>',
+            props: ['visible']
+          }
+        }
+      }
+    })
+
+    const flagBtn = wrapper.find('.tableau-relay-tap-btn')
+    expect(flagBtn.exists()).toBe(true)
+    await flagBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.emitted('record')).toHaveLength(1)
+    expect(wrapper.emitted('record')[0]).toEqual(['g1'])
     expect(wrapper.findComponent(RelayGroupModal).props('visible')).toBe(false)
     wrapper.unmount()
   })

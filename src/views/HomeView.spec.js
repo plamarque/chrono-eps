@@ -636,6 +636,35 @@ describe('HomeView', () => {
     shell.unmount()
   })
 
+  it('mode relais : config groupe verrouillée pendant running puis réouverte après arrêt', async () => {
+    const { wrapper, shell } = await mountHomeView()
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(wrapper.vm.mode).toBe('relay')
+    const header = wrapper.find('.tableau-relay-header')
+    expect(header.exists()).toBe(true)
+    expect(header.attributes('role')).toBe('button')
+
+    const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')
+    await demarrer.trigger('click')
+    await vi.advanceTimersByTimeAsync(10)
+    await wrapper.vm.$nextTick()
+
+    const lockedHeader = wrapper.find('.tableau-relay-header')
+    expect(lockedHeader.attributes('role')).toBeUndefined()
+    expect(lockedHeader.attributes('tabindex')).toBe('-1')
+
+    const arreter = wrapper.findAll('button').find((b) => b.text() === 'Arrêter')
+    await arreter.trigger('click')
+    await vi.advanceTimersByTimeAsync(0)
+    await wrapper.vm.$nextTick()
+
+    const unlockedHeader = wrapper.find('.tableau-relay-header')
+    expect(unlockedHeader.attributes('role')).toBe('button')
+    expect(unlockedHeader.attributes('tabindex')).toBe('0')
+    shell.unmount()
+  })
+
   it('newFromCourseId mode individuel : participants sans passage en fin de liste', async () => {
     const sourceCourse = {
       id: 'source-mix-1',

@@ -76,10 +76,18 @@ function isRelayGroupRunning(groupId) {
   return props.participantStates[groupId]?.status === 'running'
 }
 
+function isGroupConfigLocked(groupId) {
+  if (props.readOnly) return true
+  return isRelayGroupRunning(groupId)
+}
+
 function canOpenGroupModal(group) {
-  if (props.readOnly) return false
-  if (isRelayGroupRunning(group.id)) return false
-  return true
+  return !isGroupConfigLocked(group.id)
+}
+
+function tryOpenGroupModal(group) {
+  if (!canOpenGroupModal(group)) return
+  openGroupModal(group)
 }
 
 function saveGroupRunners({ group, runners }) {
@@ -202,6 +210,7 @@ function getLiveElapsed(groupId) {
 }
 
 function onTap(groupId) {
+  if (!canTap(groupId)) return
   emit('record', groupId)
 }
 
@@ -245,11 +254,11 @@ const hasAnyPassage = computed(() =>
           class="tableau-relay-header"
           :style="{ backgroundColor: group.color ?? '#94a3b8', color: '#fff' }"
           :class="{ 'tableau-relay-header-clickable': canOpenGroupModal(group) }"
-          @click="canOpenGroupModal(group) && openGroupModal(group)"
-          @keydown.enter="canOpenGroupModal(group) && openGroupModal(group)"
-          @keydown.space.prevent="canOpenGroupModal(group) && openGroupModal(group)"
-          :role="readOnly || isRelayGroupRunning(group.id) ? null : 'button'"
-          :tabindex="readOnly || isRelayGroupRunning(group.id) ? -1 : 0"
+          @click="tryOpenGroupModal(group)"
+          @keydown.enter="tryOpenGroupModal(group)"
+          @keydown.space.prevent="tryOpenGroupModal(group)"
+          :role="isGroupConfigLocked(group.id) ? null : 'button'"
+          :tabindex="isGroupConfigLocked(group.id) ? -1 : 0"
         >
           <span class="tableau-relay-header-inner">
             <i
@@ -271,18 +280,7 @@ const hasAnyPassage = computed(() =>
           />
         </div>
 
-        <div
-          class="tableau-relay-body"
-          :class="{
-            'tableau-relay-body-clickable':
-              canOpenGroupModal(group) && (groupRunners[group.id] ?? []).length > 0
-          }"
-          @click="
-            canOpenGroupModal(group) &&
-              (groupRunners[group.id] ?? []).length > 0 &&
-              openGroupModal(group)
-          "
-        >
+        <div class="tableau-relay-body">
           <template v-if="(groupRunners[group.id] ?? []).length > 0">
             <div v-if="canTap(group.id)" class="tableau-relay-tap-zone" @click.stop>
               <div class="tableau-relay-tap-row">
@@ -294,7 +292,7 @@ const hasAnyPassage = computed(() =>
                   type="button"
                   class="tableau-relay-tap-btn"
                   aria-label="Enregistrer passage"
-                  @click.stop="onTap(group.id)"
+                  @click.stop.prevent="onTap(group.id)"
                 >
                   <i class="pi pi-flag"></i>
                 </button>
@@ -337,17 +335,8 @@ const hasAnyPassage = computed(() =>
               </div>
             </div>
           </template>
-          <div
-            v-else
-            class="tableau-relay-empty"
-            :class="{ 'tableau-relay-empty-clickable': canOpenGroupModal(group) }"
-            :role="readOnly || isRelayGroupRunning(group.id) ? null : 'button'"
-            :tabindex="readOnly || isRelayGroupRunning(group.id) ? -1 : 0"
-            @click="canOpenGroupModal(group) && openGroupModal(group)"
-            @keydown.enter="canOpenGroupModal(group) && openGroupModal(group)"
-            @keydown.space.prevent="canOpenGroupModal(group) && openGroupModal(group)"
-          >
-            <span v-if="!readOnly">Cliquez pour configurer les coureurs</span>
+          <div v-else class="tableau-relay-empty">
+            <span v-if="!readOnly">Configurez les coureurs via l’en-tête du groupe</span>
             <span v-else>—</span>
           </div>
         </div>
@@ -507,14 +496,6 @@ const hasAnyPassage = computed(() =>
   min-height: 5rem;
 }
 
-.tableau-relay-body-clickable {
-  cursor: pointer;
-}
-
-.tableau-relay-body-clickable:hover {
-  background: #f8fafc;
-}
-
 .tableau-relay-tap-zone {
   cursor: pointer;
   padding: 0.5rem;
@@ -525,6 +506,7 @@ const hasAnyPassage = computed(() =>
   gap: 0.25rem;
   align-items: center;
   justify-content: center;
+  touch-action: manipulation;
 }
 
 .tableau-relay-tap-zone:hover {
@@ -575,6 +557,7 @@ const hasAnyPassage = computed(() =>
   color: #fff;
   cursor: pointer;
   font-size: 1.45rem;
+  touch-action: manipulation;
 }
 
 .tableau-relay-tap-btn:hover {
@@ -634,19 +617,6 @@ const hasAnyPassage = computed(() =>
   font-size: 0.875rem;
   text-align: center;
   padding: 1rem;
-}
-
-.tableau-relay-empty-clickable {
-  cursor: pointer;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.tableau-relay-empty-clickable:hover {
-  color: #3b82f6;
-  background: #eff6ff;
 }
 
 .participant-btn {

@@ -80,12 +80,19 @@ export function useChronometre(participantsRef, options = {}) {
   function stopAll() {
     const states = participantStates.value
     const next = { ...states }
+    const now = performance.now()
     for (const id of Object.keys(next)) {
       if (next[id].status === 'running') {
+        const frozenElapsedMs = (next[id].elapsedBeforePause ?? 0) + (now - (next[id].startTime ?? now))
+        next[id] = {
+          ...next[id],
+          elapsedMs: frozenElapsedMs
+        }
+        participantStates.value = { ...next }
         recordPassage(id, { source: isIndividual() ? 'stop' : undefined })
         next[id] = {
           ...next[id],
-          elapsedBeforePause: next[id].elapsedMs,
+          elapsedBeforePause: frozenElapsedMs,
           status: 'paused'
         }
       }
@@ -165,12 +172,21 @@ export function useChronometre(participantsRef, options = {}) {
   function stopParticipant(id) {
     const s = participantStates.value[id]
     if (!s || s.status !== 'running') return
-    recordPassage(id, { source: isIndividual() ? 'stop' : undefined })
+    const now = performance.now()
+    const frozenElapsedMs = (s.elapsedBeforePause ?? 0) + (now - (s.startTime ?? now))
     participantStates.value = {
       ...participantStates.value,
       [id]: {
         ...s,
-        elapsedBeforePause: s.elapsedMs,
+        elapsedMs: frozenElapsedMs
+      }
+    }
+    recordPassage(id, { source: isIndividual() ? 'stop' : undefined })
+    participantStates.value = {
+      ...participantStates.value,
+      [id]: {
+        ...participantStates.value[id],
+        elapsedBeforePause: frozenElapsedMs,
         status: 'paused'
       }
     }
