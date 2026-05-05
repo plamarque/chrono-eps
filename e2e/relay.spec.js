@@ -39,7 +39,7 @@ test.describe('Mode relais', () => {
   })
 
   test('Config groupe : ajouter un coureur puis le supprimer', async ({ page }) => {
-    await page.locator('.tableau-relay-body-clickable').first().click()
+    await page.locator('.tableau-relay-header-clickable').first().click()
     await expect(page.getByRole('dialog').getByText('Configurer Groupe 1')).toBeVisible()
     await page.getByRole('button', { name: 'Ajouter un coureur' }).click()
     await expect(page.getByRole('button', { name: 'Supprimer Coureur 2' })).toBeVisible()
@@ -52,14 +52,14 @@ test.describe('Mode relais', () => {
   })
 
   test('Config groupe : boutons suppr. masqués quand le groupe a des passages', async ({ page }) => {
-    await page.locator('.tableau-relay-body-clickable').first().click()
+    await page.locator('.tableau-relay-header-clickable').first().click()
     await page.getByRole('button', { name: 'Ajouter un coureur' }).click()
     await page.getByRole('button', { name: 'Enregistrer' }).last().click()
     await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
     await page.waitForTimeout(300)
     await participants(page).getByRole('button', { name: 'Enregistrer passage' }).first().click()
     await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
-    await page.locator('.tableau-relay-body-clickable').first().click()
+    await page.locator('.tableau-relay-header-clickable').first().click()
     await expect(page.getByRole('dialog').getByText('Configurer Groupe 1')).toBeVisible()
     await expect(page.getByRole('button', { name: /Supprimer Coureur/ })).not.toBeVisible()
     await page.getByRole('button', { name: 'Enregistrer' }).last().click()

@@ -2,7 +2,7 @@
 
 ## Phase actuelle
 
-Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 11 — Replay (complet). Slice 10 — Dupliquer : réouverte (masquée en attente retours utilisateurs). **Slices 12–14** (retours terrain 2026) : numérotation locale relais, verrouillage config relais en course, correction arrêt global individuel après Coureur+ — **faits**. **Vue compacte mode individuel** : implémentée en parallèle de la vue tableau (à l’essai auprès des professeurs). **Promote to stores** : script et workflow implémentés (release → testeurs ; promote → production). Prochain : Slice 8.
+Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 11 — Replay (complet). Slice 10 — Dupliquer : réouverte (masquée en attente retours utilisateurs). **Slices 12–14** (retours terrain 2026) : numérotation locale relais, verrouillage config relais en course, correction arrêt global individuel après Coureur+ — **faits**. **Slices 15–16** : harmonisation zone d’édition (en-tête seul hors course, relais + individuel), verrouillage édition individuel pendant `running` — **faits**. **Vue compacte mode individuel** : implémentée en parallèle de la vue tableau (à l’essai auprès des professeurs). **Promote to stores** : script et workflow implémentés (release → testeurs ; promote → production). Prochain : Slice 8.
 
 ## Slices
 
@@ -22,6 +22,8 @@ Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 11 
 | 12    | Relais — libellés locaux | Coureur 1…N par groupe (id stable) ; DOMAIN/SPEC ; modal + HomeView | Fait     |
 | 13    | Relais — verrouillage terrain | Pas de modale config tant que groupe running ; cible drapeau plus grande | Fait     |
 | 14    | Individuel — Coureur+ puis Arrêter | Pause du coureur après passage implicite ; temps propres préservés | Fait     |
+| 15    | Harmonisation zones d’édition | Config / renommage uniquement via en-tête (relais + individuel), hors corps de carte | Fait     |
+| 16    | Individuel — verrouillage édition en course | Pas de modale depuis l’en-tête tant que le coureur est `running` | Fait     |
 
 ## Objectif MVP
 

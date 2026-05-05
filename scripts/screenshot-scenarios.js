@@ -129,7 +129,7 @@ export const SCENARIOS = [
         await participants(page).getByRole('button', { name: 'Ajouter' }).click()
         await delay(100)
       }
-      await page.locator('.tableau-relay-body-clickable').first().click()
+      await page.locator('.tableau-relay-header-clickable').first().click()
       await page.getByRole('dialog').getByText('Configurer Groupe 1').waitFor({ state: 'visible' })
       await page.getByRole('button', { name: 'Ajouter un coureur' }).click()
       await delay(200)

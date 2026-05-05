@@ -45,6 +45,7 @@ Ce document définit le vocabulaire, les entités et les règles du domaine pour
 4. Les performances sont dérivées des passages : temps du premier passage, du dernier, nombre de tours, etc.
 5. [ASSUMPTION] Format temps : mm:ss.ms ou équivalent pour l'affichage et le stockage.
 6. En mode individuel, chaque coureur a un **état de chrono** (idle / running / paused) comme en relais par groupe ; le **démarrage global** met tous les coureurs listés en course ; l'**arrêt global** enregistre un passage pour chaque coureur encore **en course** puis le met en pause — **sans modifier** les passages déjà enregistrés pour les coureurs déjà en pause (ex. après un **Coureur** implicite qui a figé le tour du précédent). Chaque temps enregistré est le **temps propre** du coureur (mono-tour ou cumul des tours), jamais écrasé par le temps d’un autre coureur au moment de l’arrêt global. Les courses individuelles déjà stockées (y compris anciennes variantes à une horloge unique) restent affichées et exportées avec le détail par tour.
+7. Hors lecture seule terrain, la modification du nom et de la couleur (coureur individuel ou groupe relais) s’ouvre **uniquement** depuis l’**en-tête** de la carte ; le corps de carte sert aux temps et aux actions chrono / passage. Tant que le chronomètre du participant concerné est **en course** (`running`), cette modification est **interdite** (cohérence relais / individuel).
 
 ## Hypothèses et incertitudes
 

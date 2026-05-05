@@ -25,7 +25,11 @@ function mountCards(props = {}) {
             '<button type="button" :aria-label="$attrs[\'aria-label\']" @click="$emit(\'click\')">{{ label }}</button>',
           inheritAttrs: true
         },
-        Dialog: { template: '<div><slot /><slot name="footer" /></div>' },
+        Dialog: {
+          props: ['visible'],
+          template:
+            '<div v-if="visible" data-testid="participant-dialog-shell"><slot /><slot name="footer" /></div>'
+        },
         InputText: true
       }
     }
@@ -96,6 +100,38 @@ describe('TableauPassagesIndividualCards', () => {
     expect(wrapper.text()).toContain('01:15.00')
     expect(wrapper.text()).not.toContain('Tour 1 :')
     expect(wrapper.text()).not.toContain('Tour 2 :')
+
+    wrapper.unmount()
+  })
+
+  it('ne permet pas d’ouvrir la modale depuis l’en-tête tant que le coureur est en course', async () => {
+    const wrapper = mountCards({
+      participantStates: {
+        c1: { status: 'running', elapsedMs: 10000 }
+      },
+      status: 'running'
+    })
+
+    expect(wrapper.find('.indiv-header-clickable').exists()).toBe(false)
+    await wrapper.find('.indiv-header').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('[data-testid="participant-dialog-shell"]').exists()).toBe(false)
+
+    wrapper.unmount()
+  })
+
+  it('ouvre la modale depuis l’en-tête quand le coureur est en pause', async () => {
+    const wrapper = mountCards({
+      participantStates: {
+        c1: { status: 'paused', elapsedMs: 10000 }
+      },
+      status: 'paused'
+    })
+
+    expect(wrapper.find('.indiv-header-clickable').exists()).toBe(true)
+    await wrapper.find('.indiv-header').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('[data-testid="participant-dialog-shell"]').exists()).toBe(true)
 
     wrapper.unmount()
   })

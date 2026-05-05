@@ -42,6 +42,26 @@
 
 ---
 
+### [UX] Cohérence relais / individuel : édition uniquement depuis l’en-tête
+
+**Problème :** En relais, le corps de carte ouvrait aussi la modale de configuration ; en individuel, seul l’en-tête le faisait — règle d’interaction différente selon le mode.
+
+**État :** Résolu
+
+**Solution :** Hors course, ouverture de la modale **uniquement** depuis l’en-tête coloré du groupe ou du coureur ; corps de carte réservé aux temps et aux actions chrono / passage.
+
+---
+
+### [UX] Individuel : ouverture de la modale pendant que le coureur est en course
+
+**Problème :** Risque de faux tap sur l’en-tête pendant le chronométrage, comme en relais avant verrouillage.
+
+**État :** Résolu
+
+**Solution :** Tant que la carte coureur est `running`, l’en-tête ne ouvre pas la modale (icône crayon masquée) ; à nouveau disponible en pause / à l’arrêt.
+
+---
+
 ### [UX] Temps en direct dans les cellules de tour
 
 **Problème :** Les cellules tappables du tableau des passages n’affichaient que l’icône drapeau, sans les temps en cours.

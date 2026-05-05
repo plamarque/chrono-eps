@@ -101,6 +101,17 @@ function isParticipantRunning(participantId) {
   return props.participantStates[participantId]?.status === 'running'
 }
 
+function canOpenParticipantModal(participant) {
+  if (props.readOnly && !props.allowParticipantEdit) return false
+  if (props.allowParticipantEdit) return true
+  return !isParticipantRunning(participant.id)
+}
+
+function tryOpenParticipantModal(participant) {
+  if (!canOpenParticipantModal(participant)) return
+  openParticipantModal(participant)
+}
+
 function canRecordTour(participantId) {
   if (props.readOnly) return false
   return isParticipantRunning(participantId)
@@ -190,16 +201,16 @@ function tourLabel(index) {
         <div
           class="indiv-header"
           :style="{ backgroundColor: p.color ?? '#94a3b8', color: '#fff' }"
-          :class="{ 'indiv-header-clickable': !readOnly || allowParticipantEdit }"
-          @click="(!readOnly || allowParticipantEdit) && openParticipantModal(p)"
-          @keydown.enter="(!readOnly || allowParticipantEdit) && openParticipantModal(p)"
-          @keydown.space.prevent="(!readOnly || allowParticipantEdit) && openParticipantModal(p)"
-          :role="readOnly && !allowParticipantEdit ? null : 'button'"
-          :tabindex="readOnly && !allowParticipantEdit ? -1 : 0"
+          :class="{ 'indiv-header-clickable': canOpenParticipantModal(p) }"
+          @click="tryOpenParticipantModal(p)"
+          @keydown.enter="tryOpenParticipantModal(p)"
+          @keydown.space.prevent="tryOpenParticipantModal(p)"
+          :role="canOpenParticipantModal(p) ? 'button' : null"
+          :tabindex="canOpenParticipantModal(p) ? 0 : -1"
         >
           <span class="indiv-header-inner">
             <i
-              v-if="!readOnly || allowParticipantEdit"
+              v-if="canOpenParticipantModal(p)"
               class="pi pi-pencil indiv-header-edit-icon"
               aria-hidden="true"
             />
