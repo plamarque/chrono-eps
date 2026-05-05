@@ -189,7 +189,7 @@ function tourLabel(index) {
       v-if="!readOnly && !allowParticipantEdit && participants.length === 0"
       class="indiv-hint"
     >
-      Utilisez le bouton bleu « Coureur » dans la zone chronomètre (après Démarrer / Arrêter) : avant le départ, ajout d’une carte (temps = chrono au clic) ; pendant la course, ajout d’un nouveau coureur déjà en course sans arrêter les autres. Le drapeau déclenche l’affichage multi-tours.
+      Le bouton stop d’une carte marque l’arrivée du coureur. Le drapeau enregistre un passage et le coureur continue. Tant que le chrono principal tourne, un nouveau coureur est ajouté automatiquement au besoin.
     </p>
     <div v-if="participants.length > 0" class="indiv-grid">
       <div

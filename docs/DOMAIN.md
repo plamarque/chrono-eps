@@ -22,6 +22,8 @@ Ce document définit le vocabulaire, les entités et les règles du domaine pour
 | **Piste virtuelle** | Représentation graphique (ovale ou anneau) de la piste sur laquelle les positions des participants sont affichées pendant le replay. |
 | **Nouvelle course** | Action (bouton barre d'outils) : réinitialisation complète ; efface participants, groupes, passages ; repart sur une course vierge. |
 | **Dupliquer** | Action (bouton chronomètre) : conserve participants et groupes ; efface uniquement les temps et passages ; permet de refaire une course avec la même configuration. |
+| **Capture temps (slice 17)** | Action centrale d'un overlay terrain en mode individuel : valide l'arrivée du coureur actif, auto-crée le coureur suivant et lance sa mesure. |
+| **Fin de session (slice 17)** | Action de clôture de l'overlay terrain : finalise les coureurs actifs, ferme l'overlay et rend l'édition disponible. |
 
 ## Entités et relations
 
@@ -46,6 +48,7 @@ Ce document définit le vocabulaire, les entités et les règles du domaine pour
 5. [ASSUMPTION] Format temps : mm:ss.ms ou équivalent pour l'affichage et le stockage.
 6. En mode individuel, chaque coureur a un **état de chrono** (idle / running / paused) comme en relais par groupe ; le **démarrage global** met tous les coureurs listés en course ; le bouton **Coureur** pendant la course ajoute un nouveau coureur `running` **sans arrêter** les coureurs déjà `running` ; l'**arrêt global** enregistre un passage pour chaque coureur encore **en course** puis le met en pause — **sans modifier** les passages déjà enregistrés pour les coureurs déjà en pause. Chaque temps enregistré est le **temps propre** du coureur (mono-tour ou cumul des tours), jamais écrasé par le temps d’un autre coureur au moment de l’arrêt global. Les courses individuelles déjà stockées (y compris anciennes variantes à une horloge unique) restent affichées et exportées avec le détail par tour.
 7. Hors lecture seule terrain, la modification du nom et de la couleur (coureur individuel ou groupe relais) s’ouvre **uniquement** depuis l’**en-tête** de la carte ; le corps de carte sert aux temps et aux actions chrono / passage. Tant que le chronomètre du participant concerné est **en course** (`running`), cette modification est **interdite** (cohérence relais / individuel).
+8. Slice 17 — mode capture terrain mono-tour (overlay): un seul coureur actif logique ; `Capture temps` enregistre une arrivée séquentielle avec temps total absolu (depuis le départ global), crée le coureur suivant et le démarre ; `Fin de session` finalise les coureurs encore actifs et n'ajoute aucun coureur. Le multi-tour est hors scope dans ce mode.
 
 ## Hypothèses et incertitudes
 

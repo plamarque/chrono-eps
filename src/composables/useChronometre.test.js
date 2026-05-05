@@ -374,7 +374,7 @@ describe('useChronometre mode individuel (états par coureur)', () => {
     wrapper.unmount()
   })
 
-  it('stop enregistre un passage pour chaque coureur encore en course', async () => {
+  it('stop en individuel finalise le coureur actif en course', async () => {
     const participants = ref([
       { id: 'c1', nom: 'A', color: '#ef4444' },
       { id: 'c2', nom: 'B', color: '#22c55e' }
@@ -394,9 +394,8 @@ describe('useChronometre mode individuel (états par coureur)', () => {
     await wrapper.vm.$nextTick()
     const passages = JSON.parse(wrapper.find('[data-testid="passages"]').text())
     expect(passages.c1).toHaveLength(1)
-    expect(passages.c2).toHaveLength(1)
     expect(passages.c1[0].source).toBe('stop')
-    expect(passages.c2[0].source).toBe('stop')
+    expect(passages.c2).toBeUndefined()
     wrapper.unmount()
   })
 
@@ -421,7 +420,7 @@ describe('useChronometre mode individuel (états par coureur)', () => {
     wrapper.unmount()
   })
 
-  it('individuel : pauseParticipantAtRecordedTotal évite que stop global duplique le passage du coureur déjà figé (Coureur+)', async () => {
+  it('individuel : pauseParticipantAtRecordedTotal évite que stop global duplique le passage du coureur déjà figé (arrivée)', async () => {
     const participants = ref([{ id: 'c1', nom: 'Coureur 1', color: '#ef4444' }])
     const chrono = useChronometre(participants, { mode: 'individual' })
     const wrapper = mount({
@@ -431,10 +430,10 @@ describe('useChronometre mode individuel (états par coureur)', () => {
           h('button', { onClick: chrono.start }, 'Start'),
           h('button', {
             onClick: () => {
-              chrono.recordPassage('c1', { source: 'coureur' })
+              chrono.recordPassage('c1', { source: 'arrivee' })
               chrono.pauseParticipantAtRecordedTotal('c1')
             }
-          }, 'CoureurPlus'),
+          }, 'Arrivee'),
           h('button', { onClick: chrono.stop }, 'Stop')
         ])
     })
@@ -461,7 +460,7 @@ describe('useChronometre mode individuel (états par coureur)', () => {
     passages = JSON.parse(wrapper.find('[data-testid="passages"]').text())
     expect(passages.c1).toHaveLength(1)
     expect(passages.c1[0].totalMs).toBe(t1)
-    expect(passages.c1[0].source).toBe('coureur')
+    expect(passages.c1[0].source).toBe('arrivee')
     expect(passages.c2).toHaveLength(1)
     expect(passages.c2[0].totalMs).toBeGreaterThan(t1)
     expect(passages.c2[0].source).toBe('stop')

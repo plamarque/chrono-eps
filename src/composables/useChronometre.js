@@ -61,13 +61,14 @@ export function useChronometre(participantsRef, options = {}) {
       chronoEpochMs.value = Date.now() - (participantStates.value[firstId]?.elapsedMs ?? 0)
     }
     const next = { ...participantStates.value }
+    const activeIndividualId = isIndividual() ? participants[0]?.id : null
     for (const p of participants) {
       const s = ensureParticipantState(p.id)
       next[p.id] = {
         ...s,
-        status: 'running',
+        status: isIndividual() ? (p.id === activeIndividualId ? 'running' : 'paused') : 'running',
         elapsedBeforePause: s.elapsedMs ?? 0,
-        startTime: now
+        startTime: p.id === activeIndividualId || isRelay() ? now : s.startTime
       }
     }
     participantStates.value = next
@@ -169,7 +170,7 @@ export function useChronometre(participantsRef, options = {}) {
     }
   }
 
-  function stopParticipant(id) {
+  function stopParticipant(id, options = {}) {
     const s = participantStates.value[id]
     if (!s || s.status !== 'running') return
     const now = performance.now()
@@ -181,7 +182,7 @@ export function useChronometre(participantsRef, options = {}) {
         elapsedMs: frozenElapsedMs
       }
     }
-    recordPassage(id, { source: isIndividual() ? 'stop' : undefined })
+    recordPassage(id, { source: isIndividual() ? (options.source ?? 'stop') : undefined })
     participantStates.value = {
       ...participantStates.value,
       [id]: {

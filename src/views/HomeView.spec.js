@@ -462,7 +462,7 @@ describe('HomeView', () => {
     shell.unmount()
   })
 
-  it('individuel : en course, Coureur ajoute un nouveau coureur synchronisé sans passage implicite', async () => {
+  it('individuel : stop carte = arrivée, puis auto-ajout du coureur suivant', async () => {
     const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
@@ -472,22 +472,19 @@ describe('HomeView', () => {
     const idC1 = wrapper.vm.participants[0].id
     await wrapper.findAll('button').find((b) => b.text() === 'Démarrer').trigger('click')
     await vi.advanceTimersByTimeAsync(80)
-
-    const coureurBtn = wrapper.find('[aria-labelledby="chrono-heading"]').find(
-      '[aria-label="Ajouter un coureur qui passe devant le chronomètre"]'
-    )
-    await coureurBtn.trigger('click')
+    await wrapper.find('.participant-control-btn').trigger('click')
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.participants).toHaveLength(2)
     const c2 = wrapper.vm.participants[1]
-    expect(wrapper.vm.passagesByParticipant[idC1]?.length ?? 0).toBe(0)
+    expect(wrapper.vm.passagesByParticipant[idC1]?.length ?? 0).toBe(1)
+    expect(wrapper.vm.passagesByParticipant[idC1][0].source).toBe('arrivee')
     expect(wrapper.vm.participantStates[c2.id].status).toBe('running')
-    expect(wrapper.vm.participantStates[idC1].status).toBe('running')
+    expect(wrapper.vm.participantStates[idC1].status).toBe('paused')
     shell.unmount()
   })
 
-  it('individuel : chrono au repos, Coureur ajoute une carte sans tour sur le précédent', async () => {
+  it('individuel : après 2 arrivées séquentielles, le coureur 2 garde un total absolu (pas un delta)', async () => {
     const { wrapper, shell } = await mountHomeView()
     await vi.advanceTimersByTimeAsync(0)
 
@@ -495,15 +492,47 @@ describe('HomeView', () => {
     await wrapper.vm.$nextTick()
 
     const idC1 = wrapper.vm.participants[0].id
-    const coureurBtn = wrapper.find('[aria-labelledby="chrono-heading"]').find(
-      '[aria-label="Ajouter un coureur qui passe devant le chronomètre"]'
-    )
-    await coureurBtn.trigger('click')
+    await wrapper.findAll('button').find((b) => b.text() === 'Démarrer').trigger('click')
+    await vi.advanceTimersByTimeAsync(21000)
+    await wrapper.find('.participant-control-btn').trigger('click') // Arrivée coureur 1
+    await wrapper.vm.$nextTick()
+
+    const idC2 = wrapper.vm.participants[1].id
+    await vi.advanceTimersByTimeAsync(9000)
+    await wrapper.findAll('.participant-control-btn')[1].trigger('click') // Arrivée coureur 2
+    await wrapper.vm.$nextTick()
+
+    const p1 = wrapper.vm.passagesByParticipant[idC1]
+    const p2 = wrapper.vm.passagesByParticipant[idC2]
+    expect(p1).toHaveLength(1)
+    expect(p2).toHaveLength(1)
+    expect(p1[0].source).toBe('arrivee')
+    expect(p2[0].source).toBe('arrivee')
+    expect(p2[0].lapMs).toBeGreaterThanOrEqual(29500)
+    expect(p2[0].lapMs).toBeLessThanOrEqual(30500)
+    expect(p2[0].totalMs).toBeGreaterThanOrEqual(29500)
+    expect(p2[0].totalMs).toBeLessThanOrEqual(30500)
+    shell.unmount()
+  })
+
+  it('individuel : drapeau en course enregistre un passage et auto-ajoute le coureur suivant', async () => {
+    const { wrapper, shell } = await mountHomeView()
+    await vi.advanceTimersByTimeAsync(0)
+
+    await wrapper.findAll('button').find((b) => b.text() === 'Individuel').trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const idC1 = wrapper.vm.participants[0].id
+    await wrapper.findAll('button').find((b) => b.text() === 'Démarrer').trigger('click')
+    await vi.advanceTimersByTimeAsync(80)
+    await wrapper.find('.indiv-tap-btn').trigger('click')
     await wrapper.vm.$nextTick()
 
     const c2 = wrapper.vm.participants[1]
-    expect(wrapper.vm.passagesByParticipant[idC1]?.length ?? 0).toBe(0)
-    expect(wrapper.vm.participantStates[c2.id].status).toBe('idle')
+    expect(wrapper.vm.passagesByParticipant[idC1]?.length ?? 0).toBe(1)
+    expect(wrapper.vm.passagesByParticipant[idC1][0].source).toBe('passage')
+    expect(wrapper.vm.participantStates[idC1].status).toBe('running')
+    expect(wrapper.vm.participantStates[c2.id].status).toBe('running')
     shell.unmount()
   })
 
@@ -513,13 +542,6 @@ describe('HomeView', () => {
 
     const individuelBtn = wrapper.findAll('button').find((b) => b.text() === 'Individuel')
     await individuelBtn.trigger('click')
-    await wrapper.vm.$nextTick()
-
-    const coureurBtn = wrapper.find('[aria-labelledby="chrono-heading"]').find(
-      '[aria-label="Ajouter un coureur qui passe devant le chronomètre"]'
-    )
-    expect(coureurBtn.exists()).toBe(true)
-    await coureurBtn.trigger('click')
     await wrapper.vm.$nextTick()
 
     const demarrer = wrapper.findAll('button').find((b) => b.text() === 'Démarrer')

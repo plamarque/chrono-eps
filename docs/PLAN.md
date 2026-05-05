@@ -2,7 +2,7 @@
 
 ## Phase actuelle
 
-Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 11 — Replay (complet). Slice 10 — Dupliquer : réouverte (masquée en attente retours utilisateurs). **Slices 12–14** (retours terrain 2026) : numérotation locale relais, verrouillage config relais en course, correction arrêt global individuel après Coureur+ — **faits**. **Slices 15–16** : harmonisation zone d’édition (en-tête seul hors course, relais + individuel), verrouillage édition individuel pendant `running` — **faits**. **Vue compacte mode individuel** : implémentée en parallèle de la vue tableau (à l’essai auprès des professeurs). **Promote to stores** : script et workflow implémentés (release → testeurs ; promote → production). Prochain : Slice 8.
+Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 11 — Replay (complet). Slice 10 — Dupliquer : réouverte (masquée en attente retours utilisateurs). **Slices 12–14** (retours terrain 2026) : numérotation locale relais, verrouillage config relais en course, correction arrêt global individuel après Coureur+ — **faits**. **Slices 15–16** : harmonisation zone d’édition (en-tête seul hors course, relais + individuel), verrouillage édition individuel pendant `running` — **faits**. **Slice 17** (capture terrain mono-tour, overlay central) : cadrée, à implémenter. **Vue compacte mode individuel** : implémentée en parallèle de la vue tableau (à l’essai auprès des professeurs). **Promote to stores** : script et workflow implémentés (release → testeurs ; promote → production). Prochain : Slice 8 puis Slice 17.
 
 ## Slices
 
@@ -24,6 +24,7 @@ Slice 7 — Mode relais (complet). Slice 9 — Performances (complet). Slice 11 
 | 14    | Individuel — Coureur+ puis Arrêter | Pause du coureur après passage implicite ; temps propres préservés | Fait     |
 | 15    | Harmonisation zones d’édition | Config / renommage uniquement via en-tête (relais + individuel), hors corps de carte | Fait     |
 | 16    | Individuel — verrouillage édition en course | Pas de modale depuis l’en-tête tant que le coureur est `running` | Fait     |
+| 17    | Capture terrain mono-tour | Overlay central `Capture temps`, bouton discret `Fin de session`, flux séquentiel mono-tour | À faire  |
 
 ## Objectif MVP
 
@@ -237,6 +238,39 @@ Application fonctionnelle permettant à un enseignant d'EPS de : (1) paramétrer
 
 ---
 
+## Slice 17 — Capture terrain mono-tour (overlay central)
+
+**Objectif** : permettre une capture d'arrivées terrain en mode individuel avec interaction unique, sans viser les cartes pendant la course.
+
+**Critères de sortie** : overlay actif pendant session, bouton central `Capture temps` pour enchaîner les arrivées, bouton discret `Fin de session` qui clôture proprement, post-édition disponible après fermeture de l'overlay.
+
+### Tâches
+
+- [ ] Ajouter un mode d'interaction `capture terrain` en individuel (overlay plein écran).
+- [ ] Afficher un bouton central large `Capture temps` (icône stop), seule action primaire disponible.
+- [ ] Afficher un bouton discret `Fin de session` en bas à droite pour arrêter la session et fermer l'overlay.
+- [ ] À chaque capture: finaliser le coureur actif, créer le suivant, démarrer le suivant (mono-tour).
+- [ ] À la fin de session: finaliser les coureurs actifs, ne plus auto-ajouter, réactiver l'édition/consultation.
+- [ ] Désactiver le multi-tour dans ce mode (pas de drapeau actif dans l'overlay).
+- [ ] Couvrir le flux par tests unitaires/intégration/E2E dédiés.
+
+### Stratégie de tests (prévue)
+
+- **Unitaires (`useChronometre`)**
+  - capture séquentielle: arrivée n -> auto-création n+1 -> démarrage n+1
+  - invariants: un seul coureur actif, temps absolus croissants
+  - fin de session: finalisation des actifs, pas d'auto-ajout
+- **Intégration (`HomeView`)**
+  - activation overlay au démarrage session individuelle
+  - blocage des contrôles hors overlay
+  - fermeture overlay sur `Fin de session` puis retour édition
+- **E2E (Playwright)**
+  - scénario terrain: 3 captures successives puis fin de session
+  - vérification affichage post-session (totaux + suppression coureur terminal superflu)
+  - non-régression mode relais et individuel standard hors overlay
+
+---
+
 ## Dépendances entre slices
 
 ```mermaid
@@ -252,6 +286,7 @@ flowchart LR
     S9[Slice 9: Performances]
     S10[Slice 10: Dupliquer]
     S11[Slice 11: Replay]
+    S17[Slice 17: Capture terrain]
     
     S1 --> S2
     S1 --> S3
@@ -266,4 +301,6 @@ flowchart LR
     S9 --> S10
     S6 --> S11
     S7 --> S11
+    S16 --> S17
+    S4 --> S17
 ```

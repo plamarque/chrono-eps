@@ -285,35 +285,36 @@ function nextIndividualParticipantIndex() {
   return max + 1
 }
 
-function handleAddCoureur() {
-  if (participants.value.length >= MAX_INDIVIDUAL_RUNNERS) {
-    toast.add({
-      severity: 'warn',
-      summary: 'Limite atteinte',
-      detail: 'Au plus 20 coureurs pour une course individuelle.',
-      life: 4000
-    })
-    return
-  }
-  const list = participants.value
-  const globalRunning = status.value === 'running'
-  const runningIdsBeforeAdd = globalRunning
-    ? list
-        .filter((p) => participantStates.value[p.id]?.status === 'running')
-        .map((p) => p.id)
-    : []
-
+function addAndStartNextIndividualParticipant(forceStart = false, firstLapFromRaceStart = false) {
+  if (participants.value.length >= MAX_INDIVIDUAL_RUNNERS) return null
   const newP = createParticipant(nextIndividualParticipantIndex())
   addParticipant(newP, {
-    individualFirstLapFromRaceStart: globalRunning && runningIdsBeforeAdd.length > 0
+    individualFirstLapFromRaceStart: firstLapFromRaceStart
   })
-
-  // Pendant la course, l'ajout d'un coureur ne doit pas arrêter les autres.
-  if (globalRunning) {
-    for (const id of runningIdsBeforeAdd) {
-      startParticipant(id)
-    }
+  if (forceStart || status.value === 'running') {
     startParticipant(newP.id)
+  }
+  return newP
+}
+
+function isLastParticipant(participantId) {
+  const idx = participants.value.findIndex((p) => p.id === participantId)
+  return idx >= 0 && idx === participants.value.length - 1
+}
+
+function handleIndividualArrival(participantId) {
+  const raceWasRunning = status.value === 'running'
+  stopParticipant(participantId, { source: 'arrivee' })
+  if (raceWasRunning && isLastParticipant(participantId)) {
+    addAndStartNextIndividualParticipant(true, true)
+  }
+}
+
+function handleIndividualPassage(participantId) {
+  const raceWasRunning = status.value === 'running'
+  recordPassage(participantId, { source: 'passage' })
+  if (raceWasRunning && isLastParticipant(participantId)) {
+    addAndStartNextIndividualParticipant(true, true)
   }
 }
 
@@ -631,11 +632,9 @@ watch(
             :elapsed-ms="displayedElapsedMs"
             :status="status"
             :is-viewing-loaded-course="!!currentCourse && !isPreparedCourse"
-            :show-add-coureur="mode === 'individual' && !(currentCourse && !isPreparedCourse)"
             @start="handleStart"
             @stop="stop"
             @reset="handleReset"
-            @add-coureur="handleAddCoureur"
           >
             <template #extra-controls>
               <Button
@@ -670,9 +669,9 @@ watch(
               :read-only="!!currentCourse && !isPreparedCourse"
               @update="updateParticipant"
               @remove="removeParticipant"
-              @record="recordPassage"
+              @record="handleIndividualPassage"
               @start-participant="startParticipant"
-              @stop-participant="stopParticipant"
+              @stop-participant="handleIndividualArrival"
             />
             <!-- Vue tableau conservée en attente des retours utilisateurs
             <TableauPassages
