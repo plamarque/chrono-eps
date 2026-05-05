@@ -19,6 +19,13 @@ function mountTableauPassagesCompact(props = {}) {
         Dialog: {
           template: '<div v-if="visible"><slot></slot><slot name="footer"></slot></div>',
           props: ['visible']
+        },
+        InputText: {
+          props: ['modelValue'],
+          emits: ['update:modelValue'],
+          template:
+            '<input :id="$attrs.id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+          inheritAttrs: true
         }
       }
     }
@@ -305,6 +312,34 @@ describe('TableauPassagesCompact', () => {
     const participants = [{ id: '1', nom: 'Coureur 1' }]
     const wrapper = mountTableauPassagesCompact({ participants, readOnly: true })
     expect(wrapper.find('.tableau-passages-compact-card-actions').exists()).toBe(false)
+  })
+
+  it('verrouille l’édition du nom en mode running', async () => {
+    const participants = [{ id: '1', nom: 'Coureur 1', color: '#ef4444' }]
+    const participantStates = { '1': { status: 'running', elapsedMs: 9000 } }
+    const wrapper = mountTableauPassagesCompact({
+      participants,
+      participantStates,
+      status: 'running'
+    })
+    expect(wrapper.find('.tableau-passages-compact-card-name-clickable').exists()).toBe(false)
+    await wrapper.find('.tableau-passages-compact-card-name').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.participant-modal-form').exists()).toBe(false)
+  })
+
+  it('réautorise l’édition du nom en mode paused', async () => {
+    const participants = [{ id: '1', nom: 'Coureur 1', color: '#ef4444' }]
+    const participantStates = { '1': { status: 'paused', elapsedMs: 9000 } }
+    const wrapper = mountTableauPassagesCompact({
+      participants,
+      participantStates,
+      status: 'paused'
+    })
+    expect(wrapper.find('.tableau-passages-compact-card-name-clickable').exists()).toBe(true)
+    await wrapper.find('.tableau-passages-compact-card-name').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.participant-modal-form').exists()).toBe(true)
   })
 
   it('affiche le temps en cours (P1 : temps) quand un participant court', () => {

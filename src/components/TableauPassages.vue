@@ -157,6 +157,17 @@ function isParticipantRunning(participantId) {
   return props.participantStates[participantId]?.status === 'running'
 }
 
+function canOpenParticipantModal(participant) {
+  if (props.readOnly) return false
+  if (participant.id === '__solo__') return false
+  return !isParticipantRunning(participant.id)
+}
+
+function tryOpenParticipantModal(participant) {
+  if (!canOpenParticipantModal(participant)) return
+  openParticipantModal(participant)
+}
+
 function canTap(participantId, tourNum) {
   return !props.readOnly && isParticipantRunning(participantId) && isNextTour(participantId, tourNum)
 }
@@ -209,17 +220,17 @@ function toggleParticipant(participant) {
               v-for="p in displayParticipants"
               :key="p.id"
               class="tableau-passages-th-participant"
-              :class="{ 'tableau-passages-th-clickable': !readOnly }"
+              :class="{ 'tableau-passages-th-clickable': canOpenParticipantModal(p) }"
               :style="{
                 backgroundColor: p.color ?? '#94a3b8',
                 color: '#ffffff'
               }"
-              :role="readOnly ? null : 'button'"
-              :tabindex="readOnly ? -1 : 0"
-              :aria-label="readOnly ? undefined : 'Modifier ou supprimer'"
-              @click="!readOnly && openParticipantModal(p)"
-              @keydown.enter="!readOnly && openParticipantModal(p)"
-              @keydown.space.prevent="!readOnly && openParticipantModal(p)"
+              :role="canOpenParticipantModal(p) ? 'button' : null"
+              :tabindex="canOpenParticipantModal(p) ? 0 : -1"
+              :aria-label="canOpenParticipantModal(p) ? 'Modifier ou supprimer' : undefined"
+              @click="tryOpenParticipantModal(p)"
+              @keydown.enter="tryOpenParticipantModal(p)"
+              @keydown.space.prevent="tryOpenParticipantModal(p)"
             >
               {{ p.nom }}
             </th>

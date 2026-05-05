@@ -162,6 +162,16 @@ function isParticipantPaused(participantId) {
   return props.participantStates[participantId]?.status === 'paused'
 }
 
+function canOpenParticipantModal(participant) {
+  if (props.readOnly || isSoloMode.value) return false
+  return !isParticipantRunning(participant.id)
+}
+
+function tryOpenParticipantModal(participant) {
+  if (!canOpenParticipantModal(participant)) return
+  openParticipantModal(participant)
+}
+
 function canTap(participantId) {
   if (props.readOnly || props.sequentialIndividual) return false
   const passages = props.passagesByParticipant[participantId] ?? []
@@ -298,13 +308,13 @@ function toggleParticipant(participant) {
         >
           <div
             class="tableau-passages-compact-card-name"
-            :class="{ 'tableau-passages-compact-card-name-clickable': !readOnly && !isSoloMode }"
-            role="button"
-            tabindex="0"
-            :aria-label="!readOnly && !isSoloMode ? `Modifier ${p.nom}` : undefined"
-            @click="!readOnly && !isSoloMode && openParticipantModal(p)"
-            @keydown.enter="!readOnly && !isSoloMode && openParticipantModal(p)"
-            @keydown.space.prevent="!readOnly && !isSoloMode && openParticipantModal(p)"
+            :class="{ 'tableau-passages-compact-card-name-clickable': canOpenParticipantModal(p) }"
+            :role="canOpenParticipantModal(p) ? 'button' : null"
+            :tabindex="canOpenParticipantModal(p) ? 0 : -1"
+            :aria-label="canOpenParticipantModal(p) ? `Modifier ${p.nom}` : undefined"
+            @click="tryOpenParticipantModal(p)"
+            @keydown.enter="tryOpenParticipantModal(p)"
+            @keydown.space.prevent="tryOpenParticipantModal(p)"
           >
             {{ p.nom }}
           </div>

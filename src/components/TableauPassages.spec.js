@@ -25,6 +25,13 @@ function mountTableauPassages(props = {}) {
         Dialog: {
           template: '<div v-if="visible"><slot></slot><slot name="footer"></slot></div>',
           props: ['visible']
+        },
+        InputText: {
+          props: ['modelValue'],
+          emits: ['update:modelValue'],
+          template:
+            '<input :id="$attrs.id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+          inheritAttrs: true
         }
       }
     }
@@ -262,6 +269,36 @@ describe('TableauPassages', () => {
     })
     const tappable = wrapper.find('.tableau-passages-tappable')
     expect(tappable.exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('verrouille l’édition en-tête quand le participant est running', async () => {
+    const participants = [{ id: '1', nom: 'Alice', color: '#ef4444' }]
+    const participantStates = { '1': { status: 'running', elapsedMs: 12000 } }
+    const wrapper = mountTableauPassages({
+      participants,
+      participantStates,
+      status: 'running'
+    })
+    expect(wrapper.find('.tableau-passages-th-clickable').exists()).toBe(false)
+    await wrapper.find('.tableau-passages-th-participant').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.participant-modal-form').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('réautorise l’édition en-tête quand le participant est paused', async () => {
+    const participants = [{ id: '1', nom: 'Alice', color: '#ef4444' }]
+    const participantStates = { '1': { status: 'paused', elapsedMs: 12000 } }
+    const wrapper = mountTableauPassages({
+      participants,
+      participantStates,
+      status: 'paused'
+    })
+    expect(wrapper.find('.tableau-passages-th-clickable').exists()).toBe(true)
+    await wrapper.find('.tableau-passages-th-participant').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.participant-modal-form').exists()).toBe(true)
     wrapper.unmount()
   })
 

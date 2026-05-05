@@ -116,6 +116,22 @@ test.describe('Accueil - Mode individuel', () => {
     await page.getByRole('button', { name: 'Enregistrer' }).last().click()
     await expect(page.getByRole('dialog')).not.toBeVisible()
   })
+
+  test('individuel : modale verrouillée pendant running puis réautorisée après arrêt', async ({ page }) => {
+    const part = page.getByRole('region', { name: 'Participants' })
+    const card = part.locator('.indiv-card').first()
+
+    await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
+    await expect(card.locator('.indiv-header-clickable')).toHaveCount(0)
+    await card.locator('.indiv-header').click()
+    await expect(page.getByRole('dialog')).not.toBeVisible()
+
+    await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
+    await expect(card.locator('.indiv-header-clickable')).toHaveCount(1)
+    await card.locator('.indiv-header-clickable').click()
+    await expect(page.getByRole('dialog').getByText('Modifier Coureur 1')).toBeVisible()
+    await page.getByRole('button', { name: 'Enregistrer' }).last().click()
+  })
 })
 
 test.describe('Accueil - Dupliquer', () => {

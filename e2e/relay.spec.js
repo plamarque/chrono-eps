@@ -83,4 +83,15 @@ test.describe('Mode relais', () => {
     await page.locator('.tableau-relay-header').first().click()
     await expect(page.getByRole('dialog')).not.toBeVisible()
   })
+
+  test('config relais réautorisée après arrêt', async ({ page }) => {
+    const firstCard = page.locator('.tableau-relay-card').first()
+    await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
+    await expect(firstCard.locator('.tableau-relay-header-clickable')).toHaveCount(0)
+    await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
+    await expect(firstCard.locator('.tableau-relay-header-clickable')).toHaveCount(1)
+    await firstCard.locator('.tableau-relay-header-clickable').click()
+    await expect(page.getByRole('dialog').getByText('Configurer Groupe 1')).toBeVisible()
+    await page.getByRole('button', { name: 'Enregistrer' }).last().click()
+  })
 })
