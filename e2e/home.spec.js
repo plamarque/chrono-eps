@@ -59,20 +59,38 @@ test.describe('Accueil - Mode individuel', () => {
     await expect(page.getByText('Coureur 3')).toBeVisible()
   })
 
-  test('individuel : après Démarrer, Coureur fige Tour 1 sur la carte C1 et met C2 en course', async ({ page }) => {
+  test('individuel : après Démarrer, Coureur ajoute C2 sans arrêter C1', async ({ page }) => {
     const part = page.getByRole('region', { name: 'Participants' })
     await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
     await page.waitForTimeout(400)
     await btnCoureurChrono(page).click()
     const cardC1 = part.locator('.indiv-card').nth(0)
     const cardC2 = part.locator('.indiv-card').nth(1)
+    await expect(cardC1.locator('.indiv-tap-btn')).toBeVisible()
     await expect(cardC1.getByText('Temps')).toBeVisible()
-    await expect(cardC1.getByText('Tour 1')).not.toBeVisible()
-    await expect(cardC1.getByText('Tour 2 :')).not.toBeVisible()
-    await expect(cardC1.getByText('Tour 2 en cours')).not.toBeVisible()
     await expect(cardC2).toBeVisible()
+    await expect(cardC2.locator('.indiv-tap-btn')).toBeVisible()
     await expect(cardC2.getByText('Temps')).toBeVisible()
-    await expect(cardC2.getByText('Tour en cours')).not.toBeVisible()
+  })
+
+  test('individuel : Coureur+ puis Arrêter arrête tous les coureurs encore en course', async ({ page }) => {
+    const part = page.getByRole('region', { name: 'Participants' })
+    await chrono(page).getByRole('button', { name: 'Démarrer' }).click()
+    await page.waitForTimeout(450)
+    await btnCoureurChrono(page).click()
+    const cardC1 = part.locator('.indiv-card').nth(0)
+    const cardC2 = part.locator('.indiv-card').nth(1)
+    await expect(cardC1.locator('.indiv-tap-btn')).toBeVisible()
+    await expect(cardC2.locator('.indiv-tap-btn')).toBeVisible()
+
+    await page.waitForTimeout(300)
+    await chrono(page).getByRole('button', { name: 'Arrêter' }).click()
+    await expect(chrono(page).getByRole('button', { name: 'Démarrer' })).toBeVisible()
+
+    await expect(cardC1.locator('.indiv-tap-btn')).not.toBeVisible()
+    await expect(cardC2.locator('.indiv-tap-btn')).not.toBeVisible()
+    await expect(cardC1.locator('.indiv-total-line')).toBeVisible()
+    await expect(cardC2.locator('.indiv-total-line')).toBeVisible()
   })
 
   test('Sauvegarder une course avec passage', async ({ page }) => {

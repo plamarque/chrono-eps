@@ -55,8 +55,7 @@ const {
   startParticipant,
   stopParticipant,
   recordPassage,
-  seedIndividualParticipantAtJoin,
-  pauseParticipantAtRecordedTotal
+  seedIndividualParticipantAtJoin
 } = useChronometre(participants, chronoOptions)
 
 const hasAnyPassage = computed(() => {
@@ -297,23 +296,23 @@ function handleAddCoureur() {
     return
   }
   const list = participants.value
-  const last = list.length > 0 ? list[list.length - 1] : null
   const globalRunning = status.value === 'running'
-  const lastRunning =
-    last != null && participantStates.value[last.id]?.status === 'running'
-
-  /** File d’arrivée : un nouveau coureur devant le chrono fige le tour en cours du précédent et démarre le nouveau synchronisé. */
-  if (globalRunning && lastRunning) {
-    recordPassage(last.id, { source: 'coureur' })
-    pauseParticipantAtRecordedTotal(last.id)
-  }
+  const runningIdsBeforeAdd = globalRunning
+    ? list
+        .filter((p) => participantStates.value[p.id]?.status === 'running')
+        .map((p) => p.id)
+    : []
 
   const newP = createParticipant(nextIndividualParticipantIndex())
   addParticipant(newP, {
-    individualFirstLapFromRaceStart: globalRunning && lastRunning
+    individualFirstLapFromRaceStart: globalRunning && runningIdsBeforeAdd.length > 0
   })
 
-  if (globalRunning && lastRunning) {
+  // Pendant la course, l'ajout d'un coureur ne doit pas arrêter les autres.
+  if (globalRunning) {
+    for (const id of runningIdsBeforeAdd) {
+      startParticipant(id)
+    }
     startParticipant(newP.id)
   }
 }
