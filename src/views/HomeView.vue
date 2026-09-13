@@ -285,6 +285,38 @@ function nextIndividualParticipantIndex() {
   return max + 1
 }
 
+function handleAddCoureur() {
+  if (participants.value.length >= MAX_INDIVIDUAL_RUNNERS) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Limite atteinte',
+      detail: 'Au plus 20 coureurs pour une course individuelle.',
+      life: 4000
+    })
+    return
+  }
+  const list = participants.value
+  const globalRunning = status.value === 'running'
+  const runningIdsBeforeAdd = globalRunning
+    ? list
+        .filter((p) => participantStates.value[p.id]?.status === 'running')
+        .map((p) => p.id)
+    : []
+
+  const newP = createParticipant(nextIndividualParticipantIndex())
+  addParticipant(newP, {
+    individualFirstLapFromRaceStart: globalRunning && runningIdsBeforeAdd.length > 0
+  })
+
+  // Pendant la course, l'ajout d'un coureur ne doit pas arrêter les autres.
+  if (globalRunning) {
+    for (const id of runningIdsBeforeAdd) {
+      startParticipant(id)
+    }
+    startParticipant(newP.id)
+  }
+}
+
 function addAndStartNextIndividualParticipant(forceStart = false, firstLapFromRaceStart = false) {
   if (participants.value.length >= MAX_INDIVIDUAL_RUNNERS) return null
   const newP = createParticipant(nextIndividualParticipantIndex())
@@ -632,9 +664,11 @@ watch(
             :elapsed-ms="displayedElapsedMs"
             :status="status"
             :is-viewing-loaded-course="!!currentCourse && !isPreparedCourse"
+            :show-add-coureur="mode === 'individual' && !(currentCourse && !isPreparedCourse)"
             @start="handleStart"
             @stop="stop"
             @reset="handleReset"
+            @add-coureur="handleAddCoureur"
           >
             <template #extra-controls>
               <Button
