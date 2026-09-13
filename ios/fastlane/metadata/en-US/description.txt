@@ -1,0 +1,11 @@
+Chrono EPS is a stopwatch app for PE teachers. Time a whole class, record lap taps, identify runners and keep results without paper.
+
+Features:
+• Multi-runner stopwatch with per-runner stop
+• Lap recording with a tap
+• Relay mode with current / next runner
+• Named participants
+• Saved race history
+• Visual replay on a virtual track
+• Touch UI for tablet and phone
+• Local storage, works offline

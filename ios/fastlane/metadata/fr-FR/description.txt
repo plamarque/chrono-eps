@@ -1,0 +1,11 @@
+Chronomètre EPS est une application conçue pour les enseignants d'éducation physique. Chronométrez facilement les courses d'une classe entière, enregistrez les passages de tours, identifiez les coureurs et conservez les performances sans feuille papier.
+
+Fonctionnalités :
+• Chronomètre multi-coureurs avec arrêt individuel par coureur
+• Enregistrement des passages de tours par simple tap
+• Mode relais : groupes de coureurs, affichage Couru / Prochain
+• Identification et nommage des participants
+• Historique des courses sauvegardées
+• Replay visuel des courses sur piste virtuelle
+• Interface tactile optimisée pour tablette et smartphone
+• Données stockées localement (fonctionne hors ligne)
