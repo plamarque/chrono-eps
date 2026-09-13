@@ -53,7 +53,7 @@ Pour promouvoir une version déjà testée vers la production des stores :
 ./scripts/promote-to-stores.sh latest   # dernière release
 ```
 
-Le script déclenche le workflow `.github/workflows/promote-stores.yml` qui uploade l'AAB vers Play Store (production) et soumet le build TestFlight pour review App Store. Voir [PUBLISHING_STORES.md](PUBLISHING_STORES.md#94-promotion-vers-la-production).
+Le script déclenche le workflow `.github/workflows/promote-stores.yml` qui promeut l'AAB déjà sur la piste internal vers Play Store (production) et soumet le build TestFlight pour review App Store. Voir [PUBLISHING_STORES.md](PUBLISHING_STORES.md#94-promotion-vers-la-production).
 
 ## URL de développement
 

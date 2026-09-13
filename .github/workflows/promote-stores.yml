@@ -18,21 +18,18 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Download AAB from release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          TAG="${{ inputs.tag }}"
-          mkdir -p dist
-          gh release download "$TAG" --pattern 'chrono-eps-android.aab' --dir dist
-
-      - name: Upload to Play Store (production)
-        uses: r0adkll/upload-google-play@v1
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT }}
-          packageName: io.github.plamarque.twa
-          releaseFiles: dist/chrono-eps-android.aab
-          track: production
+          python-version: "3.12"
+
+      - name: Promote internal Play release to production
+        env:
+          PLAY_STORE_SERVICE_ACCOUNT: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT }}
+          PROMOTE_TAG: ${{ inputs.tag }}
+        run: |
+          pip install --quiet google-api-python-client google-auth
+          python scripts/promote-android-production.py
 
   promote-ios:
     runs-on: macos-26

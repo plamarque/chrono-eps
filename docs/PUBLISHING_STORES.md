@@ -316,8 +316,8 @@ Une fois une version validée par les testeurs (internal + TestFlight), elle peu
 
 **Comportement :**
 
-- **Android** : télécharge l'AAB depuis la release, l'uploade vers la piste `production` du Play Store
-- **iOS** : soumet le build TestFlight correspondant pour review App Store (via Fastlane `deliver`)
+- **Android** : promeut la release déjà présente sur la piste `internal` vers `production` (même versionCode, pas de ré-upload AAB)
+- **iOS** : soumet le build TestFlight correspondant pour review App Store (via Fastlane `deliver`, precheck IAP désactivé car clé API)
 
 **Rappel :** Une revue Apple et Google est obligatoire à chaque mise à jour en production ; les délais sont variables (souvent 24–48 h).
 
