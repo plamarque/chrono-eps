@@ -79,7 +79,7 @@ platform :ios do
       precheck_include_in_app_purchases: false,
       automatic_release: true,
       metadata_path: File.join(__dir__, "metadata"),
-      changelog: {
+      release_notes: {
         "fr-FR" => whats_new,
         "en-US" => whats_new
       },
