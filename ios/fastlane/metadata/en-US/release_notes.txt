@@ -1,0 +1,1 @@
+Chrono EPS 1.1.1: multi-runner stopwatch, relay mode, history, replay and Excel export. Field UX fixes (lock editing while racing, sequential finishes).

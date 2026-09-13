@@ -1,0 +1,1 @@
+Chrono EPS 1.1.1 : chronomètre multi-coureurs, relais, historique, replay et export Excel. Corrections terrain (verrouillage d’édition en course, arrivées séquentielles).

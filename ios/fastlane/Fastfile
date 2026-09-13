@@ -66,17 +66,23 @@ platform :ios do
     tag = options[:tag] || ENV["PROMOTE_TAG"]
     raise "Tag requis. Utiliser: fastlane promote tag:v0.1.2 ou PROMOTE_TAG=v0.1.2" if tag.to_s.empty?
     app_version = tag.to_s.sub(/^v/, "")
+    whats_new = "Chrono EPS #{app_version} : chronomètre multi-coureurs, relais, historique, replay et export Excel. Corrections terrain (verrouillage d’édition en course, arrivées séquentielles)."
 
     deliver(
       app_identifier: "io.github.plamarque",
       submit_for_review: true,
-      skip_metadata: true,
+      skip_metadata: false,
       skip_screenshots: true,
       skip_binary_upload: true,
       force: true,
       run_precheck_before_submit: false,
       precheck_include_in_app_purchases: false,
       automatic_release: true,
+      metadata_path: File.join(__dir__, "metadata"),
+      changelog: {
+        "fr-FR" => whats_new,
+        "en-US" => whats_new
+      },
       app_version: app_version,
       api_key: app_store_connect_api_key(
         key_id: ENV["APPSTORE_KEY_ID"],

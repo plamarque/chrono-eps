@@ -56,18 +56,39 @@ def main() -> int:
     production_release = {
         "name": chosen.get("name") or tag or str(version_codes[0]),
         "versionCodes": version_codes,
-        "status": "completed",
+        "status": "draft",
     }
     if release_notes:
         production_release["releaseNotes"] = release_notes
 
-    service.edits().tracks().update(
-        packageName=PACKAGE,
-        editId=edit_id,
-        track="production",
-        body={"track": "production", "releases": [production_release]},
-    ).execute()
-    service.edits().commit(packageName=PACKAGE, editId=edit_id).execute()
+    print(f"Piste internal: {json.dumps(internal, ensure_ascii=False)}")
+    try:
+        existing_prod = (
+            service.edits()
+            .tracks()
+            .get(packageName=PACKAGE, editId=edit_id, track="production")
+            .execute()
+        )
+        print(f"Piste production actuelle: {json.dumps(existing_prod, ensure_ascii=False)}")
+    except Exception as exc:  # noqa: BLE001 — diagnostic avant le premier publish
+        print(f"Piste production absente ou illisible: {exc}")
+
+    try:
+        service.edits().tracks().update(
+            packageName=PACKAGE,
+            editId=edit_id,
+            track="production",
+            body={"track": "production", "releases": [production_release]},
+        ).execute()
+        service.edits().commit(
+            packageName=PACKAGE,
+            editId=edit_id,
+            changesNotSentForReview=True,
+        ).execute()
+    except Exception as exc:
+        content = getattr(exc, "content", None) or str(exc)
+        print(f"Échec promotion production: {content}", file=sys.stderr)
+        return 1
     print(
         f"Promu en production: name={production_release['name']} versionCodes={version_codes}"
     )
