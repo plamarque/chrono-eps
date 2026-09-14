@@ -109,6 +109,20 @@ Générer une clé de signature pour l'AAB si PWABuilder ne le fait pas automati
 3. Uploader l'AAB dans *Production* ou *Testing*
 4. Soumettre pour révision
 
+### 4.3.1 Accès production (comptes personnels)
+
+Un compte développeur **personnel** ne peut pas publier en production tant que le **test fermé** n’a pas :
+
+- une version publiée sur la piste fermée (alpha) ;
+- **12 testers inscrits** (opt-in Play, pas seulement ajoutés à une liste) ;
+- ces 12 inscrits pendant **au moins 14 jours**.
+
+Les **tests internes** ne comptent pas. Les visiteurs de la PWA ne peuvent s’inscrire tout seuls que si la piste fermée utilise un **Google Group** dont n’importe qui peut rejoindre le groupe.
+
+**Console :** Tests fermés → alpha → Testers → Google Groups → ajouter le groupe. Qui peut rejoindre le groupe : *Anyone on the web*.
+
+**PWA :** bandeau Android + page `https://plamarque.github.io/chrono-eps/devenir-testeur` (`PLAY_TESTER_OPT_IN_URL`, `PLAY_TESTER_GROUP_URL` dans `src/playTesting.js`). Prévisualisation desktop : `?invitePlay=1`.
+
 ### 4.4 Ressources Android
 
 - [PWABuilder Android docs](https://docs.pwabuilder.com/#/builder/android)
@@ -218,6 +232,26 @@ Les screenshots iOS sont conservés dans `public/screenshots/ios/` pour pouvoir 
 ### 5.7 Notes importantes
 
 Apple peut refuser les apps qui ressemblent à de simples « sites web dans une frame ». Chrono EPS fournit une vraie valeur (chronomètre terrain, stockage local, historique) — conforme aux recommandations PWABuilder.
+
+### 5.7.1 Purpose strings (caméra, micro, localisation)
+
+Chrono EPS n’accède **ni à la caméra, ni au micro, ni à la localisation**. Le template PWABuilder iOS injecte pourtant des chaînes d’usage placeholder (`Capture Video by user request`, `Capture Audio by user request`, `Track current location by user request`). Apple refuse ces textes (revue 1.1.1).
+
+À chaque régénération du wrapper iOS, **ne pas reformuler** ces chaînes : les **supprimer**, ainsi que les entitlements Mac Catalyst associés.
+
+Retirer de `ios/Chrono EPS/Info.plist` :
+
+- `NSCameraUsageDescription`
+- `NSMicrophoneUsageDescription`
+- `NSLocationWhenInUseUsageDescription`
+
+Retirer de `ios/Chrono EPS/Entitlements/Entitlements.plist` :
+
+- `com.apple.security.device.camera`
+- `com.apple.security.device.audio-input`
+- `com.apple.security.personal-information.location`
+
+Puis reconstruire l’archive et resoumettre le binaire. Dans App Store Connect (App Privacy), ne pas déclarer caméra, micro ou localisation.
 
 ### 5.8 Ressources iOS
 

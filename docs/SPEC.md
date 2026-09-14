@@ -21,6 +21,7 @@ Chrono EPS est une application web PWA destinée aux enseignants d'EPS pour chro
   - Replay visuel des courses : piste virtuelle, marqueurs par participant, contrôles play/pause et curseur temporel
   - Interface adaptée tablettes et smartphones (responsive, tactile)
   - PWA installable
+  - Invitation testeur Play : après **au moins une course lancée puis arrêtée**, sur Android en navigateur (pas en PWA/TWA installée), une fenêtre propose de s’inscrire à la bêta ; « Plus tard » la reporte 3 jours ; page `/devenir-testeur` ; `?invitePlay=1` force l’affichage
   - Export Excel des courses : bouton « Exporter » sur l'accueil (après enregistrement) et sur la vue détail d'une course (avec passages) ; le **total** affiché par coureur et la **durée max. course** (ou total groupe en relais) sont la **somme des durées de tour** (lapMs), pas seulement un cumul totalMs stocké ; en **individuel** avec au plus un tour par coureur : colonnes « Coureur » et « Temps d'arrivée » ; dès qu'au moins un coureur a plusieurs tours, export au format **tours en colonnes** ; en **relais** : coureurs en lignes, temps par tour en colonnes, ligne Total groupe ; partage via Web Share API native (ou téléchargement en fallback)
 
 - **Hors périmètre :**
@@ -110,7 +111,7 @@ Dialogue de confirmation : « Nouvelle course » et le switcher Relais/Individue
 
 - **Entrées** : Touches/taps utilisateur ; données saisies localement (pas d'import automatique de listes de coureurs par défaut).
 - **Sorties** : Données stockées localement ; affichage écran ; export Excel (.xlsx) via partage natif ou téléchargement.
-- **Dépendances externes** : Aucune obligatoire pour la version minimale ; [UNCERTAIN] hébergement, analytics, service backend futur.
+- **Dépendances externes** : Aucune obligatoire pour chronométrer hors ligne.
 
 ## Hypothèses et incertitudes
 

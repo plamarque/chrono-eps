@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import { readFileSync } from 'fs'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
+import { spaFallbackDirs } from './spaFallbackDirs.js'
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf8'))
 
@@ -37,7 +38,8 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024
       }
-    })
+    }),
+    spaFallbackDirs()
   ],
   preview: {
     port: 4174,

@@ -1,2 +1,7 @@
-# chrono-eps
-Chrono EPS est une application web PWA destinée aux enseignants d’EPS pour chronométrer facilement les courses d’une classe entière. Elle permet d’enregistrer les passages de tours, d’identifier les élèves  et de conserver les performances sans feuille papier. Compatible tablettes et smartphones.
+# Chrono EPS
+
+Application web (PWA) pour les enseignants d’EPS : chronométrer une classe, enregistrer les tours, garder l’historique.
+
+**Utiliser l’app :** [https://plamarque.github.io/chrono-eps/](https://plamarque.github.io/chrono-eps/)
+
+**Bêta Android (Play) :** [devenir testeur](https://plamarque.github.io/chrono-eps/devenir-testeur?src=github) — rejoindre le groupe, s’inscrire sur Play, installer l’app.

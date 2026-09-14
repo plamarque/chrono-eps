@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
+import PlayTesterNag from './components/PlayTesterNag.vue'
 import { APP_VERSION, APP_RELEASE_URL } from './appInfo.js'
 
 const route = useRoute()
@@ -16,7 +17,7 @@ const activeIndex = computed(() => {
   const name = route.name
   if (name === 'home') return 0
   if (name === 'historique' || name === 'course-detail' || name === 'course-replay') return 1
-  return 0
+  return -1
 })
 </script>
 
@@ -49,6 +50,7 @@ const activeIndex = computed(() => {
         </a>
       </div>
     </nav>
+    <PlayTesterNag />
     <main class="app-main">
       <router-view />
     </main>

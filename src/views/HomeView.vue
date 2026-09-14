@@ -24,6 +24,7 @@ import {
   getModeIcon
 } from '../utils/courseUtils.js'
 import { createRelayGroup, createParticipant, createRelayRunner } from '../models/participant.js'
+import { markPlayTesterRaceCompleted } from '../playTesting.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -583,6 +584,12 @@ async function maybeLoadFromQuery() {
   router.replace({ path: '/', query: {} })
   await doLoadCourse(loadId)
 }
+
+watch(status, (next, prev) => {
+  if (prev === 'running' && next !== 'running') {
+    markPlayTesterRaceCompleted()
+  }
+})
 
 watch(
   mode,

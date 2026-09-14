@@ -110,6 +110,14 @@
 
 ## iOS / App Store Connect
 
+### [iOS] Review 1.1.1 : purpose strings placeholder
+
+**Problème :** App Review a bloqué la soumission 1.1.1 : `NSCameraUsageDescription`, `NSMicrophoneUsageDescription` et `NSLocationWhenInUseUsageDescription` contenaient les textes PWABuilder (« Capture Video/Audio by user request », « Track current location by user request »).
+
+**État :** Résolu — chaînes et entitlements caméra / micro / localisation retirés (l’app n’utilise pas ces ressources). Voir [PUBLISHING_STORES.md](PUBLISHING_STORES.md) §5.7.1.
+
+---
+
 ### [iOS] Mise à jour SDK requise avant avril 2026
 
 **Problème :** App Store Connect avertit (ITMS-90725) : à partir du 28 avril 2026, les apps doivent être compilées avec le **SDK iOS 26** (Xcode 26).
@@ -117,6 +125,14 @@
 **État :** Fait — workflows `build-ios` et `promote-ios` utilisent le runner `macos-26` (Xcode 26 / iOS 26 SDK).
 
 **Impact (avant correctif) :** Build avec iOS 18.x SDK sur `macos-15` ; avertissement puis blocage possible après la date limite.
+
+### [Play] Production bloquée sans 12 testers fermés
+
+**Problème :** Google Play (compte personnel) exige 12 testers inscrits au test fermé pendant 14 jours avant « Demander à publier en production ».
+
+**État :** En cours — groupe Play + page `/devenir-testeur` + nag après une course arrêtée. Pas d’analytics (déclaration App Store inchangée).
+
+---
 
 ## Évolutions potentielles
 

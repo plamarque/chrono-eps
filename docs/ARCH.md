@@ -51,6 +51,7 @@ Application PWA **client-only** : pas de backend obligatoire pour la première v
 | **Vue compacte** | Ancienne grille solo / variantes ; encore utilisée pour certains affichages tests | src/components/TableauPassagesCompact.vue |
 | **Stockage local** | Persistance des données (coureurs, courses, passages, performances) ; liste, chargement, suppression | IndexedDB (Dexie.js) |
 | **Couche PWA** | Service worker, manifeste ; installation, cache, offline | public/, sw.js ou équivalent |
+| **Invitation testeur Play** | Après une course arrêtée : fenêtre (nag) Android navigateur ; page `/devenir-testeur` | `src/components/PlayTesterNag.vue`, `src/playTesting.js` |
 | **UI responsive** | Layout adapté tablette et smartphone | PrimeVue |
 
 ## Stack technologique

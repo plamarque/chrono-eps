@@ -3,6 +3,7 @@ import { readFileSync } from 'fs'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 import basicSsl from '@vitejs/plugin-basic-ssl'
+import { spaFallbackDirs } from './spaFallbackDirs.js'
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
 
@@ -45,7 +46,8 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024
       }
-    })
+    }),
+    spaFallbackDirs()
   ],
   server: {
     https: true,
